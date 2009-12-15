@@ -34,7 +34,7 @@
 
   <bundles>
 
-    <bundle name="mpegts">
+    <bundle project="fragmentedstreaming" name="mpegts">
         <dependencies>
             <dependency name="component" />
         </dependencies>

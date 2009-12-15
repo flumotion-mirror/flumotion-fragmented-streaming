@@ -4,7 +4,7 @@
     <component type="http-fragment-streamer"
                base="flumotion/component/consumers/httpfragstreamer"
                _description="A consumer that streams video fragments over HTTP">
-      <source location="flumotion.component.consumers.httpfragstreamer.httpfragstreamer "/>
+      <source location="flumotion.component.consumers.httpfragstreamer.httpfragstreamer"/>
 
       <eater name="default" />
       
@@ -112,9 +112,10 @@
         </directories>
     </bundle>
 
-    <bundle project="fragmentedstreaming" name="httpfragstreamer-wizard">
+    <bundle project="fragmentedstreaming" name="httpfragstreamer-admin">
         <dependencies>
             <dependency name="component" />
+            <dependency name="base-admin-gtk"/>
             <dependency name="httpfragstreamer-base" />
         </dependencies>
 

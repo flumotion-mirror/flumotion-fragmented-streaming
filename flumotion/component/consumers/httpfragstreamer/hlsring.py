@@ -64,7 +64,7 @@ class Playlister:
         self._fragments.append((fragmentName, duration, encrypted))
         while len(self._fragments) > self.window:
             del self._fragments[0]
-        print self._renderStreamPlaylist()
+        return fragmentName
 
     def _renderMainPlaylist(self):
         lines = []
