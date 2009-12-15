@@ -1,0 +1,52 @@
+<registry>
+  <components>
+   
+    <component type="mpegts-muxer" base="flumotion/component/muxers/mpegts"
+               _description="Muxes encoded feeds into an MPEG Transport Stream feed.">
+      <source location="flumotion.component.muxers.mpegts.mpegts"/>
+      
+      <feeder name="default"/>
+      
+      <eater name="default" multiple="yes"/>
+      
+      <entries>
+        <entry type="component" location="mpegts.py"
+               function="MPEGTS"/>
+      </entries>
+
+      <properties>
+          <property name="rewrite-offset" type="bool"
+              _description="Increment buffer offset value on each key frame (defualt: True)"/>
+      </properties>
+
+      <wizard _description="MPEGTS" type="muxer"
+              feeder="default" eater="default">
+        <accept-format media-type="dirac" />
+        <accept-format media-type="mp3" />
+        <accept-format media-type="h264" />
+        <accept-format media-type="aac" />
+        <provide-format media-type="mpegts" />
+       </wizard>
+
+    </component>
+
+  </components>
+
+  <bundles>
+
+    <bundle name="mpegts">
+        <dependencies>
+            <dependency name="component" />
+        </dependencies>
+
+        <directories>
+            <directory name="flumotion/component/muxers/mpegts">
+                <filename location="mpegts.py" />
+                <filename location="keyframescounter.py" />
+            </directory>
+        </directories>
+    </bundle>
+
+  </bundles>
+
+</registry>

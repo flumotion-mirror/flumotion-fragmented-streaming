@@ -1,0 +1,48 @@
+Name:           flumotion-fragmentedstreaming
+Version:        0.0.0.1
+Release:        3_@RELEASE@
+Summary:        Flumotion fragmented streaming support.
+
+Group:          Applications/Internet
+License:	GPL
+URL:            http://www.fluendo.com/
+Source:         %{name}-%{version}.tar.bz2
+BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
+
+Requires:	flumotion >= 0.5.4
+
+BuildRequires:	gettext
+BuildRequires:	python >= 2.3
+BuildRequires:	flumotion >= 0.5.4
+BuildRequires:	epydoc
+BuildRequires:  pkgconfig
+
+%description
+Flumotion fragmented streaming support.
+
+%prep
+%setup -q
+
+%build
+%configure
+
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+
+%makeinstall
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(-,root,root,-)
+%doc ChangeLog COPYING README AUTHORS LICENSE.Flumotion
+%{_libdir}/flumotion
+
+%changelog
+
+* Mon Nov 30 2009 Andoni Morales <amorales@flumotion.com>
+- Initial release
+

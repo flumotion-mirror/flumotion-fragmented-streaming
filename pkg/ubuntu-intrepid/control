@@ -1,0 +1,17 @@
+Source: flumotion-fragmentedstreaming
+Section: net
+Priority: optional
+Maintainer: Flumotion DevTeam <devteam@flumotion.com>
+Build-Depends: cdbs (>= 0.4.43),
+               pkg-config,
+	       debhelper (>= 6.0),
+	       flumotion (>= 0.5.4),
+	       python-epydoc
+Standards-Version: 3.8.1
+XS-Python-Version: >= 2.5
+
+Package: flumotion-fragmentedstreaming
+Architecture: any
+Depends: ${python:Depends},
+         flumotion (>= 0.5.4)
+Description: Proprietary Flumotion plugin for http/smooth live streaming
