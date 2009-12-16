@@ -1,8 +1,15 @@
+2009-12-16  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/Makefile.am:
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	* flumotion/component/muxers/mpegts/keyframescounter.py (deleted):
+	Remove unused keyframescounter.py.
+
 2009-12-16  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
 	* flumotion/component/consumers/httpfragstreamer/resources.py:
-	Fix bytes sent/received calculation 
+	Fix bytes sent/received calculation
 
 2009-12-16  Marc-André Lureau  <mlureau@flumotion.com>
 

@@ -42,7 +42,6 @@
         <directories>
             <directory name="flumotion/component/muxers/mpegts">
                 <filename location="mpegts.py" />
-                <filename location="keyframescounter.py" />
             </directory>
         </directories>
     </bundle>
