@@ -1,80 +1,90 @@
-2009-12-16 Andoni Morales Alastruey <amorales@flumotion.com>
-  * flumotion/component/consumers/httpfragstreamer/hlsring.py
-  Make 'collections.deque' compatible with Python24 by removing the 'maxlen' parameter
+2009-12-16  Marc-André Lureau  <mlureau@flumotion.com>
 
+	* Makefile.am:
+	* configure.ac:
+	* flumotion/Makefile.am:
+	* flumotion/test (added):
+	Add simple `make check`, with a Dummy test.
+	* flumotion/misc/setup.py (removed)
+	Remove generated file.
+
+2009-12-16 Andoni Morales Alastruey <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Make 'collections.deque' compatible with Python24 by removing the
+	'maxlen' parameter
 
 2009-12-15 Andoni Morales Alastruey <amorales@flumotion.com>
 
-  * .
-  Change external url to use https
-  * ChangeLog
-  Fixed paths in first commit log
-  * flumotion/component/muxers/mpegts/mpegts.xml
-  Added project to bundle
-  * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml
-  Remove trailing space and fix bundle dependencies
-  * flumotion/component/consumers/httpfragstreamer/admin_gtk.py
-  Fix glade file name
-  * flumotion/component/consumers/httpfragstreamer/hlsring.py
-  Return the fragment name
-
+	* . (svn:externals):
+	Change external url to use https
+	* ChangeLog:
+	Fixed paths in first commit log
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Added project to bundle
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml:
+	Remove trailing space and fix bundle dependencies
+	* flumotion/component/consumers/httpfragstreamer/admin_gtk.py:
+	Fix glade file name
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Return the fragment name
 
 2009-12-15  Andoni Morales Alastruey  <amorales@flumotion.com>
 
-  * AUTHORS (added)
-  * COPYING (added)
-  * ChangeLog (added)
-  * LICENSE.Flumotion (added)
-  * Makefile.am (added)
-  * NEWS (added)
-  * README (added)
-  * TODO (added)
-  * autogen.sh (added)
-  * configure.ac (added)
-  * env.in (added)
-  * flumotion (added)
-  * flumotion-fragmentedstreaming.spec.in (added)
-  * flumotion/Makefile.am (added)
-  * flumotion/__init__.py (added)
-  * flumotion/component (added)
-  * flumotion/component/Makefile.am (added)
-  * flumotion/component/__init__.py (added)
-  * flumotion/component/consumers (added)
-  * flumotion/component/consumers/Makefile.am (added)
-  * flumotion/component/consumers/__init__.py (added)
-  * flumotion/component/consumers/httpfragstreamer (added)
-  * flumotion/component/consumers/httpfragstreamer/Makefile.am (added)
-  * flumotion/component/consumers/httpfragstreamer/__init__.py (added)
-  * flumotion/component/consumers/httpfragstreamer/admin_gtk.py (added)
-  * flumotion/component/consumers/httpfragstreamer/common.py (added)
-  * flumotion/component/consumers/httpfragstreamer/hlsring.py (added)
-  * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.glade (added)
-  * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py (added)
-  * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml (added)
-  * flumotion/component/consumers/httpfragstreamer/mpegtssegmenter.py (added)
-  * flumotion/component/consumers/httpfragstreamer/resources.py (added)
-  * flumotion/component/muxers (added)
-  * flumotion/component/muxers/Makefile.am (added)
-  * flumotion/component/muxers/__init__.py (added)
-  * flumotion/component/muxers/mpegts (added)
-  * flumotion/component/muxers/mpegts/Makefile.am (added)
-  * flumotion/component/muxers/mpegts/__init__.py (added)
-  * flumotion/component/muxers/mpegts/keyframescounter.py (added)
-  * flumotion/component/muxers/mpegts/mpegts.py (added)
-  * flumotion/component/muxers/mpegts/mpegts.xml (added)
-  * flumotion/project (added)
-  * flumotion/project/Makefile.am (added)
-  * flumotion/project/fragmentedstreaming.py.in (added)
-  * misc (added)
-  * misc/Makefile.am (added)
-  * misc/preamble.py (added)
-  * misc/pycheckerhelp.py (added)
-  * misc/setup.py (added)
-  * misc/setup.py.in (added)
-  * pkg (added)
-  * pkg/debian-common (added)
-  * pkg/debian-common/rules (added)
-  * pkg/ubuntu-intrepid (added)
-  * pkg/ubuntu-intrepid/changelog (added)
-  * pkg/ubuntu-intrepid/control
-  Initial Commit
+        * AUTHORS (added):
+        * COPYING (added):
+        * ChangeLog (added):
+        * LICENSE.Flumotion (added):
+        * Makefile.am (added):
+        * NEWS (added):
+        * README (added):
+        * TODO (added):
+        * autogen.sh (added):
+        * configure.ac (added):
+        * env.in (added):
+        * flumotion (added):
+        * flumotion-fragmentedstreaming.spec.in (added):
+        * flumotion/Makefile.am (added):
+        * flumotion/__init__.py (added):
+        * flumotion/component (added):
+        * flumotion/component/Makefile.am (added):
+        * flumotion/component/__init__.py (added):
+        * flumotion/component/consumers (added):
+        * flumotion/component/consumers/Makefile.am (added):
+        * flumotion/component/consumers/__init__.py (added):
+        * flumotion/component/consumers/httpfragstreamer (added):
+        * flumotion/component/consumers/httpfragstreamer/Makefile.am (added):
+        * flumotion/component/consumers/httpfragstreamer/__init__.py (added):
+        * flumotion/component/consumers/httpfragstreamer/admin_gtk.py (added):
+        * flumotion/component/consumers/httpfragstreamer/common.py (added):
+        * flumotion/component/consumers/httpfragstreamer/hlsring.py (added):
+        * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.glade (added):
+        * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py (added):
+        * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml (added):
+        * flumotion/component/consumers/httpfragstreamer/mpegtssegmenter.py (added):
+        * flumotion/component/consumers/httpfragstreamer/resources.py (added):
+        * flumotion/component/muxers (added):
+        * flumotion/component/muxers/Makefile.am (added):
+        * flumotion/component/muxers/__init__.py (added):
+        * flumotion/component/muxers/mpegts (added):
+        * flumotion/component/muxers/mpegts/Makefile.am (added):
+        * flumotion/component/muxers/mpegts/__init__.py (added):
+        * flumotion/component/muxers/mpegts/keyframescounter.py (added):
+        * flumotion/component/muxers/mpegts/mpegts.py (added):
+        * flumotion/component/muxers/mpegts/mpegts.xml (added):
+        * flumotion/project (added):
+        * flumotion/project/Makefile.am (added):
+        * flumotion/project/fragmentedstreaming.py.in (added):
+        * misc (added):
+        * misc/Makefile.am (added):
+        * misc/preamble.py (added):
+        * misc/pycheckerhelp.py (added):
+        * misc/setup.py (added):
+        * misc/setup.py.in (added):
+        * pkg (added):
+        * pkg/debian-common (added):
+        * pkg/debian-common/rules (added):
+        * pkg/ubuntu-intrepid (added):
+        * pkg/ubuntu-intrepid/changelog (added):
+        * pkg/ubuntu-intrepid/control:
+        Initial Commit
