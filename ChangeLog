@@ -1,3 +1,8 @@
+2009-12-16 Andoni Morales Alastruey <amorales@flumotion.com>
+  * flumotion/component/consumers/httpfragstreamer/hlsring.py
+  Make 'collections.deque' compatible with Python24 by removing the 'maxlen' parameter
+
+
 2009-12-15 Andoni Morales Alastruey <amorales@flumotion.com>
 
   * .

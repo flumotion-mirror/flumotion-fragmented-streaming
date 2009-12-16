@@ -153,7 +153,7 @@ class HLSRing(Playlister):
         self._fragmentsDict = {}
         self._keysDict = {}
         self._secret = ''
-        self._availableFragments = deque('', window)
+        self._availableFragments = deque('')
 
     def _encryptFragment(self, fragment, secret, IV):
         right_pad = lambda s: s + (self.BLOCK_SIZE -len(s) % self.BLOCK_SIZE)\
