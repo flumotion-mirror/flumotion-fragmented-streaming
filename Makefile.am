@@ -1,6 +1,11 @@
 AUTOMAKE_OPTIONS = dist-bzip2 no-dist-gzip 1.8
 
-SUBDIRS = flumotion common  misc
+ACLOCAL_AMFLAGS = -I common
+
+include $(srcdir)/common/common.mk
+include $(srcdir)/common/pychecker.mk
+
+SUBDIRS = flumotion common misc
 
 EXTRA_DIST = \
 	env.in \

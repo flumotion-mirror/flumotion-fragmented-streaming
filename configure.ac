@@ -80,7 +80,8 @@ PREAMBLE=`cat $srcdir/misc/preamble.py`
 AC_CONFIG_FILES([env], [chmod +x env])
 
 dnl output stuff
-FLUMOTION_SETUP(misc/setup.py, $FLUMOTION_DIR, $PREAMBLE)
+FLUMOTION_SETUP(flumotion/test/setup.py, $FLUMOTION_DIR, $PREAMBLE, fragmentedstreaming)
+FLUMOTION_SETUP(misc/setup.py, $FLUMOTION_DIR, $PREAMBLE, fragmentedstreaming)
 
 dnl output stuff
 AC_OUTPUT(
@@ -95,5 +96,6 @@ flumotion/component/muxers/Makefile
 flumotion/component/muxers/mpegts/Makefile
 flumotion/project/Makefile
 flumotion/project/fragmentedstreaming.py
+flumotion/test/Makefile
 flumotion-fragmentedstreaming.spec
 )
