@@ -15,14 +15,16 @@
 import os
 from collections import deque
 
-from Crypto.Cipher import AES 
+from Crypto.Cipher import AES
 
 from flumotion.component.consumers.httpfragstreamer import common
+
 
 class Playlister:
     """
     I write Apple HTTP Live Streaming playlists based on added segments.
     """
+
     def __init__(self):
 
         self.hostname = ''
@@ -36,7 +38,7 @@ class Playlister:
         self.allowCache = True
         self._duration = 0
         self._fragments = []
-        self._counter = None 
+        self._counter = None
         self._done = False
 
     def setHostname(self, hostname):
@@ -60,7 +62,7 @@ class Playlister:
             # This value MUST remain constant
             self._duration = duration
         self._counter = sequenceNumber + 1
-        fragmentName = '%s-%s.ts' %  (self.fragmentPrefix, sequenceNumber)
+        fragmentName = '%s-%s.ts' % (self.fragmentPrefix, sequenceNumber)
         self._fragments.append((fragmentName, duration, encrypted))
         while len(self._fragments) > self.window:
             del self._fragments[0]
@@ -73,30 +75,30 @@ class Playlister:
         lines.append("#EXT-X-STREAM-INF:PROGRAM-ID=1")
         lines.append(self.hostname + self.streamPlaylist)
         lines.append("")
-        
+
         return "\n".join(lines)
 
     def _renderStreamPlaylist(self):
         lines = []
 
         lines.append("#EXTM3U")
-        lines.append("#EXT-X-ALLOW-CACHE:%s" % 
+        lines.append("#EXT-X-ALLOW-CACHE:%s" %
                 (self.allowCache and 'YES' or 'NO'))
         lines.append("#EXT-X-TARGETDURATION:%d" % self._duration)
-        lines.append("#EXT-X-MEDIA-SEQUENCE:%d" % 
+        lines.append("#EXT-X-MEDIA-SEQUENCE:%d" %
             (self._counter - len(self._fragments)))
 
         for fragment, duration, encrypted in self._fragments:
             if encrypted:
                 lines.append('#EXT-X-KEY:METHOD=AES-128,URI="%skey?key=%s"' %
-                        (self.keysURI, fragment)) 
+                        (self.keysURI, fragment))
             lines.append("#EXTINF:%d,%s" % (duration, self.title))
             lines.append(self.hostname + fragment)
 
         lines.append("")
 
         return "\n".join(lines)
-    
+
     def renderPlaylist(self, playlist):
         '''
         Returns a string representation of the requestd playlist or raise
@@ -114,11 +116,11 @@ class HLSRing(Playlister):
     I hold a ring with the fragments available in the playlist
     and update the playlist according to this.
     '''
-    
-    BLOCK_SIZE = 16
-    PADDING = '0' 
 
-    def __init__(self, hostname, mainPlaylist, streamPlaylist, title, 
+    BLOCK_SIZE = 16
+    PADDING = '0'
+
+    def __init__(self, hostname, mainPlaylist, streamPlaylist, title,
             fragmentPrefix='mpegts', window=5, keyInterval=0, keysURI=None):
         '''
         @param hostname:        hostname to use in the playlist
@@ -134,7 +136,7 @@ class HLSRing(Playlister):
         @param window:          maximum number of fragments to buffer
         @type  window:          int
         @param keyInterval:     number of fragments sharing the same encryption
-                                key. O if not using encryption                                
+                                key. O if not using encryption
         @type  keyInterval:     int
         @param keysURI          URI used to retrieve the encription keys
         @type  keysURI          str
@@ -159,31 +161,31 @@ class HLSRing(Playlister):
         right_pad = lambda s: s + (self.BLOCK_SIZE -len(s) % self.BLOCK_SIZE)\
                 * self.PADDING
         left_pad = lambda s: (self.BLOCK_SIZE -len(s) % self.BLOCK_SIZE)\
-                * self.PADDING + s 
+                * self.PADDING + s
         EncodeAES = lambda c, s: c.encrypt(right_pad(s))
-        
+
         a = left_pad(str(IV))
         cipher = AES.new(secret, AES.MODE_CBC, left_pad(str(IV)))
         return EncodeAES(cipher, fragment)
 
     def addFragment(self, fragment, sequenceNumber, duration):
         '''
-        Adds a fragment to the ring and updates the playlist. 
+        Adds a fragment to the ring and updates the playlist.
         If the ring is full, removes the oldest fragment.
 
-        @param fragment:        mpegts raw fragment 
+        @param fragment:        mpegts raw fragment
         @type  fragment:        array
-        @param sequenceNumber:  sequence number relative to the stream's start   
+        @param sequenceNumber:  sequence number relative to the stream's start
         @type  sequenceNumber:  int
         @param duration:        duration of the the segment in seconds
-        @type  duration:        int        
+        @type  duration:        int
         '''
-        
+
         # We only care about the name used in the playlist, we let the
         # playlister name it using an appropiate extension
         fragmentName = self._addPlaylistFragment(sequenceNumber, duration,
                 self._encrypted)
-        
+
         # If the ring is full, delete the oldest segment
         while len(self._fragmentsDict) >= self.window:
             pop = self._availableFragments.popleft()
@@ -195,15 +197,14 @@ class HLSRing(Playlister):
         if self._encrypted:
             if sequenceNumber % self.keyInterval == 0:
                 self._secret = os.urandom(self.BLOCK_SIZE)
-            fragment = self._encryptFragment (fragment, self._secret,
+            fragment = self._encryptFragment(fragment, self._secret,
                     sequenceNumber)
             self._keysDict[fragmentName] = self._secret
-        self._fragmentsDict[fragmentName] =  fragment
+        self._fragmentsDict[fragmentName] = fragment
 
-   
     def getFragment(self, fragmentName):
         '''
-        Returns a fragment of the playlist or raises an Exception 
+        Returns a fragment of the playlist or raises an Exception
         if the fragment is not found
 
         @param fragmentName:    name of the fragment to retrieve

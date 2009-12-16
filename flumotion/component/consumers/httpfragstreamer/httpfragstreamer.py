@@ -28,8 +28,8 @@ from flumotion.common.i18n import N_, gettexter
 from flumotion.component import feedcomponent
 from flumotion.component.base import http
 from flumotion.component.component import moods
-from flumotion.component.consumers.httpstreamer.httpstreamer import HTTPMedium,\
-        Stats as Statistics
+from flumotion.component.consumers.httpstreamer.httpstreamer import\
+        HTTPMedium, Stats as Statistics
 from flumotion.component.consumers.httpfragstreamer import mpegtssegmenter
 from flumotion.component.consumers.httpfragstreamer.hlsring import HLSRing
 from flumotion.component.consumers.httpfragstreamer.resources import \
@@ -41,11 +41,13 @@ __all__ = ['HTTPMedium', 'HTTPFragmentStreamer']
 __version__ = ""
 T_ = gettexter()
 STATS_POLL_INTERVAL = 10
-UI_UPDATE_THROTTLE_PERIOD = 2.0 
+UI_UPDATE_THROTTLE_PERIOD = 2.0
+
 
 class Stats(Statistics):
-    
+
     # FIXME: Clean up httpstreamer.Stats and make a generic class
+
     def __init__(self, sink):
         Statistics.__init__(self, sink)
         self.sink = sink
@@ -57,13 +59,12 @@ class Stats(Statistics):
         return self.sink.getBytesReceived()
 
 
-
 class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
     implements(interfaces.IStreamingComponent)
-    
-    #FIXME:rigth name? 
+
+    #FIXME:rigth name?
     logCategory = 'frag-http'
-    
+
     componentMediumClass = HTTPMedium
 
     DEFAULT_FRAGMENT_PREFIX = 'fragment'
@@ -209,8 +210,6 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
             self._updateUI_DC = reactor.callLater(UI_UPDATE_THROTTLE_PERIOD,
                                                   update_ui_state_later)
 
-
-
     def updatePorterDetails(self, path, username, password):
         """Provide a new set of porter login information, for when we're
         in slave mode and the porter changes.
@@ -243,8 +242,8 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
     def get_pipeline_string(self, properties):
         gobject.type_register(mpegtssegmenter.MpegTSSegmenter)
-        gst.element_register(mpegtssegmenter.MpegTSSegmenter, "flumpegtssegmenter",
-                gst.RANK_MARGINAL)
+        gst.element_register(mpegtssegmenter.MpegTSSegmenter,
+                "flumpegtssegmenter", gst.RANK_MARGINAL)
         return " flumpegtssegmenter name=segmenter ! appsink name=appsink"
 
     def configure_pipeline(self, pipeline, props):
@@ -263,11 +262,11 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self._segmentsCount = 0
 
         mountPoint = props.get('mount-point', '')
-       
+
         hostname = props.get('hostname', None)
-        self.iface = hostname 
+        self.iface = hostname
         if not hostname:
-            # Don't call this function unless we need to. 
+            # Don't call this function unless we need to.
             # It's much preferable to just configure it
             hostname = netutils.guess_public_hostname()
 
@@ -276,7 +275,7 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self.description = props.get('description', None)
         if self.description is None:
             self.description = "Flumotion Stream"
- 
+
         self.hlsring = HLSRing(
             '%s:%s%s' % (hostname, port, mountPoint),
             props.get('hls-main-playlist', self.DEFAULT_MAIN_PLAYLIST),
@@ -286,13 +285,13 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
             props.get('hls-max-window', self.DEFAULT_MAX_WINDOW),
             props.get('hls-key-rotation', 0),
             props.get('hls-keys-uri', None))
- 
+
         self.mountPoint = mountPoint
-        
+
         # FIXME: tie these together more nicely
         self.httpauth = http.HTTPAuthentication(self)
         self.resource = HTTPLiveStreamingResource(self, self.httpauth)
-        
+
         Stats.__init__(self, self.resource)
         self._updateCallLaterId = reactor.callLater(10, self._updateStats)
 
@@ -303,8 +302,8 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self.port = port
 
         self._minWindow = props.get('hls-min-window',
-                self.DEFAULT_MIN_WINDOW) 
-       
+                self.DEFAULT_MIN_WINDOW)
+
         if 'client-limit' in props:
             limit = int(props['client-limit'])
             self.resource.setUserLimit(limit)
@@ -361,10 +360,9 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
             self._porterUsername = props['porter-username']
             self._porterPassword = props['porter-password']
 
-
     def do_setup(self):
         root = self.resource
-        
+
         if self.type == 'slave':
             # Streamer is slaved to a porter.
 
@@ -410,9 +408,9 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
                 self.addMessage(m)
                 self.setMood(moods.sad)
                 return defer.fail(errors.ComponentSetupHandledError(t))
- 
+
     def do_pipeline_playing(self):
-        # The component must stay 'waiking' until it receives at least 
+        # The component must stay 'waiking' until it receives at least
         # the number of segments defined by the min-window property
         pass
 
@@ -444,12 +442,12 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
                     self._segmentsCount)
             self.setMood(moods.happy)
             self.ready = True
-        
+
         self.hlsring.addFragment(buffer.data, self._segmentsCount - 1,
                 ceil(float(buffer.duration) / gst.SECOND))
         self.resource.bytesReceived += len(buffer.data)
 
-    ### START OF THREAD-AWARE CODE (called from non-reactor threads) 
+    ### START OF THREAD-AWARE CODE (called from non-reactor threads)
 
     def new_preroll(self, appsink):
         self.debug("new preroll")
@@ -463,5 +461,5 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
     def eos(self, appsink):
         #FIXME: How do we handle this for live?
         self.debug('received eos')
-    
+
     ### END OF THREAD-AWARE CODE

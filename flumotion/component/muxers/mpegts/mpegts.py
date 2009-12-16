@@ -36,26 +36,24 @@ class KeyframesCounter(gst.Element):
     '''
 
     __gproperties__ = {
-        'silent' : (bool,
+        'silent': (bool,
             'silent',
             'Whether to count keyframes or not',
             False,
-            gobject.PARAM_READWRITE)
-    }
+            gobject.PARAM_READWRITE)}
 
-    __gstdetails__ = ('KeyframesCounter', 'Generic',
+    __gstdetails__ =('KeyframesCounter', 'Generic',
                       'Key frames counter for flumotion', 'Flumotion Dev Team')
 
-    _sinkpadtemplate = gst.PadTemplate ("sink",
+    _sinkpadtemplate = gst.PadTemplate("sink",
                                          gst.PAD_SINK,
                                          gst.PAD_ALWAYS,
                                          gst.caps_from_string("video/mpegts"))
-    
-    _srcpadtemplate = gst.PadTemplate ("src",
+
+    _srcpadtemplate = gst.PadTemplate("src",
                                          gst.PAD_SRC,
                                          gst.PAD_ALWAYS,
                                          gst.caps_from_string("video/mpegts"))
-
 
     def __init__(self):
         gst.Element.__init__(self)
@@ -66,28 +64,29 @@ class KeyframesCounter(gst.Element):
 
         self.srcpad = gst.Pad(self._srcpadtemplate, "src")
         self.add_pad(self.srcpad)
-       
+
         self._silent = False
         self._keyframesCount = 0
-       
+
     def do_get_property(self, property):
         if property.name == "silent":
             return self._silent
         else:
-            raise AttributeError, 'unknown property %s' % property.name
+            raise AttributeError('unknown property %s' % property.name)
 
     def do_set_property(self, property, value):
-       if property.name == "silent":
+        if property.name == "silent":
             self._silent = bool(value)
-       else:
-            raise AttributeError, 'unknown property %s' % property.name
+        else:
+            raise AttributeError('unknown property %s' % property.name)
 
     def chainfunc(self, pad, buffer):
         if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT) \
-                and not self._silent: 
+                and not self._silent:
             buffer.offset = self._keyframesCount
             self._keyframesCount += 1
-        return self.srcpad.push(buffer) 
+        return self.srcpad.push(buffer)
+
 
 class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
     checkTimestamp = True

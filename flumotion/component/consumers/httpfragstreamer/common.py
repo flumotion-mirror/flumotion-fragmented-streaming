@@ -15,11 +15,14 @@
 
 # Component specific errors
 
+
 class FragmentNotFound(Exception):
     "The requested segment is not found."
 
+
 class PlaylistNotFound(Exception):
     "The requested playlist is not found."
+
 
 class KeyNotFound(Exception):
     "The requested key is not found."

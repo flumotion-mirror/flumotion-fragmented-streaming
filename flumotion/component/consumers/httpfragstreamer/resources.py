@@ -45,6 +45,7 @@ PLAYLIST_EXTENSION = '.m3u8'
 
 ### the Twisted resource that handles the base URL
 
+
 class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
 
     # IResource interface variable; True means it will not chain requests
@@ -86,7 +87,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         if not mountPoint.endswith('/'):
             mountPoint = mountPoint + '/'
         self.mountPoint = mountPoint
-    
+
     def setRoot(self, path):
         self.putChild(path, self)
 
@@ -100,7 +101,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         for logger in self.loggers:
             self.debug('rotating logger %r' % logger)
             logger.rotate()
-    
+
     def logWrite(self, fd, ip, request, stats):
 
         headers = request.getAllHeaders()
@@ -156,9 +157,9 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
 
     def _isReady(self):
         return self.streamer.isReady()
-    
+
     def _renderNotFoundResponse(self, request):
-        self._writeHeaders(request,'text/html')
+        self._writeHeaders(request, 'text/html')
         request.setResponseCode(404)
         request.write('Resource Not Found or Access Denied')
         request.finish()
@@ -166,7 +167,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
 
     def _handleNotReady(self, request):
         self.debug('Not sending data, it\'s not ready')
-        # FIXME: Close connection or call back later? 
+        # FIXME: Close connection or call back later?
         return server.NOT_DONE_YET
 
     def _renderKey(self, res, request):
@@ -205,11 +206,11 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         request.finish()
         return res
 
-    def _writeHeaders(self, request, content):  
+    def _writeHeaders(self, request, content):
         """
         Write out the HTTP headers for the incoming HTTP request.
         """
-        
+
         request.setResponseCode(200)
         request.setHeader('Server', HTTP_SERVER)
         request.setHeader('Date', http.datetimeToString())
@@ -229,7 +230,6 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         for cookie in request.cookies:
             headers.append('%s: %s\r\n' % ("Set-Cookie", cookie))
 
-
     def _render(self, request):
         self.info('Incoming client connection from %s' % (
             request.getClientIP()))
@@ -237,7 +237,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
 
         if not self._isReady():
             return self._handleNotReady(request)
-        
+
         # A GET request will be like mountpoint+resource:
         # 'GET /iphone/fragment-0.ts' or 'GET /fragment-0.ts'
         # The mountpoint is surrounded by '/' in setMountPoint()
@@ -245,11 +245,11 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         # resource name
         if not request.path.startswith(self.mountPoint):
             return self._renderNotFoundResponse(request)
-        resource = request.path.replace(self.mountPoint,'',1)
+        resource = request.path.replace(self.mountPoint, '', 1)
 
         self.debug('_render(): asked for (possible) authentication')
         d = self.httpauth.startAuthentication(request)
-              
+
         # Playlists
         if resource.endswith(PLAYLIST_EXTENSION):
             d.addCallback(self._renderPlaylist, request, resource)
@@ -260,7 +260,8 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         else:
             d.addCallback(self._renderFragment, request, resource)
 
-        d.addErrback(lambda x, request: self._renderNotFoundResponse(request), request)
+        d.addErrback(lambda x, request:
+                self._renderNotFoundResponse(request), request)
         return server.NOT_DONE_YET
 
     def getBytesSent(self):
