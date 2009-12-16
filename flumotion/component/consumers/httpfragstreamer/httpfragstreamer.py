@@ -447,6 +447,7 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
         
         self.hlsring.addFragment(buffer.data, self._segmentsCount - 1,
                 ceil(float(buffer.duration) / gst.SECOND))
+        self.resource.bytesReceived += len(buffer.data)
 
     ### START OF THREAD-AWARE CODE (called from non-reactor threads) 
 

@@ -175,9 +175,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
 
         if request.method == 'GET':
             key = self.ring.getEncryptionKey(request.args['key'][0])
-            self.bytesReceived += len(key) 
             request.write(key)
-            self.bytesSent += len(key)
         elif request.method == 'HEAD':
             self.debug('handling HEAD request')
         request.finish()
@@ -188,9 +186,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         self._writeHeaders(request, M3U8_CONTENT_TYPE)
         if request.method == 'GET':
             playlist = self.ring.renderPlaylist(resource)
-            self.bytesReceived += len(playlist) 
             request.write(playlist)
-            self.bytesSent += len(playlist)
         elif request.method == 'HEAD':
             self.debug('handling HEAD request')
         request.finish()
@@ -201,7 +197,6 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         self._writeHeaders(request, 'video/mpeg')
         if request.method == 'GET':
             data = self.ring.getFragment(resource)
-            self.bytesReceived += len(data)
             request.write(data)
             self.bytesSent += len(data)
             request.finish()
