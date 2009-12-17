@@ -69,7 +69,8 @@ class Playlister:
         lines = []
 
         lines.append("#EXTM3U")
-        lines.append("#EXT-X-STREAM-INF:PROGRAM-ID=1")
+        #The bandwith value is not significant for single bitrate
+        lines.append("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=300000")
         lines.append(self._hostname + self.streamPlaylist)
         lines.append("")
 
