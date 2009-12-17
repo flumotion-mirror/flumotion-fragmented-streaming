@@ -27,7 +27,7 @@ class Playlister:
 
     def __init__(self):
 
-        self.hostname = ''
+        self._hostname = ''
         self.mainPlaylist = ''
         self.streamPlaylist = ''
         self.title = ''
@@ -48,10 +48,7 @@ class Playlister:
             hostname = hostname + '/'
         if not hostname.startswith('http://'):
             hostname = 'http://' + hostname
-        self.hostname = hostname
-
-    def setWindow(self, window):
-        self.window = window
+        self._hostname = hostname
 
     def setAllowCache(self, allowed):
         self.allowCache = allowed
@@ -73,7 +70,7 @@ class Playlister:
 
         lines.append("#EXTM3U")
         lines.append("#EXT-X-STREAM-INF:PROGRAM-ID=1")
-        lines.append(self.hostname + self.streamPlaylist)
+        lines.append(self._hostname + self.streamPlaylist)
         lines.append("")
 
         return "\n".join(lines)
@@ -93,7 +90,7 @@ class Playlister:
                 lines.append('#EXT-X-KEY:METHOD=AES-128,URI="%skey?key=%s"' %
                         (self.keysURI, fragment))
             lines.append("#EXTINF:%d,%s" % (duration, self.title))
-            lines.append(self.hostname + fragment)
+            lines.append(self._hostname + fragment)
 
         lines.append("")
 
@@ -150,7 +147,7 @@ class HLSRing(Playlister):
         self.fragmentPrefix = fragmentPrefix
         self.window = window
         self.keyInterval = keyInterval
-        self.keysURI = keysURI or self.hostname
+        self.keysURI = keysURI or self._hostname
         self._encrypted = (keyInterval != 0)
         self._fragmentsDict = {}
         self._keysDict = {}

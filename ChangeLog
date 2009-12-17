@@ -1,3 +1,8 @@
+2009-12-17  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Remove unused setter and make 'hostname' private
+
 2009-12-16  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/httpfragstreamer/common.py:
