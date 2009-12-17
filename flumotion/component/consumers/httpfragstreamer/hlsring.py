@@ -184,6 +184,10 @@ class HLSRing(Playlister):
         fragmentName = self._addPlaylistFragment(sequenceNumber, duration,
                 self._encrypted)
 
+        # Don't add duplicated fragments
+        if fragmentName in self._availableFragments:
+            return
+
         # If the ring is full, delete the oldest segment
         while len(self._fragmentsDict) >= self.window:
             pop = self._availableFragments.popleft()

@@ -1,6 +1,11 @@
 2009-12-17  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Do not add duplicated fragments to the ring
+
+2009-12-17  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
 	Add bandwidth attribute to the stream info in the main playlist
 
 2009-12-17  Andoni Morales Alastruey  <amorales@flumotion.com>
