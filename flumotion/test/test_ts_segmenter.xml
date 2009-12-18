@@ -1,0 +1,19 @@
+<registry>
+  <components>
+   
+    <component type="ts-segmenter-tester" base="flumotion/test"
+               _description="Test ts-segmenter">
+      <source location="flumotion.test.test_ts_segmenter"/>
+      
+      <eater name="default" multiple="yes"/>
+      
+      <entries>
+        <entry type="component" location="test_ts_segmenter.py"
+               function="TSSegmenterTester"/>
+      </entries>
+
+    </component>
+
+  </components>
+
+</registry>

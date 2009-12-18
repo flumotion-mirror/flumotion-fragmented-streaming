@@ -1,5 +1,12 @@
 2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
 
+	* flumotion/test/Makefile.am:
+	* flumotion/test/test_ts_segmenter.py (added):
+	* flumotion/test/test_ts_segmenter.xml (added):
+	Test the ts-segmenter.
+
+2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
+
 	* flumotion/test/test_mpegts.xml (added):
 	* flumotion/test/test_mpegts.py:
 	Check keyframe counter, and keyframe interval.
