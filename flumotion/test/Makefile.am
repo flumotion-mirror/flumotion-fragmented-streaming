@@ -9,7 +9,9 @@ setup.py: $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 EXTRA_DIST = __init__.py \
-	     test_dummy.py
+	test_dummy.py \
+	test_hls_ring.py \
+	test_mpegts.py
 
 check-local: trial
 
