@@ -1,5 +1,10 @@
 2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
 
+	* flumotion/test/test_mpegts.py:
+	Check keyframe counter, and keyframe interval.
+
+2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
+
 	* flumotion/test/Makefile.am:
 	* flumotion/test/test_mpegts.py (added):
 	Added simple mpegts-mux component test.
