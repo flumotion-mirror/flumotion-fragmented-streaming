@@ -1,5 +1,6 @@
 2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
 
+	* flumotion/test/test_mpegts.xml (added):
 	* flumotion/test/test_mpegts.py:
 	Check keyframe counter, and keyframe interval.
 
