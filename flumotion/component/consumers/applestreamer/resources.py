@@ -281,12 +281,14 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
     def _generateToken(self, sessionID, clientIP, authExpiracy):
         """
         Generate a cryptografic token:
-        PAYLOAD=SESSION_ID||:||CLIENT_IP||:||AUTH_EXPIRACY
-        SIG=HMAC(SECRET,PAYLOAD)
+        PAYLOAD = SESSION_ID||:||AUTH_EXPIRACY
+        PRIVATE = CLIENT_IP||:||MOUNT_POINT
+        SIG=HMAC(SECRET,PAYLOAD||:||PRIVATE)
         TOKEN=BASE64(PAYLOAD||:||SIG)
         """
-        payload = ':'.join([sessionID, clientIP, str(authExpiracy)])
-        sig = hmac.new(SECRET, payload).hexdigest()
+        payload = ':'.join([sessionID, str(authExpiracy)])
+        private = ':'.join([clientIP, self.mountPoint])
+        sig = hmac.new(SECRET, ':'.join([payload, private])).hexdigest()
         return base64.b64encode(':'.join([payload, sig]))
 
     def _cookieIsValid(self, cookie, clientIP):
@@ -299,23 +301,20 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         NOT_VALID: the cookie is not valid
         """
         token = base64.b64decode(cookie)
+        private = ':'.join([clientIP, self.mountPoint])
         try:
             payload, sig = token.rsplit(':', 1)
-            sessionID, sessionIP, authExpiracy =\
-                    payload.split(':')
+            sessionID, authExpiracy = payload.split(':')
         except:
             self.debug("cookie is not valid. reason: malformed cookie")
             return NOT_VALID
 
         self.log("cheking cookie authentication: "
-                "client_ip=%s auth_expiracy:%s" % (sessionIP, authExpiracy))
+                "session_id=%s auth_expiracy:%s" % (sessionID, authExpiracy))
         # Check signature
-        if hmac.new(SECRET, payload).hexdigest() != sig:
+        if hmac.new(SECRET, ':'.join([payload, private])).hexdigest() != sig:
             self.debug("cookie is not valid. reason: invalid signature")
             return NOT_VALID
-        # Check client IP
-        if sessionIP != clientIP:
-            self.debug("cookie is not valid. reason: bad client IP")
         # Check authentication expiracy
         if int(authExpiracy) != 0 and int(authExpiracy) < \
                 time.mktime(datetime.utcnow().timetuple()):

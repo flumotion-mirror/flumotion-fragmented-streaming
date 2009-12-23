@@ -1,6 +1,12 @@
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/resources.py:
+	Add 'mount-point' to the private part of the token, and remove
+	'client-ip' from the public part
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
 	Fix HTTP cache policy
 
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
