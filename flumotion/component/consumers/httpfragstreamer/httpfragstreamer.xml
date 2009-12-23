@@ -7,7 +7,7 @@
       <source location="flumotion.component.consumers.httpfragstreamer.httpfragstreamer"/>
 
       <eater name="default" />
-      
+
       <!-- entry points for distributable code bundles -->
       <entries>
         <entry type="component" location="httpfragstreamer.py"
@@ -19,7 +19,7 @@
       <properties>
         <property name="description" type="string"
                   _description="A description of the stream."/>
-              
+
         <property name="mount-point" type="string"
                   _description="The mount point on which the playlist and the stream can accessed." />
 
@@ -60,22 +60,22 @@
 
         <property name="duration" type="float"
                   _description="How long to keep clients connected (in seconds)."/>
-          
-        <property name="hls-fragment-prefix" type="string"
+
+        <property name="fragment-prefix" type="string"
                   _description="Fragments prefix name to use in the playlist (default:fragment)" />
-        <property name="hls-main-playlist" type="string"
-                  _description="Main playlist resource name relative to the mount point (default:live.m3u8)" />
-        <property name="hls-stream-playlist" type="string"
+        <property name="main-playlist" type="string"
+                  _description="Main playlist resource name relative to the mount point (default:main.m3u8)" />
+        <property name="stream-playlist" type="string"
                   _description="Stream playlist resource name relative to the mount point (default:stream.m3u8)" />
-        <property name="hls-keyframes-per-fragment" type="int"
+        <property name="keyframes-per-fragment" type="int"
                   _description="Number of keyframes per fragment (default:1)" />
-        <property name="hls-min-window" type="int"
+        <property name="min-window" type="int"
                   _description="Minimun number of fragments to buffer (default:3)" />
-        <property name="hls-max-window" type="int"
+        <property name="max-window" type="int"
                   _description="Maximum number of fragments to buffer (default:6)" />
-        <property name="hls-key-rotation" type="int"
+        <property name="key-rotation" type="int"
                   _description="Number of fragments sharing the same encryption key. Use 0 for not using encryption (default:0)" />
-        <property name="hls-keys-uri" type="string"
+        <property name="keys-uri" type="string"
                   _description="URI used to retrieve the encryption keys" />
       </properties>
 

@@ -101,7 +101,7 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
     componentMediumClass = HTTPMedium
 
     DEFAULT_FRAGMENT_PREFIX = 'fragment'
-    DEFAULT_MAIN_PLAYLIST = 'live.m3u8'
+    DEFAULT_MAIN_PLAYLIST = 'main.m3u8'
     DEFAULT_STREAM_PLAYLIST = 'stream.m3u8'
     DEFAULT_KEYFRAMES_PER_SEGMENT = 10
     DEFAULT_MIN_WINDOW = 2
@@ -283,7 +283,7 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
         element = pipeline.get_by_name('segmenter')
         element.set_property('keyframes-per-segment',
-                props.get('hls-keyframes-per-fragment',
+                props.get('keyframes-per-fragment',
                     self.DEFAULT_KEYFRAMES_PER_SEGMENT))
 
         appsink = pipeline.get_by_name('appsink')
@@ -311,13 +311,13 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
         self.hlsring = HLSRing(
             '%s:%s%s' % (hostname, port, mountPoint),
-            props.get('hls-main-playlist', self.DEFAULT_MAIN_PLAYLIST),
-            props.get('hls-stream-playlist', self.DEFAULT_STREAM_PLAYLIST),
+            props.get('main-playlist', self.DEFAULT_MAIN_PLAYLIST),
+            props.get('stream-playlist', self.DEFAULT_STREAM_PLAYLIST),
             self.description,
-            props.get('hls-fragment-prefix', self.DEFAULT_FRAGMENT_PREFIX),
-            props.get('hls-max-window', self.DEFAULT_MAX_WINDOW),
-            props.get('hls-key-rotation', 0),
-            props.get('hls-keys-uri', None))
+            props.get('fragment-prefix', self.DEFAULT_FRAGMENT_PREFIX),
+            props.get('max-window', self.DEFAULT_MAX_WINDOW),
+            props.get('key-rotation', 0),
+            props.get('keys-uri', None))
 
         self.mountPoint = mountPoint
 

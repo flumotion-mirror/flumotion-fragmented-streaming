@@ -2,6 +2,13 @@
 
 
 	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml:
+	Rename properties from hls-propname to propname
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
 	Subclass Request to log the request lenght and transfered data
 	* flumotion/component/consumers/httpfragstreamer/resources.py:
 	Log request duration and transfered bytes. Fix pep8
