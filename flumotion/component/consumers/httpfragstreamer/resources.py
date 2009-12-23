@@ -460,8 +460,8 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         else:
             d.addCallback(self._renderFragment, request, resource)
 
-        #d.addErrback(lambda x, request:
-        #        self._renderNotFoundResponse(request, x), request)
+        d.addErrback(lambda x, request:
+                self._renderNotFoundResponse(request, x), request)
         return server.NOT_DONE_YET
 
     def getBytesSent(self):
