@@ -1,5 +1,35 @@
-2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+2009-12-23  Andoni Morales Alastruey,,,  <amorales@flumotion.com>
 
+	* configure.ac:
+	* flumotion/component/consumers/Makefile.am:
+	* flumotion/component/consumers/applestreamer/Makefile.am:
+	* flumotion/component/consumers/applestreamer/__init__.py:
+	* flumotion/component/consumers/applestreamer/admin_gtk.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.glade:
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	* flumotion/component/consumers/applestreamer/common.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/consumers/applestreamer (added):
+	* flumotion/component/consumers/applestreamer/common.py (added):
+	* flumotion/component/consumers/applestreamer/applestreamer.glade
+	  (added):
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py
+	  (added):
+	* flumotion/component/consumers/applestreamer/resources.py (added):
+	* flumotion/component/consumers/applestreamer/applestreamer.xml
+	  (added):
+	* flumotion/component/consumers/applestreamer/admin_gtk.py (added):
+	* flumotion/component/consumers/applestreamer/__init__.py (added):
+	* flumotion/component/consumers/applestreamer/Makefile.am (added):
+	* flumotion/component/consumers/applestreamer/applestreamer.py (added):
+	* flumotion/component/consumers/applestreamer/hlsring.py (added):
+	Rename component to Apple HTTP Live Streaming
+
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/muxers/mpegts/mpegts.py:
 	* flumotion/component/muxers/mpegts/mpegts.xml:
@@ -7,12 +37,10 @@
 
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
-
 	* flumotion/component/consumers/httpfragstreamer/resources.py:
 	Comment out error callback
 
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
-
 
 	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
 	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml:
@@ -20,14 +48,12 @@
 
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
-
 	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
 	Subclass Request to log the request lenght and transfered data
 	* flumotion/component/consumers/httpfragstreamer/resources.py:
 	Log request duration and transfered bytes. Fix pep8
 
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
-
 
 	* flumotion/component/consumers/httpfragstreamer/resources.py:
 	Added sessions support

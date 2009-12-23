@@ -1,4 +1,4 @@
-AC_INIT(flumotion-fragmentedstreaming, 
+AC_INIT(flumotion-fragmentedstreaming,
    0.0.0.1,
    https://code.area51.fluendo.com/private/trac/newticket?component=flumotion-fragmentedstreaming,
    flumotion-fragmentedstreaming)
@@ -92,7 +92,7 @@ flumotion/Makefile
 flumotion/common/Makefile
 flumotion/component/Makefile
 flumotion/component/consumers/Makefile
-flumotion/component/consumers/httpfragstreamer/Makefile
+flumotion/component/consumers/applestreamer/Makefile
 flumotion/component/muxers/Makefile
 flumotion/component/muxers/mpegts/Makefile
 flumotion/project/Makefile
