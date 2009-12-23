@@ -1,5 +1,10 @@
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Add supported plug's sockets to the component XML
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/resources.py:
 	Add 'mount-point' to the private part of the token, and remove
 	'client-ip' from the public part

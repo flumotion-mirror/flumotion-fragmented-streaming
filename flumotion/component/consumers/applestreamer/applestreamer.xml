@@ -16,6 +16,12 @@
                function="GUIClass" />
       </entries>
 
+      <sockets>
+        <socket type="flumotion.component.plugs.request.RequestLoggerPlug" />
+        <socket type="flumotion.component.plugs.streamdata.StreamDataProviderPlug" />
+        <socket type="flumotion.component.plugs.rrd.ComponentRRDPlug" />
+      </sockets>
+
       <properties>
         <property name="description" type="string"
                   _description="A description of the stream."/>
