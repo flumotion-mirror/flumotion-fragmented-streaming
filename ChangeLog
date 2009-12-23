@@ -1,4 +1,9 @@
-2009-12-23  Andoni Morales Alastruey,,,  <amorales@flumotion.com>
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Fix HTTP cache policy
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* configure.ac:
 	* flumotion/component/consumers/Makefile.am:

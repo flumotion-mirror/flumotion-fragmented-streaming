@@ -368,7 +368,6 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
     def _renderKey(self, res, request):
         self._writeHeaders(request, 'binary/octect-stream')
         request.setHeader('Pragma', 'no-cache')
-
         if request.method == 'GET':
             key = self.ring.getEncryptionKey(request.args['key'][0])
             request.write(key)
@@ -382,6 +381,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
     def _renderPlaylist(self, res, request, resource):
         self.debug('_render(): asked for playlist %s' % resource)
         self._writeHeaders(request, M3U8_CONTENT_TYPE)
+        request.setHeader('Pragma', 'no-cache')
         if request.method == 'GET':
             playlist = self.ring.renderPlaylist(resource)
             request.write(playlist)
@@ -415,7 +415,6 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         request.setHeader('Date', http.datetimeToString())
         request.setHeader('Connection', 'close')
         request.setHeader('Cache-Control', 'no-cache')
-        request.setHeader('Cache-Control', 'private')
         request.setHeader('Content-type', content)
 
         # Call request modifiers
