@@ -110,6 +110,3 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
                 gst.RANK_MARGINAL)
         return muxer
 
-    def configure_pipeline(self, pipeline, properties):
-        counter = pipeline.get_by_name('counter')
-        counter.set_property('silent', properties.get('rewrite-offset', False))
