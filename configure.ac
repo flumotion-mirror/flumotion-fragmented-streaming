@@ -89,6 +89,7 @@ Makefile
 common/Makefile
 misc/Makefile
 flumotion/Makefile
+flumotion/common/Makefile
 flumotion/component/Makefile
 flumotion/component/consumers/Makefile
 flumotion/component/consumers/httpfragstreamer/Makefile

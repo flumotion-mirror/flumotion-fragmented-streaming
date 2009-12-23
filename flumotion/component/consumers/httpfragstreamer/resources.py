@@ -20,7 +20,9 @@
 # Headers in this file shall remain intact.
 
 import time
-import gst
+import base64
+import hmac
+from datetime import datetime, timedelta
 
 from twisted.internet import defer
 from twisted.web import server, resource
@@ -31,7 +33,9 @@ except ImportError:
     from twisted.protocols import http
 
 from flumotion.configure import configure
-from flumotion.common import log
+from flumotion.common import log, uuid
+from flumotion.component.consumers.httpfragstreamer.common import\
+    FragmentNotFound, PlaylistNotFound, KeyNotFound
 
 
 __version__ = "$Rev: $"
@@ -42,6 +46,23 @@ HTTP_SERVER = '%s/%s' % (HTTP_NAME, HTTP_VERSION)
 
 M3U8_CONTENT_TYPE = 'application/vnd.apple.mpegurl'
 PLAYLIST_EXTENSION = '.m3u8'
+SESSION_TIMEOUT = 10
+COOKIE_NAME = 'flumotion-session'
+SECRET='2Ed4sB/s#D%&"DGs36y5'
+NOT_VALID = 0
+VALID= 1
+RENEW_AUTH = 2
+
+ERROR_TEMPLATE = """<!doctype html public "-//IETF//DTD HTML 2.0//EN">
+<html>
+<head>
+  <title>%(code)d %(error)s</title>
+</head>
+<body>
+<h2>%(code)d %(error)s</h2>
+</body>
+</html>
+"""
 
 ### the Twisted resource that handles the base URL
 
@@ -102,34 +123,32 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
             self.debug('rotating logger %r' % logger)
             logger.rotate()
 
-    def logWrite(self, fd, ip, request, stats):
+    def logWrite(self, request):
 
         headers = request.getAllHeaders()
-
-        if stats:
-            bytes_sent = stats[0]
-            time_connected = int(stats[3] / gst.SECOND)
+        if self.httpauth:
+            username = self.httpauth.bouncerName
         else:
-            bytes_sent = -1
-            time_connected = -1
+            username = '-'
 
-        args = {'ip': ip,
+        args = {'ip': request.getClientIP(),
                 'time': time.gmtime(),
                 'method': request.method,
                 'uri': request.uri,
-                'username': '-', # FIXME: put the httpauth name
+                'username': username, # FIXME: put the httpauth name
                 'get-parameters': request.args,
                 'clientproto': request.clientproto,
                 'response': request.code,
-                'bytes-sent': bytes_sent,
+                'bytes-sent': 0, #TODO
                 'referer': headers.get('referer', None),
                 'user-agent': headers.get('user-agent', None),
-                'time-connected': time_connected}
+                'time-connected': 0, #TODO
+                'session-id': request.session.uid}
 
         l = []
         for logger in self.loggers:
             l.append(defer.maybeDeferred(
-                logger.event, 'http_session_completed', args))
+                logger.event, 'http_request_completed', args))
 
         return defer.DeferredList(l)
 
@@ -153,22 +172,197 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         hard limit if possible.
         """
         #FIXME
-        pass
+        return maxclients
 
-    def _isReady(self):
+    def reachedServerLimits(self):
+        if self.maxclients >= 0 and len(self._sessions) >= self.maxclients:
+            return True
+        elif self.maxbandwidth >= 0:
+            # Reject if adding one more client would take us over the limit.
+            if ((len(self._sessions) + 1) *
+                    self.streamer.getCurrentBitrate() >= self.maxbandwidth):
+                return True
+        return False
+
+    def isReady(self):
         return self.streamer.isReady()
 
-    def _renderNotFoundResponse(self, request):
-        self._writeHeaders(request, 'text/html')
-        request.setResponseCode(404)
-        request.write('Resource Not Found or Access Denied')
-        request.finish()
-        return ''
+    def _renewAuthentication(self, request, sessionID, authResponse):
+        # Delete, if it's present, the 'flumotion-session' cookie
+        for cookie in request.cookies:
+            if cookie.startswith('%s=%s' % (COOKIE_NAME, cookie)):
+                self.log("delete old cookie for session ID=%s" % sessionID)
+                request.cookies.remove(cookie)
+
+        if authResponse and authResponse.duration != 0:
+            authExpiracy = time.mktime((datetime.utcnow() +
+            timedelta(seconds=authResponse.duration)).timetuple())
+        else:
+            authExpiracy = 0
+        # Create a new token with the same Session ID and the renewed
+        # authentication's expiration time
+        token = self._generateToken(
+                sessionID, request.getClientIP(), authExpiracy)
+        request.addCookie(COOKIE_NAME,token, path=self.mountPoint)
+
+    def _checkSession(self, request):
+        """
+        From t.w.s.Request.getSession()
+        Associates the request to a session using the 'flumotion-session'
+        cookie and updates the session's timeout.
+        If the authentication has expired, re-authenticates the session and
+        updates the cookie with the new authentication's expiracy time.
+        If the cookie is not valid (bad IP or bad signature) or the session
+        has expired, it creates a new session.
+        """
+        if not request.session:
+            cookie = request.getCookie(COOKIE_NAME)
+            if cookie:
+                # The request has a flumotion cookie
+                cookieState = self._cookieIsValid(cookie,
+                        request.getClientIP())
+                sessionID = base64.b64decode(cookie).split(':')[0]
+                if cookieState != NOT_VALID:
+                    # The cookie is valid: retrieve or create a session
+                    try:
+                        # The session exists in this streamer
+                        request.session = request.site.getSession(sessionID)
+                    except KeyError:
+                        # The session doesn't exist
+                        # FIXME: We might want to be able to use the same
+                        # session in several streamer. Create a new session
+                        # here using the same sessionID
+                        pass
+                    if cookieState == RENEW_AUTH:
+                        # The authentication as expired, renew it
+                        self.debug('renewing authentication')
+                        d = self.httpauth.startAuthentication(request)
+                        d.addCallback(lambda res:
+                            self._renewAuthentication(request, sessionID, res))
+                        return d
+
+            # if it still hasn't been set, fix it up.
+            if not request.session:
+                self.debug('asked for authentication')
+                d = self.httpauth.startAuthentication(request)
+                d.addCallback(lambda res:
+                    self._createSession(request, authResponse=res))
+                return d
+
+        request.session.touch()
+
+    def _createSession(self, request, authResponse=None):
+        """
+        From t.w.s.Site.makeSession()
+        Generates a new Session instance and store it for future reference
+        """
+        sessionID = uuid.uuid1().hex
+        if authResponse and authResponse.duration is not 0:
+            authExpiracy = time.mktime((datetime.utcnow() +
+            timedelta(seconds=authResponse.duration)).timetuple())
+        else:
+            authExpiracy = 0
+
+        token = self._generateToken(
+                sessionID, request.getClientIP(), authExpiracy)
+
+        request.session = request.site.sessions[sessionID] =\
+                request.site.sessionFactory(request.site, sessionID)
+        request.session.startCheckingExpiration(SESSION_TIMEOUT)
+        request.session.sessionTimeout= SESSION_TIMEOUT
+        request.session.notifyOnExpire(lambda:
+                self._delClient(sessionID))
+        request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
+
+        self._addClient()
+        self.log('adding new client with session id: "%s"' % request.session.uid)
+
+    def _generateToken(self, sessionID, clientIP, authExpiracy):
+        """
+        Generate a cryptografic token:
+        PAYLOAD=SESSION_ID||:||CLIENT_IP||:||AUTH_EXPIRACY
+        SIG=HMAC(SECRET,PAYLOAD)
+        TOKEN=BASE64(PAYLOAD||:||SIG)
+        """
+        payload = ':'.join([sessionID, clientIP, str(authExpiracy)])
+        sig = hmac.new(SECRET, payload).hexdigest()
+        return base64.b64encode(':'.join([payload,sig]))
+
+    def _cookieIsValid(self, cookie, clientIP):
+        """
+        Checks whether the cookie is valid against clientIP, the
+        authentication expiracy date and the signature.
+        Returns the state of the cookie among 3 states:
+        VALID: the cookie is valid (client IP, expiracy and signature are OK)
+        RENEW_AUTH: the cookie is valid but the authentication has expired
+        NOT_VALID: the cookie is not valid
+        """
+        token = base64.b64decode(cookie)
+        try:
+            payload, sig = token.rsplit(':',1)
+            sessionID, sessionIP, authExpiracy =\
+                    payload.split(':')
+        except:
+            self.debug("cookie is not valid. reason: malformed cookie")
+            return NOT_VALID
+
+        self.log("cheking cookie authentication: "
+                "client_ip=%s auth_expiracy:%s" % (sessionIP, authExpiracy))
+        # Check signature
+        if hmac.new(SECRET,payload).hexdigest() != sig:
+            self.debug("cookie is not valid. reason: invalid signature")
+            return NOT_VALID
+        # Check client IP
+        if sessionIP != clientIP:
+            self.debug("cookie is not valid. reason: bad client IP")
+        # Check authentication expiracy
+        if int(authExpiracy) != 0 and int(authExpiracy) < \
+                time.mktime(datetime.utcnow().timetuple()):
+            self.debug("cookie is not valid. reason: authentication expired")
+            return RENEW_AUTH
+        self.log("cookie is valid")
+        return VALID
+
+    def _addClient(self):
+        self.streamer.clientAdded()
+
+    def _delClient(self, uid):
+        self.log("session %s expired" % uid)
+        self.streamer.clientRemoved()
+
+    def _errorMessage(self, request, error_code):
+        request.setHeader('content-type', 'html')
+        request.setHeader('server', HTTP_VERSION)
+        request.setResponseCode(error_code)
+
+        return ERROR_TEMPLATE % {'code': error_code,
+                                 'error': http.RESPONSES[error_code]}
 
     def _handleNotReady(self, request):
-        self.debug('Not sending data, it\'s not ready')
-        # FIXME: Close connection or call back later?
-        return server.NOT_DONE_YET
+        self.debug("Not sending data, it's not ready")
+        return self._errorMessage(request, http.SERVICE_UNAVAILABLE)
+
+    def _handleServerFull(self, request):
+        if self._redirectOnFull:
+            self.debug("Redirecting client, client limit %d reached",
+                self.maxclients)
+            error_code = http.FOUND
+            request.setHeader('location', self._redirectOnFull)
+        else:
+            self.debug('Refusing clients, client limit %d reached' %
+                self.maxclients)
+            error_code = http.SERVICE_UNAVAILABLE
+        return self._errorMessage(request, error_code)
+
+    def _renderNotFoundResponse(self, request, error):
+        notFoundErrors = [FragmentNotFound, PlaylistNotFound,
+                KeyNotFound, PlaylistNotFound]
+        if error not in notFoundErrors:
+            self.warning("a request ended-up with the following\
+                    exception: %s" % error)
+        request.write(self._errorMessage(request, http.NOT_FOUND))
+        request.finish()
+        return ''
 
     def _renderKey(self, res, request):
         self._writeHeaders(request, 'binary/octect-stream')
@@ -177,6 +371,8 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         if request.method == 'GET':
             key = self.ring.getEncryptionKey(request.args['key'][0])
             request.write(key)
+            self.bytesSent += len(key)
+            self.logWrite(request)
         elif request.method == 'HEAD':
             self.debug('handling HEAD request')
         request.finish()
@@ -188,6 +384,8 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         if request.method == 'GET':
             playlist = self.ring.renderPlaylist(resource)
             request.write(playlist)
+            self.bytesSent += len(playlist)
+            self.logWrite(request)
         elif request.method == 'HEAD':
             self.debug('handling HEAD request')
         request.finish()
@@ -200,7 +398,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
             data = self.ring.getFragment(resource)
             request.write(data)
             self.bytesSent += len(data)
-            request.finish()
+            self.logWrite(request)
         if request.method == 'HEAD':
             self.debug('handling HEAD request')
         request.finish()
@@ -215,7 +413,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         request.setHeader('Server', HTTP_SERVER)
         request.setHeader('Date', http.datetimeToString())
         request.setHeader('Connection', 'close')
-        request.setHeader('Cache-Control', 'cache')
+        request.setHeader('Cache-Control', 'no-cache')
         request.setHeader('Cache-Control', 'private')
         request.setHeader('Content-type', content)
 
@@ -235,10 +433,12 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
             request.getClientIP()))
         self.debug('_render(): request %s' % (request))
 
-        if not self._isReady():
+        if not self.isReady():
             return self._handleNotReady(request)
+        if self.reachedServerLimits():
+            return self._handleServerFull(request)
 
-        # A GET request will be like mountpoint+resource:
+        # A GET request will be like 'mountpoint+resource':
         # 'GET /iphone/fragment-0.ts' or 'GET /fragment-0.ts'
         # The mountpoint is surrounded by '/' in setMountPoint()
         # so we can safely look for the mountpoint and extract the
@@ -247,8 +447,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
             return self._renderNotFoundResponse(request)
         resource = request.path.replace(self.mountPoint, '', 1)
 
-        self.debug('_render(): asked for (possible) authentication')
-        d = self.httpauth.startAuthentication(request)
+        d = defer.maybeDeferred(self._checkSession, request)
 
         # Playlists
         if resource.endswith(PLAYLIST_EXTENSION):
@@ -260,8 +459,8 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         else:
             d.addCallback(self._renderFragment, request, resource)
 
-        d.addErrback(lambda x, request:
-                self._renderNotFoundResponse(request), request)
+        #d.addErrback(lambda x, request:
+        #        self._renderNotFoundResponse(request, x), request)
         return server.NOT_DONE_YET
 
     def getBytesSent(self):
