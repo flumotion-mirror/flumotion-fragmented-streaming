@@ -135,14 +135,14 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
                 'time': time.gmtime(),
                 'method': request.method,
                 'uri': request.uri,
-                'username': username, # FIXME: put the httpauth name
+                'username': username,
                 'get-parameters': request.args,
                 'clientproto': request.clientproto,
                 'response': request.code,
-                'bytes-sent': 0, #TODO
+                'bytes-sent': request.getBytesSent(),
                 'referer': headers.get('referer', None),
                 'user-agent': headers.get('user-agent', None),
-                'time-connected': 0, #TODO
+                'time-connected': request.getDuration(),
                 'session-id': request.session.uid}
 
         l = []
@@ -203,7 +203,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         # authentication's expiration time
         token = self._generateToken(
                 sessionID, request.getClientIP(), authExpiracy)
-        request.addCookie(COOKIE_NAME,token, path=self.mountPoint)
+        request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
 
     def _checkSession(self, request):
         """
@@ -275,7 +275,8 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
 
         self._addClient()
-        self.log('adding new client with session id: "%s"' % request.session.uid)
+        self.log('adding new client with session id: "%s"' %
+                request.session.uid)
 
     def _generateToken(self, sessionID, clientIP, authExpiracy):
         """
@@ -286,7 +287,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         """
         payload = ':'.join([sessionID, clientIP, str(authExpiracy)])
         sig = hmac.new(SECRET, payload).hexdigest()
-        return base64.b64encode(':'.join([payload,sig]))
+        return base64.b64encode(':'.join([payload, sig]))
 
     def _cookieIsValid(self, cookie, clientIP):
         """
@@ -299,7 +300,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         """
         token = base64.b64decode(cookie)
         try:
-            payload, sig = token.rsplit(':',1)
+            payload, sig = token.rsplit(':', 1)
             sessionID, sessionIP, authExpiracy =\
                     payload.split(':')
         except:
@@ -309,7 +310,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         self.log("cheking cookie authentication: "
                 "client_ip=%s auth_expiracy:%s" % (sessionIP, authExpiracy))
         # Check signature
-        if hmac.new(SECRET,payload).hexdigest() != sig:
+        if hmac.new(SECRET, payload).hexdigest() != sig:
             self.debug("cookie is not valid. reason: invalid signature")
             return NOT_VALID
         # Check client IP

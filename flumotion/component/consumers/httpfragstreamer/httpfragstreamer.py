@@ -59,6 +59,39 @@ class Stats(Statistics):
         return self.sink.getBytesReceived()
 
 
+class LoggableRequest(server.Request):
+
+    def __init__(self, channel, queued):
+        server.Request.__init__(self, channel, queued)
+        now = time.time()
+        self._startTime = now
+        self._completionTime = now
+        self._bytesWritten = 0L
+
+    def write(self, data):
+        server.Request.write(self, data)
+        size = len(data)
+        self._bytesWritten += size
+
+    def requestCompleted(self, fd):
+        server.Request.requestCompleted(self, fd)
+        if self._completionTime is None:
+            self._completionTime = time.time()
+
+    def getDuration(self):
+        return (self._completionTime or time.time()) - self._startTime
+
+    def getBytesSent(self):
+        return self._bytesWritten
+
+
+class Site(server.Site):
+    requestFactory = LoggableRequest
+
+    def __init__(self, resource):
+        server.Site.__init__(self, resource)
+
+
 class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
     implements(interfaces.IStreamingComponent)
 
@@ -397,7 +430,7 @@ class HTTPFragmentStreamer(feedcomponent.ParseLaunchComponent, Stats):
                 self.debug('Listening on %d' % self.port)
                 iface = self.iface or ""
                 self._tport = reactor.listenTCP(
-                    self.port, server.Site(resource=root),
+                    self.port, Site(resource=root),
                     interface=iface)
             except error.CannotListenError:
                 t = 'Port %d is not available.' % self.port
