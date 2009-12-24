@@ -69,6 +69,10 @@ ERROR_TEMPLATE = """<!doctype html public "-//IETF//DTD HTML 2.0//EN">
 
 class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
 
+    __reserve_fds__ = 50 # number of fd's to reserve for non-streaming
+
+    logCategory = 'apple-streamer'
+
     # IResource interface variable; True means it will not chain requests
     # further down the path to other resource providers through
     # getChildWithDefault
@@ -171,8 +175,30 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
         open file descriptors and fd reservation. Increases soft limit to
         hard limit if possible.
         """
-        #FIXME
-        return maxclients
+        (softmax, hardmax) = resource.getrlimit(resource.RLIMIT_NOFILE)
+        import sys
+        version = sys.version_info
+
+        if maxclients != -1:
+            neededfds = maxclients + self.__reserve_fds__
+
+            # Bug in python 2.4.3, see
+            # http://sourceforge.net/tracker/index.php?func=detail&
+            #   aid=1494314&group_id=5470&atid=105470
+            if version[:3] == (2, 4, 3) and \
+                not hasattr(socket, "has_2_4_3_patch"):
+                self.warning(
+                    'Setting hardmax to 1024 due to python 2.4.3 bug')
+                hardmax = 1024
+
+            if neededfds > softmax:
+                lim = min(neededfds, hardmax)
+                resource.setrlimit(resource.RLIMIT_NOFILE, (lim, hardmax))
+                return lim - self.__reserve_fds__
+            else:
+                return maxclients
+        else:
+            return softmax - self.__reserve_fds__
 
     def reachedServerLimits(self):
         if self.maxclients >= 0 and len(self._sessions) >= self.maxclients:

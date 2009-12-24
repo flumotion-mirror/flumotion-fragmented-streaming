@@ -1,3 +1,8 @@
+2009-12-24  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Fix getMaxAllowedClients() and add log category
+
 2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.xml:
