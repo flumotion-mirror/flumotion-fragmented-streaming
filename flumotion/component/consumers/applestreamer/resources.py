@@ -22,6 +22,7 @@
 import time
 import base64
 import hmac
+import socket
 from datetime import datetime, timedelta
 
 from twisted.internet import defer
@@ -201,11 +202,11 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
             return softmax - self.__reserve_fds__
 
     def reachedServerLimits(self):
-        if self.maxclients >= 0 and len(self._sessions) >= self.maxclients:
+        if self.maxclients >= 0 and len(self.streamer.getClients()) >= self.maxclients:
             return True
         elif self.maxbandwidth >= 0:
             # Reject if adding one more client would take us over the limit.
-            if ((len(self._sessions) + 1) *
+            if ((len(self.streamer.getClients()) + 1) *
                     self.streamer.getCurrentBitrate() >= self.maxbandwidth):
                 return True
         return False
