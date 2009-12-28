@@ -1,7 +1,6 @@
 include $(top_srcdir)/common/python.mk
 
 SUBDIRS = \
-	common \
 	component \
 	project \
 	test

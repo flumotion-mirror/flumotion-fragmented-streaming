@@ -1,5 +1,17 @@
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* configure.ac:
+	* flumotion/Makefile.am:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/common (deleted):
+	* flumotion/common/__init__.py (deleted):
+	* flumotion/common/Makefile.am (deleted):
+	* flumotion/common/uuid.py (deleted):
+	Delete local copy of uuid since it's going to be deployed using
+	a separate package
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/applestreamer.xml:
 	Rename flumotion component to http-applestreamer according to
 	the rst

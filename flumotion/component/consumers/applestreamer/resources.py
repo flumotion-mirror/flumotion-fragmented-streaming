@@ -23,6 +23,7 @@ import time
 import base64
 import hmac
 import socket
+import uuid
 from datetime import datetime, timedelta
 
 from twisted.internet import defer
@@ -34,7 +35,7 @@ except ImportError:
     from twisted.protocols import http
 
 from flumotion.configure import configure
-from flumotion.common import log, uuid
+from flumotion.common import log
 from flumotion.component.consumers.applestreamer.common import\
     FragmentNotFound, PlaylistNotFound, KeyNotFound
 
