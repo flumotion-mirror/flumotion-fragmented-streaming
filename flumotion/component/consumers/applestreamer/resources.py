@@ -321,10 +321,10 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
 
     def _cookieIsValid(self, cookie, clientIP):
         """
-        Checks whether the cookie is valid against clientIP, the
-        authentication expiracy date and the signature.
-        Returns the state of the cookie among 3 states:
-        VALID: the cookie is valid (client IP, expiracy and signature are OK)
+        Checks whether the cookie is valid against the authentication expiracy
+        time and the signature (and implicitly the client IP and mount point).
+        Returns the state of the cookie among 3 options:
+        VALID: the cookie is valid (expiracy and signature are OK)
         RENEW_AUTH: the cookie is valid but the authentication has expired
         NOT_VALID: the cookie is not valid
         """
