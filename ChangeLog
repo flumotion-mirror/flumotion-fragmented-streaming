@@ -1,5 +1,26 @@
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/httpfragstreamer (deleted):
+	* flumotion/component/consumers/httpfragstreamer/common.py (deleted):
+	* flumotion/component/consumers/httpfragstreamer/mpegtssegmenter.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/resources.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/admin_gtk.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/__init__.py (deleted):
+	* flumotion/component/consumers/httpfragstreamer/Makefile.am (deleted):
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py (deleted):
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.glade
+	  (deleted):
+	Delete old component's folder
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* configure.ac:
 	* flumotion/Makefile.am:
 	* flumotion/component/consumers/applestreamer/resources.py:
