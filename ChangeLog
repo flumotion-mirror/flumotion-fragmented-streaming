@@ -1,3 +1,9 @@
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Rename flumotion component to http-applestreamer according to
+	the rst
+
 2009-12-24  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/resources.py:

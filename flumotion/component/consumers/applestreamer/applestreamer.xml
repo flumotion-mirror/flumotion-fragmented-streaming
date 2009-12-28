@@ -1,7 +1,7 @@
 <registry>
 
   <components>
-    <component type="apple-http-live-streamer"
+    <component type="http-applestreamer"
                base="flumotion/component/consumers/applestreamer"
                _description="A consumer that streams mpegts video fragments following Apple's HTTP live streaming protocol">
       <source location="flumotion.component.consumers.applestreamer.applestreamer"/>
