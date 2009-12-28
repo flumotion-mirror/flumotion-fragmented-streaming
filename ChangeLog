@@ -1,5 +1,28 @@
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/__init__.py:
+	* flumotion/component/__init__.py:
+	* flumotion/component/consumers/__init__.py:
+	* flumotion/component/consumers/applestreamer/__init__.py:
+	* flumotion/component/consumers/applestreamer/admin_gtk.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/common.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/muxers/__init__.py:
+	* flumotion/component/muxers/mpegts/__init__.py:
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/project/fragmentedstreaming.py.in:
+	* flumotion/test/__init__.py:
+	* flumotion/test/test_dummy.py:
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Fix license and copyright headers
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/test/test_hls_ring.py:
 	Use new applestreamer namespace and fix pep8
 	* flumotion/test/test_mpegts.py:
