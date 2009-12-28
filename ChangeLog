@@ -1,6 +1,11 @@
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/resources.py:
+	Import resource and changed twisted's resource to web_resource
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
 	Update cookie validity method's description
 
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>

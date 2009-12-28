@@ -24,10 +24,11 @@ import base64
 import hmac
 import socket
 import uuid
+import resource
 from datetime import datetime, timedelta
 
 from twisted.internet import defer
-from twisted.web import server, resource
+from twisted.web import server, resource as web_resource
 
 try:
     from twisted.web import http
@@ -69,7 +70,7 @@ ERROR_TEMPLATE = """<!doctype html public "-//IETF//DTD HTML 2.0//EN">
 ### the Twisted resource that handles the base URL
 
 
-class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
+class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     __reserve_fds__ = 50 # number of fd's to reserve for non-streaming
 
@@ -106,7 +107,7 @@ class HTTPLiveStreamingResource(resource.Resource, log.Loggable):
             'flumotion.component.plugs.requestmodifier.RequestModifierPlug'
         self.modifiers = streamer.plugs.get(socket, [])
 
-        resource.Resource.__init__(self)
+        web_resource.Resource.__init__(self)
 
     def setMountPoint(self, mountPoint):
         if not mountPoint.startswith('/'):
