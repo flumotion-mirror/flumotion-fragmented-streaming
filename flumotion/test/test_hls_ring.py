@@ -15,10 +15,11 @@
 
 from twisted.trial import unittest
 
-from flumotion.component.consumers.httpfragstreamer import hlsring
+from flumotion.component.consumers.applestreamer import hlsring
 
 import setup
 setup.setup()
+
 
 class TestHLSRing(unittest.TestCase):
 
@@ -53,7 +54,8 @@ http://localhost:8000/mpegts-5.ts
         self.ring.addFragment('', 0, 10)
         self.assertEqual(len(self.ring._fragmentsDict), 1)
         self.assertEqual(len(self.ring._availableFragments), 1)
-        self.assert_(self.ring._availableFragments[0] in self.ring._fragmentsDict)
+        self.assert_(self.ring._availableFragments[0] in
+                self.ring._fragmentsDict)
 
     def testGetFragment(self):
         self.ring.addFragment('string', 0, 10)
@@ -88,7 +90,7 @@ http://localhost:8000/mpegts-5.ts
     def testStreamPlaylist(self):
         self.ring._hostname = 'http://localhost:8000/'
         self.ring.title = 'Title'
-        for i in range (6):
+        for i in range(6):
             self.ring.addFragment('', i, 2)
         self.assertEqual(self.ring._renderStreamPlaylist(),
                 self.STREAM_PLAYLIST)

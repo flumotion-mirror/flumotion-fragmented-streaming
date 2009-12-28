@@ -13,6 +13,8 @@
 
 # Headers in this file shall remain intact.
 
+import os
+
 from twisted.trial import unittest
 from twisted.internet import defer, reactor
 
@@ -28,6 +30,8 @@ from flumotion.component.muxers.mpegts import mpegts
 
 import setup
 setup.setup()
+os.environ['FLU_PROJECT_PATH'] = os.path.abspath(
+        os.path.join(__file__, '../../../'))
 
 
 class MPEGTSTester(feedcomponent.ParseLaunchComponent):
