@@ -379,11 +379,16 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     def _renderNotFoundResponse(self, request, error):
         notFoundErrors = [FragmentNotFound, PlaylistNotFound,
-                KeyNotFound, PlaylistNotFound]
+                KeyNotFound]
         if error not in notFoundErrors:
             self.warning("a request ended-up with the following\
                     exception: %s" % error)
         request.write(self._errorMessage(request, http.NOT_FOUND))
+        request.finish()
+        return ''
+
+    def _renderForbidden(self, request):
+        request.write(self._errorMessage(request, http.FORBIDDEN))
         request.finish()
         return ''
 
@@ -466,7 +471,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         # so we can safely look for the mountpoint and extract the
         # resource name
         if not request.path.startswith(self.mountPoint):
-            return self._renderNotFoundResponse(request)
+            return self._renderForbidden(request)
         resource = request.path.replace(self.mountPoint, '', 1)
 
         d = defer.maybeDeferred(self._checkSession, request)
