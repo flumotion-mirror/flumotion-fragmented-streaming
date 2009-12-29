@@ -15,7 +15,7 @@
 
 from twisted.trial import unittest
 
-from flumotion.component.consumers.httpfragstreamer import hlsring
+from flumotion.component.consumers.applestreamer import hlsring
 
 import setup
 setup.setup()

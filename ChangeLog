@@ -1,5 +1,13 @@
 2009-12-29  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* env.in:
+	Add FLU_PROJECT_PATH for test components
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Fix imports namespace
+
+2009-12-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/test/test_hls_ring.py:
 	* flumotion/test/test_mpegts.py:
 	* flumotion/test/test_ts_segmenter.py:

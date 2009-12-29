@@ -25,7 +25,7 @@ from flumotion.common.planet import moods
 from flumotion.test import comptest
 
 from flumotion.component.muxers.mpegts import mpegts
-from flumotion.component.consumers.httpfragstreamer import mpegtssegmenter
+from flumotion.component.consumers.applestreamer import mpegtssegmenter
 
 import setup
 setup.setup()
