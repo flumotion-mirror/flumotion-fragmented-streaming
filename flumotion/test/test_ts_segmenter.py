@@ -13,8 +13,6 @@
 
 # Headers in this file shall remain intact.
 
-import os
-
 from twisted.trial import unittest
 from twisted.internet import defer, reactor
 
@@ -27,12 +25,10 @@ from flumotion.common.planet import moods
 from flumotion.test import comptest
 
 from flumotion.component.muxers.mpegts import mpegts
-from flumotion.component.consumers.applestreamer import mpegtssegmenter
+from flumotion.component.consumers.httpfragstreamer import mpegtssegmenter
 
 import setup
 setup.setup()
-os.environ['FLU_PROJECT_PATH'] = os.path.abspath(
-        os.path.join(__file__, '../../../'))
 
 
 class TSSegmenterTester(feedcomponent.ParseLaunchComponent):

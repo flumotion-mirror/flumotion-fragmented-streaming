@@ -1,3 +1,10 @@
+2009-12-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Revert r26165
+
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/__init__.py:
@@ -24,12 +31,11 @@
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/test/test_hls_ring.py:
-	Use new applestreamer namespace and fix pep8
+ 	Use new applestreamer namespace and fix pep8
 	* flumotion/test/test_mpegts.py:
 	* flumotion/test/test_ts_segmenter.py:
-	Use new applestreamer namespace and add project's folder to
-	FLU_PROJECT_PATH to load our test component in the registry
-
+ 	Use new applestreamer namespace and add project's folder to
+ 	FLU_PROJECT_PATH to load our test component in the registry
 
 2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
 
