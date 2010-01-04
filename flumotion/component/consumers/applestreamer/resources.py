@@ -198,11 +198,11 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             return softmax - self.__reserve_fds__
 
     def reachedServerLimits(self):
-        if self.maxclients >= 0 and len(self.streamer.getClients()) >= self.maxclients:
+        if self.maxclients >= 0 and self.streamer.getClients() >= self.maxclients:
             return True
         elif self.maxbandwidth >= 0:
             # Reject if adding one more client would take us over the limit.
-            if ((len(self.streamer.getClients()) + 1) *
+            if ((self.streamer.getClients() + 1) *
                     self.streamer.getCurrentBitrate() >= self.maxbandwidth):
                 return True
         return False
