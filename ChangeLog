@@ -1,5 +1,10 @@
 2010-01-04  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Fix typo in mount point assignment
+
+2010-01-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/resources.py:
 	Don't use len(), getClients() already returns an integer
 

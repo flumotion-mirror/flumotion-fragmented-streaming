@@ -331,7 +331,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         # FIXME: Stats needs some love: init funtion reset all these values
         # and the assignment needs to be done after initializing Stats
         self.hostname = hostname
-        self.mountpoint = mountPoint
+        self.mountPoint = mountPoint
         self.port = port
 
         self._minWindow = props.get('hls-min-window',
