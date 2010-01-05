@@ -411,9 +411,8 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             # this deferred the first time)
 
             self._porterDeferred = d = defer.Deferred()
-            mountpoints = [self.mountPoint]
             self._pbclient = porterclient.HTTPPorterClientFactory(
-                server.Site(resource=root), mountpoints, d)
+                server.Site(resource=root), [], d, prefixes=[self.mountPoint])
 
             creds = credentials.UsernamePassword(self._porterUsername,
                 self._porterPassword)
@@ -461,7 +460,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         l = []
 
         if self.type == 'slave' and self._pbclient:
-            l.append(self._pbclient.deregisterPath(self.mountPoint))
+            l.append(self._pbclient.deregisterPrefix(self.mountPoint))
         return defer.DeferredList(l)
 
     def _processBuffer(self, buffer):
