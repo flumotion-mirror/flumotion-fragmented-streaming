@@ -412,7 +412,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
             self._porterDeferred = d = defer.Deferred()
             self._pbclient = porterclient.HTTPPorterClientFactory(
-                server.Site(resource=root), [], d, prefixes=[self.mountPoint])
+                Site(resource=root), [], d, prefixes=[self.mountPoint])
 
             creds = credentials.UsernamePassword(self._porterUsername,
                 self._porterPassword)

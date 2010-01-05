@@ -1,3 +1,8 @@
+2010-01-05  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Use custom Site in porter to log requests
+
 2010-01-05  Marc-André Lureau  <mlureau@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:
