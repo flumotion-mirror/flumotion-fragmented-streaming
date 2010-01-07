@@ -262,6 +262,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
                         d = self.httpauth.startAuthentication(request)
                         d.addCallback(lambda res:
                             self._renewAuthentication(request, sessionID, res))
+                        d.addErrback(lambda x: self._delClient(sessionID))
                         return d
 
             # if it still hasn't been set, fix it up.
@@ -270,6 +271,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
                 d = self.httpauth.startAuthentication(request)
                 d.addCallback(lambda res:
                     self._createSession(request, authResponse=res))
+                d.addErrback(lambda x: None))
                 return d
 
         request.session.touch()
