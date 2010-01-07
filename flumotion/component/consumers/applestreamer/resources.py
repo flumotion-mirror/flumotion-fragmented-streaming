@@ -379,12 +379,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             error_code = http.SERVICE_UNAVAILABLE
         return self._errorMessage(request, error_code)
 
-    def _renderNotFoundResponse(self, request, error):
-        notFoundErrors = [FragmentNotFound, PlaylistNotFound,
-                KeyNotFound]
-        if type(error) not in notFoundErrors:
-            self.warning("a request ended-up with the following\
-                    exception: %s" % error)
+    def _renderNotFoundResponse(self, failure, request):
+        failure.trap(FragmentNotFound, PlaylistNotFound, KeyNotFound)
         request.write(self._errorMessage(request, http.NOT_FOUND))
         request.finish()
         return ''
@@ -488,8 +484,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         else:
             d.addCallback(self._renderFragment, request, resource)
 
-        d.addErrback(lambda x, request:
-                self._renderNotFoundResponse(request, x), request)
+        d.addErrback(self._renderNotFoundResponse, request)
         return server.NOT_DONE_YET
 
     def getBytesSent(self):
