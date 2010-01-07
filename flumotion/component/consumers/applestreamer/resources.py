@@ -271,7 +271,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
                 d = self.httpauth.startAuthentication(request)
                 d.addCallback(lambda res:
                     self._createSession(request, authResponse=res))
-                d.addErrback(lambda x: None))
+                d.addErrback(lambda x: None)
                 return d
 
         request.session.touch()
