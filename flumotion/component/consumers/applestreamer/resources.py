@@ -43,7 +43,7 @@ HTTP_SERVER = '%s/%s' % (HTTP_NAME, HTTP_VERSION)
 
 M3U8_CONTENT_TYPE = 'application/vnd.apple.mpegurl'
 PLAYLIST_EXTENSION = '.m3u8'
-SESSION_TIMEOUT = 10
+SESSION_TIMEOUT = 30
 COOKIE_NAME = 'flumotion-session'
 SECRET='2Ed4sB/s#D%&"DGs36y5'
 NOT_VALID = 0
