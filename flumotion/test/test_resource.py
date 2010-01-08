@@ -301,6 +301,7 @@ class TestAppleStreamerSessions(unittest.TestCase):
             session.notifyOnExpire(lambda: d1.callback(''))
             return d1
 
+        resources.SESSION_TIMEOUT = 1
         d = self.processRequest("GET", "/localhost/stream.m3u8")
         d.addCallback(checkSessionExpired)
         return d

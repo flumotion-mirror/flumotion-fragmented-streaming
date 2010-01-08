@@ -1,5 +1,10 @@
 2010-01-08  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/test/test_resource.py:
+	Reduce the session timeout for testing
+
+2010-01-08  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/resources.py:
 	Set the session timeout before starting the checking expiration method
 
