@@ -293,8 +293,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
         request.session = request.site.sessions[sessionID] =\
                 request.site.sessionFactory(request.site, sessionID)
-        request.session.startCheckingExpiration(SESSION_TIMEOUT)
         request.session.sessionTimeout= SESSION_TIMEOUT
+        request.session.startCheckingExpiration(SESSION_TIMEOUT)
         request.session.notifyOnExpire(lambda:
                 self._delClient(sessionID))
         request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
