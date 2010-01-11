@@ -5,7 +5,7 @@ ACLOCAL_AMFLAGS = -I common
 include $(srcdir)/common/common.mk
 include $(srcdir)/common/pychecker.mk
 
-SUBDIRS = flumotion common misc
+SUBDIRS = flumotion common misc po
 
 EXTRA_DIST = \
 	env.in \

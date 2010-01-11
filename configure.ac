@@ -16,7 +16,19 @@ AC_SUBST(FLU_REQ, 0.5.4)
 AC_SUBST(PYGST_REQ, 0.10.11)
 AC_SUBST(GST_REQ, 0.10.22)
 
-AC_SUBST(ACLOCAL_AMFLAGS, "-I common")
+dnl Add parameters for aclocal
+AC_SUBST(ACLOCAL_AMFLAGS, "-I m4 -I common")
+AC_CONFIG_MACRO_DIR([m4 common])
+
+dnl set up gettext
+dnl the version check needs to stay here because autopoint greps for it
+AM_GNU_GETTEXT_VERSION([0.11.5])
+AM_GNU_GETTEXT([external])
+
+GETTEXT_PACKAGE=$PACKAGE
+AC_SUBST(GETTEXT_PACKAGE)
+
+AC_PROG_INTLTOOL([0.34.2])
 
 AS_AC_EXPAND(LIBDIR, $libdir)
 AC_MSG_NOTICE(Storing library files in $LIBDIR)
@@ -29,6 +41,9 @@ AC_MSG_NOTICE(Storing configuration files in $SYSCONFDIR)
 
 AS_AC_EXPAND(LOCALSTATEDIR, $localstatedir)
 AC_MSG_NOTICE(Using localstatedir $LOCALSTATEDIR)
+
+AS_LIBTOOL_TAGS([])
+AC_PROG_LIBTOOL
 
 dnl check for python
 AS_PATH_PYTHON(2.3)
@@ -98,4 +113,5 @@ flumotion/project/Makefile
 flumotion/project/fragmentedstreaming.py
 flumotion/test/Makefile
 flumotion-fragmentedstreaming.spec
+po/Makefile.in
 )
