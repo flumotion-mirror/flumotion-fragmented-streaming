@@ -1,5 +1,15 @@
 2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* Makefile.am:
+	Fix component name
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* configure.ac:
+	Remove tar filenames max lenght limitation
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	*  (svn:ignore):
 	* flumotion/component/consumers/applestreamer (svn:ignore):
 	* flumotion/test (svn:ignore):

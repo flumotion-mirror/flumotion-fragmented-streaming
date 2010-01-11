@@ -10,10 +10,10 @@ SUBDIRS = flumotion common misc
 EXTRA_DIST = \
 	env.in \
 	LICENSE.Flumotion \
-	flumotion-fragmentssplitter.spec
+	flumotion-fragmentedstreaming.spec
 
 PYCHECKER_WHITELIST = flumotion/component/*/*/*.py
 PYCHECKER_BLACKLIST =
 
 COVERAGE_MODULES = \
-	flumotion.component.consumers.fragmentssplitter
+	flumotion.component.consumers.applestreamer
