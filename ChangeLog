@@ -1,5 +1,14 @@
 2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/test/Makefile.am:
+	* flumotion/test/common.py:
+	* flumotion/test/setup.py.in:
+	* flumotion/test/common.py (added):
+	* flumotion/test/setup.py.in (added):
+	Added missing files
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* Makefile.am:
 	Fix component name
 

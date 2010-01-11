@@ -9,6 +9,8 @@ setup.py: $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
 
 EXTRA_DIST = __init__.py \
+	common.py \
+	setup.py \
 	test_dummy.py \
 	test_hls_ring.py \
 	test_mpegts.py \
