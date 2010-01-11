@@ -8,6 +8,9 @@ include $(srcdir)/common/pychecker.mk
 SUBDIRS = flumotion common misc po
 
 EXTRA_DIST = \
+	intltool-extract.in \
+	intltool-merge.in \
+	intltool-update.in \
 	env.in \
 	LICENSE.Flumotion \
 	flumotion-fragmentedstreaming.spec
