@@ -1,3 +1,21 @@
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	*  (svn:ignore):
+	* flumotion/component/consumers/applestreamer (svn:ignore):
+	* flumotion/test (svn:ignore):
+	* flumotion/component/consumers (svn:ignore):
+	* flumotion/project (svn:ignore):
+	* flumotion (svn:ignore):
+	* flumotion/component/muxers (svn:ignore):
+	* flumotion/component (svn:ignore):
+	* flumotion/component/muxers/mpegts (svn:ignore):
+	Add svn ignores
+	* autoregen.sh (added):
+	* INSTALL (added):
+	Add missing dist files
+	* configure.ac:
+	Fix version number and configure warnings
+
 2010-01-08  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/resources.py:

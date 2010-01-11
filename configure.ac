@@ -1,5 +1,5 @@
 AC_INIT(flumotion-fragmentedstreaming,
-   0.0.0.1,
+   0.7.0.1,
    https://code.area51.fluendo.com/private/trac/newticket?component=flumotion-fragmentedstreaming,
    flumotion-fragmentedstreaming)
 
@@ -7,14 +7,14 @@ AS_VERSION
 
 AS_NANO
 
-AM_INIT_AUTOMAKE($PACKAGE, $VERSION)
+AM_INIT_AUTOMAKE([foreign])
 
 AC_SUBST_FILE(AUTHORS)
 AUTHORS=$srcdir/AUTHORS
 
 AC_SUBST(FLU_REQ, 0.5.4)
 AC_SUBST(PYGST_REQ, 0.10.11)
-AC_SUBST(GST_REQ, 0.10.18)
+AC_SUBST(GST_REQ, 0.10.22)
 
 AC_SUBST(ACLOCAL_AMFLAGS, "-I common")
 
