@@ -1,5 +1,10 @@
 2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion-fragmented-streaming.spec.in:
+	Update versions automatically
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* Makefile.am:
 	* autogen.sh:
 	* configure.ac:
