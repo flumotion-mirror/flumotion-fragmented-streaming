@@ -1,6 +1,6 @@
 Name:           @PACKAGE@
 Version:        @VERSION@
-Release:        @PACKAGE_VERSION_RELEASE@
+Release:        1_@PACKAGE_VERSION_RELEASE@
 Summary:        Flumotion fragmented streaming support.
 
 Group:          Applications/Internet
