@@ -1,7 +1,7 @@
-AC_INIT(flumotion-fragmentedstreaming,
+AC_INIT(flumotion-fragmente-dstreaming,
    0.7.0.1,
    https://code.area51.fluendo.com/private/trac/newticket?component=flumotion-fragmentedstreaming,
-   flumotion-fragmentedstreaming)
+   flumotion-fragmented-streaming)
 
 AS_VERSION
 
@@ -112,6 +112,6 @@ flumotion/component/muxers/mpegts/Makefile
 flumotion/project/Makefile
 flumotion/project/fragmentedstreaming.py
 flumotion/test/Makefile
-flumotion-fragmentedstreaming.spec
+flumotion-fragmented-streaming.spec
 po/Makefile.in
 )

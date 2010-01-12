@@ -1,5 +1,15 @@
 2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* Makefile.am:
+	* configure.ac:
+	* flumotion-fragmented-streaming.spec.in:
+	* po/es.po:
+	* +    flumotion-fragmented-streaming.spec.in (added):
+	* flumotion-fragmentedstreaming.spec.in (deleted):
+	Fix project name
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/test/test_mpegts.py:
 	* flumotion/test/test_ts_segmenter.py:
 	Use min/max keyframe distance

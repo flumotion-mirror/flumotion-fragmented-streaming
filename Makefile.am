@@ -13,7 +13,7 @@ EXTRA_DIST = \
 	intltool-update.in \
 	env.in \
 	LICENSE.Flumotion \
-	flumotion-fragmentedstreaming.spec
+	flumotion-fragmented-streaming.spec
 
 PYCHECKER_WHITELIST = flumotion/component/*/*/*.py
 PYCHECKER_BLACKLIST =

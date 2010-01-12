@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: flumotion 0.7.0.1\n"
-"Report-Msgid-Bugs-To: https://core.fluendo.com/trac/flumotion/\n"
-"POT-Creation-Date: 2010-01-12 11:15+0100\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-01-12 12:40+0100\n"
 "PO-Revision-Date: 2009-01-10 12:46+0200\n"
 "Last-Translator: Andoni Morales Alastruey <amorales@flumotion.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n!=1;\n"
 
-#: ../flumotion/component/consumers/applestreamer/admin_gtk.py:113
+#: flumotion/component/consumers/applestreamer/admin_gtk.py:113
 msgid ""
 "The stream is temporarly unavailable.\n"
 "No data is being transmitted right now."
@@ -25,11 +25,11 @@ msgstr ""
 "El flujo no está disponible temporalmente.\n"
 "No se está transmitiendo información en este momento."
 
-#: ../flumotion/component/consumers/applestreamer/admin_gtk.py:140
+#: flumotion/component/consumers/applestreamer/admin_gtk.py:140
 msgid "Statistics"
 msgstr "Estadísticas"
 
-#: ../flumotion/component/consumers/applestreamer/applestreamer.py:345
+#: flumotion/component/consumers/applestreamer/applestreamer.py:345
 #, python-format
 msgid ""
 "Your system configuration does not allow the maximum client limit to be set "
@@ -38,16 +38,16 @@ msgstr ""
 "La configuración de su sistema no permite ajustar el límite máximo de "
 "clientes a %d clientes."
 
-#: ../flumotion/component/consumers/applestreamer/applestreamer.py:349
+#: flumotion/component/consumers/applestreamer/applestreamer.py:349
 msgid "Learn how to increase the maximum number of clients."
 msgstr "Aprenda cómo incrementar el límite máximo de clientes"
 
-#: ../flumotion/component/consumers/applestreamer/applestreamer.py:438
+#: flumotion/component/consumers/applestreamer/applestreamer.py:438
 #, python-format
 msgid "Network error: TCP port %d is not available."
 msgstr "Error de red: El puerto %d no está disponible."
 
-#: ../flumotion/component/muxers/mpegts/mpegts.py:96
+#: flumotion/component/muxers/mpegts/mpegts.py:96
 #, python-format
 msgid ""
 "Versions up to and including %s of the '%s' GStreamer plug-in are not "
