@@ -1,3 +1,15 @@
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	check megtsmux version check and fix warning message
+	* po/es.po:
+	update Spanish transaltion
+	* po (svn:ignore):
+	*  (svn:ignore):
+	* misc (svn:ignore):
+	* flumotion/test (svn:ignore):
+	Add more ignores
+
 2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* Makefile.am:

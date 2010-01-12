@@ -86,15 +86,17 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
     checkTimestamp = True
 
     def do_check(self):
-        if gstreamer.get_plugin_version('mpegtsmux') <= (0, 10, 15, 0):
+        v = gstreamer.get_plugin_version('mpegtsmux')
+        # The mpegtsmuxer does not use the delta unit flag to mark keyframes
+        # until gst-plugin-bad-0.10.18. Patched versions in the platform
+        # will be numberer using minor=10 to check if the plugin has been
+        # patched
+        if v <= (0, 10, 17, 0) and v[3] != 10:
             m = messages.Warning(
                 T_(N_("Versions up to and including %s of the '%s' "
-                      "GStreamer plug-in are not suitable for streaming.\n"),
-                   '0.10.15', 'mpegtsmux'))
-            m.add(T_(N_("The stream served by the streamer component "
-                        "will probably be unplayable.\n")))
-            m.add(T_(N_("The issue will be addressed in version %s of '%s'."),
-                     '0.10.16', 'gst-plugins-bad'))
+                      "GStreamer plug-in are not suitable for "
+                      "fragmented streaming.\n"),
+                      '0.10.17', 'mpegtsmux'))
             self.addMessage(m)
 
     def get_muxer_string(self, properties):
