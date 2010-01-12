@@ -11,9 +11,15 @@ EXTRA_DIST = \
 	intltool-extract.in \
 	intltool-merge.in \
 	intltool-update.in \
-	env.in \
+	env\
 	LICENSE.Flumotion \
 	flumotion-fragmented-streaming.spec
+
+DISTCLEANFILES = \
+	po/stamp-it \
+	intltool-extract \
+	intltool-merge \
+	intltool-update
 
 PYCHECKER_WHITELIST = flumotion/component/*/*/*.py
 PYCHECKER_BLACKLIST =

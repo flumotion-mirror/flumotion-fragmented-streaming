@@ -1,4 +1,4 @@
-AC_INIT(flumotion-fragmente-dstreaming,
+AC_INIT(flumotion-fragmented-streaming,
    0.7.0.1,
    https://code.area51.fluendo.com/private/trac/newticket?component=flumotion-fragmentedstreaming,
    flumotion-fragmented-streaming)
@@ -92,11 +92,10 @@ AC_SUBST(FLUMOTION_DIR)
 
 PREAMBLE=`cat $srcdir/misc/preamble.py`
 
-AC_CONFIG_FILES([env], [chmod +x env])
 
 dnl output stuff
-FLUMOTION_SETUP(flumotion/test/setup.py, $FLUMOTION_DIR, $PREAMBLE, fragmentedstreaming)
-FLUMOTION_SETUP(misc/setup.py, $FLUMOTION_DIR, $PREAMBLE, fragmentedstreaming)
+FLUMOTION_SETUP(flumotion/test/setup.py, $FLUMOTION_DIR, $PREAMBLE, fragmented-streaming)
+FLUMOTION_SETUP(misc/setup.py, $FLUMOTION_DIR, $PREAMBLE, fragmented-streaming)
 
 dnl output stuff
 AC_OUTPUT(
