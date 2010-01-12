@@ -5,21 +5,12 @@ ACLOCAL_AMFLAGS = -I common
 include $(srcdir)/common/common.mk
 include $(srcdir)/common/pychecker.mk
 
-SUBDIRS = flumotion common misc po
+SUBDIRS = flumotion common misc
 
 EXTRA_DIST = \
-	intltool-extract.in \
-	intltool-merge.in \
-	intltool-update.in \
 	env\
 	LICENSE.Flumotion \
 	flumotion-fragmented-streaming.spec
-
-DISTCLEANFILES = \
-	po/stamp-it \
-	intltool-extract \
-	intltool-merge \
-	intltool-update
 
 PYCHECKER_WHITELIST = flumotion/component/*/*/*.py
 PYCHECKER_BLACKLIST =

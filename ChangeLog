@@ -1,5 +1,20 @@
 2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* Makefile.am:
+	* autogen.sh:
+	* configure.ac:
+	* intltool-extract.in (deleted):
+	* intltool-update.in (deleted):
+	* intltool-merge.in (deleted):
+	* po (deleted):
+	* po/LINGUAS (deleted):
+	* po/es.po (deleted):
+	* po/Makevars (deleted):
+	* po/POTFILES.in (deleted):
+	Remove i18n support
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion-fragmented-streaming.spec.in:
 	Added missing build dependency
 
