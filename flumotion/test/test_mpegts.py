@@ -94,7 +94,7 @@ class TestMPEGTS(comptest.CompTestTestCase):
 
     def testFlow(self):
         properties = {'rewrite-offset': False}
-        enc = comptest.pipeline_cnv('flumch264enc keyframe-distance=3')
+        enc = comptest.pipeline_cnv('flumch264enc max-keyframe-distance=3 min-keyframe-distance=3')
         mt = comptest.ComponentWrapper('mpegts-muxer', mpegts.MPEGTS,
                                        name='tsmuxer', props=properties,
                                        plugs={})
