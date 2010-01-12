@@ -1,5 +1,10 @@
 2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion-fragmented-streaming.spec.in:
+	Added missing build dependency
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* Makefile.am:
 	* configure.ac:
 	* env:

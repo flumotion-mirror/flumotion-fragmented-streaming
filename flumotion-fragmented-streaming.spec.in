@@ -4,7 +4,7 @@ Release:        1
 Summary:        Flumotion fragmented streaming support.
 
 Group:          Applications/Internet
-License:        Private
+License:        Proprietary
 URL:            http://www.flumotion.com/
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -13,6 +13,7 @@ Requires:       flumotion >= 0.7.0.1
 Requires:       python-uuid
 
 BuildRequires:  gettext
+BuildRequires:  intltool
 BuildRequires:  python >= 2.3
 BuildRequires:  flumotion >= 0.7.0.1
 BuildRequires:  python-uuid
