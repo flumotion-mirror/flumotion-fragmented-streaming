@@ -43,7 +43,7 @@ http://localhost/mpegts-0.ts
 FRAGMENT = 'fragment1'
 
 
-class FakeStreamer():
+class FakeStreamer:
 
     def __init__(self):
         self.clients = 0
