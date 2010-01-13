@@ -21,7 +21,7 @@ import uuid
 import resource
 from datetime import datetime, timedelta
 
-from twisted.internet import defer
+from twisted.internet import defer, reactor
 from twisted.web import server, resource as web_resource
 
 try:
@@ -62,6 +62,52 @@ ERROR_TEMPLATE = """<!doctype html public "-//IETF//DTD HTML 2.0//EN">
 """
 
 ### the Twisted resource that handles the base URL
+
+
+class Session(server.Session):
+
+    sessionTimeout = 900
+    _expireCall = None
+
+    def _init_(self, site, uid):
+        server.Session.__init__(self, site, uid)
+
+    def startCheckingExpiration(self):
+        """
+        Start expiration tracking.
+
+        @return: C{None}
+        """
+        self._expireCall = reactor.callLater(
+            self.sessionTimeout, self.expire)
+
+    def notifyOnExpire(self, callback):
+        """
+        Call this callback when the session expires or logs out.
+        """
+        self.expireCallbacks.append(callback)
+
+    def expire(self):
+        """
+        Expire/logout of the session.
+        """
+        del self.site.sessions[self.uid]
+        for c in self.expireCallbacks:
+            c()
+        self.expireCallbacks = []
+        if self._expireCall and self._expireCall.active():
+            self._expireCall.cancel()
+            # Break reference cycle.
+            self._expireCall = None
+
+    def touch(self):
+        """
+        Notify session modification.
+        """
+        self.lastModified = time.time()
+        if self._expireCall is not None:
+            self._expireCall.reset(self.sessionTimeout)
+
 
 
 class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
@@ -292,9 +338,9 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
                 sessionID, request.getClientIP(), authExpiracy)
 
         request.session = request.site.sessions[sessionID] =\
-                request.site.sessionFactory(request.site, sessionID)
-        request.session.sessionTimeout= SESSION_TIMEOUT
-        request.session.startCheckingExpiration(SESSION_TIMEOUT)
+                Session(request.site, sessionID)
+        request.session.sessionTimeout = SESSION_TIMEOUT
+        request.session.startCheckingExpiration()
         request.session.notifyOnExpire(lambda:
                 self._delClient(sessionID))
         request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
