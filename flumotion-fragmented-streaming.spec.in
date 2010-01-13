@@ -11,7 +11,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Requires:       flumotion >= @FLU_REQ@
 Requires:       python-uuid
-Requires:       gst-plugins-bad
+Requires:       gstreamer-plugins-bad
 
 BuildRequires:  gettext
 BuildRequires:  intltool

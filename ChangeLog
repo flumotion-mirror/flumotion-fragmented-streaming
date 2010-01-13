@@ -1,3 +1,8 @@
+2010-01-13  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion-fragmented-streaming.spec.in:
+	Fix gstreamer dependency name
+
 2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion-fragmented-streaming.spec.in:
