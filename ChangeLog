@@ -1,3 +1,10 @@
+2010-01-13  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* configure.ac:
+	* m4 (deleted):
+	AC_CONFIG_MACRO_DIR() takes only one path, and removing m4, it is
+	empty.
+
 2010-01-13  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion-fragmented-streaming.spec.in:

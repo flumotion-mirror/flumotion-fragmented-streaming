@@ -17,8 +17,8 @@ AC_SUBST(PYGST_REQ, 0.10.11)
 AC_SUBST(GST_REQ, 0.10.22)
 
 dnl Add parameters for aclocal
-AC_SUBST(ACLOCAL_AMFLAGS, "-I m4 -I common")
-AC_CONFIG_MACRO_DIR([m4 common])
+AC_SUBST(ACLOCAL_AMFLAGS, "-I common")
+AC_CONFIG_MACRO_DIR([common])
 
 
 AS_AC_EXPAND(LIBDIR, $libdir)
