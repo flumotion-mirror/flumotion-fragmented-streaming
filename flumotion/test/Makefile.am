@@ -13,6 +13,7 @@ EXTRA_DIST = __init__.py \
 	test_hls_ring.py \
 	test_mpegts.py \
 	test_mpegts.xml \
+	test_resource.py \
 	test_ts_segmenter.py \
 	test_ts_segmenter.xml
 
