@@ -284,7 +284,6 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self.ready = False
         self._segmentsCount = 0
         self.hlsring.reset()
-        self.setMood(moods.waking)
 
     def get_pipeline_string(self, properties):
         gobject.type_register(mpegtssegmenter.MpegTSSegmenter)
@@ -479,7 +478,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
     def _processBuffer(self, buffer):
         offset = buffer.offset
         if offset < self._lastBufferOffset:
-            self.warning("Fragment discontinuity. Last buffer offset"
+            self.warning("Fragment discontinuity. Last buffer offset "
                          "was: %s, incomming buffer offset is: %s" ,
                          self._lastBufferOffset, offset)
             self.softRestart()
