@@ -1,6 +1,14 @@
 2010-01-14  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Check for buffers discontinuities (on a muxer restart for example),
+	and proceed with a soft restart: reset the playlist and wait for the
+	minimun fragments' window to be filled again
+
+2010-01-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
 	Do not start the playlist's fragments from 0, use instead
 	the bufer offset to keep the streamers in sync
 

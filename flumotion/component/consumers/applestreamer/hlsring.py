@@ -40,7 +40,6 @@ class Playlister:
         self._duration = 0
         self._fragments = []
         self._counter = None
-        self._done = False
 
     def setHostname(self, hostname):
         if hostname.startswith('/'):
@@ -166,6 +165,15 @@ class HLSRing(Playlister):
         a = left_pad(str(IV))
         cipher = AES.new(secret, AES.MODE_CBC, left_pad(str(IV)))
         return EncodeAES(cipher, fragment)
+
+    def reset(self):
+        self._fragmentsDict = {}
+        self._keysDict = {}
+        self._secret = ''
+        self._availableFragments = deque('')
+        self._duration = 0
+        self._fragments = []
+        self._counter = None
 
     def addFragment(self, fragment, sequenceNumber, duration):
         '''

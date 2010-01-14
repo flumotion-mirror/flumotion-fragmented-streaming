@@ -140,6 +140,8 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self._lastUpdate = 0
         self._updateUI_DC = None
 
+        self._lastBufferOffset = 0
+
         for i in ('stream-mime', 'stream-uptime', 'stream-current-bitrate',
                   'stream-bitrate', 'stream-totalbytes', 'clients-current',
                   'clients-max', 'clients-peak', 'clients-peak-time',
@@ -272,6 +274,17 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         else:
             raise errors.WrongStateError(
                 "Can't specify porter details in master mode")
+
+    def softRestart(self):
+        """Stops serving fragments, resets the playlist and starts
+        waiting for new segments to become happy again
+        """
+        self.info("Soft restart, resetting playlist and waiting to fill "
+                  "the initial fragments window")
+        self.ready = False
+        self._segmentsCount = 0
+        self.hlsring.reset()
+        self.setMood(moods.waking)
 
     def get_pipeline_string(self, properties):
         gobject.type_register(mpegtssegmenter.MpegTSSegmenter)
@@ -464,9 +477,16 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         return defer.DeferredList(l)
 
     def _processBuffer(self, buffer):
+        offset = buffer.offset
+        if offset < self._lastBufferOffset:
+            self.warning("Fragment discontinuity. Last buffer offset"
+                         "was: %s, incomming buffer offset is: %s" ,
+                         self._lastBufferOffset, offset)
+            self.softRestart()
+        self._lastBufferOffset = offset
         self._segmentsCount = self._segmentsCount + 1
         self.log("New fragment, duration=%s offset=%s" %
-                (gst.TIME_ARGS(buffer.duration), buffer.offset))
+                (gst.TIME_ARGS(buffer.duration), offset))
 
         # Wait hls-min-window fragments to set the component 'happy'
         if self._segmentsCount == self._minWindow:
@@ -475,7 +495,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             self.setMood(moods.happy)
             self.ready = True
         self.hlsring.addFragment(buffer.data,
-                buffer.offset/self.keyframesFramesPerSegment,
+                offset/self.keyframesFramesPerSegment,
                 ceil(float(buffer.duration) / gst.SECOND))
         self.resource.bytesReceived += len(buffer.data)
 
