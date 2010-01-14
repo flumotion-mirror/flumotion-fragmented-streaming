@@ -280,11 +280,11 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         return " flumpegtssegmenter name=segmenter ! appsink name=appsink"
 
     def configure_pipeline(self, pipeline, props):
-
+        self.keyframesFramesPerSegment = props.get('keyframes-per-fragment',
+                self.DEFAULT_KEYFRAMES_PER_SEGMENT)
         element = pipeline.get_by_name('segmenter')
         element.set_property('keyframes-per-segment',
-                props.get('keyframes-per-fragment',
-                    self.DEFAULT_KEYFRAMES_PER_SEGMENT))
+                self.keyframesFramesPerSegment)
 
         appsink = pipeline.get_by_name('appsink')
         appsink.set_property('emit-signals', True)
@@ -474,8 +474,8 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
                     self._segmentsCount)
             self.setMood(moods.happy)
             self.ready = True
-
-        self.hlsring.addFragment(buffer.data, self._segmentsCount - 1,
+        self.hlsring.addFragment(buffer.data,
+                buffer.offset/self.keyframesFramesPerSegment,
                 ceil(float(buffer.duration) / gst.SECOND))
         self.resource.bytesReceived += len(buffer.data)
 

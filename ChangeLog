@@ -1,3 +1,9 @@
+2010-01-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Do not start the playlist's fragments from 0, use instead
+	the bufer offset to keep the streamers in sync
+
 2010-01-13  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/resources.py:
