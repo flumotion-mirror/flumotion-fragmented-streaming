@@ -73,11 +73,11 @@
         <property name="stream-playlist" type="string"
                   _description="Stream playlist resource name relative to the mount point (default:stream.m3u8)" />
         <property name="keyframes-per-fragment" type="int"
-                  _description="Number of keyframes per fragment (default:1)" />
+                  _description="Number of keyframes per fragment (default:10)" />
         <property name="min-window" type="int"
-                  _description="Minimun number of fragments to buffer (default:3)" />
+                  _description="Minimun number of fragments to buffer (default:2)" />
         <property name="max-window" type="int"
-                  _description="Maximum number of fragments to buffer (default:6)" />
+                  _description="Maximum number of fragments to buffer (default:5)" />
         <property name="key-rotation" type="int"
                   _description="Number of fragments sharing the same encryption key. Use 0 for not using encryption (default:0)" />
         <property name="keys-uri" type="string"

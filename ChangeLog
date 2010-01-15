@@ -1,5 +1,10 @@
 2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Fix default properties in the plugin description
+
+2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/applestreamer.py:
 	Consider a discontinuity receiving two fragments in a row with
 	the same offset
