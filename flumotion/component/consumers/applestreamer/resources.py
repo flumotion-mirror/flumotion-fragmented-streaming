@@ -195,7 +195,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         l = []
         for logger in self.loggers:
             l.append(defer.maybeDeferred(
-                logger.event, 'http_request_completed', args))
+                logger.event, 'http_session_completed', args))
 
         return defer.DeferredList(l)
 
