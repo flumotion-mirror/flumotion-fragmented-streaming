@@ -37,7 +37,7 @@ class Playlister:
         self.keysURI = ''
         #FIXME: Make it a property
         self.allowCache = True
-        self._duration = 0
+        self._duration = None
         self._fragments = []
         self._counter = None
 
@@ -54,9 +54,11 @@ class Playlister:
         self.allowCache = allowed
 
     def _addPlaylistFragment(self, sequenceNumber, duration, encrypted):
-        # FIXME: We supose all the fragments have the same duration
-        if self._counter is None:
-            # This value MUST remain constant
+        # Fragments are suposed to have a constant duration. Set the
+        # target duration from this value except if it's the first fragment,
+        # as it might be longer than the rest(encoder's fault). The playlist
+        # won't be rendered until we have at least 2 fragments
+        if self._duration is None and sequenceNumber != 0:
             self._duration = duration
         self._counter = sequenceNumber + 1
         fragmentName = '%s-%s.ts' % (self.fragmentPrefix, sequenceNumber)
@@ -82,7 +84,7 @@ class Playlister:
         lines.append("#EXTM3U")
         lines.append("#EXT-X-ALLOW-CACHE:%s" %
                 (self.allowCache and 'YES' or 'NO'))
-        lines.append("#EXT-X-TARGETDURATION:%d" % self._duration)
+        lines.append("#EXT-X-TARGETDURATION:%d" % self._duration or 10)
         lines.append("#EXT-X-MEDIA-SEQUENCE:%d" %
             (self._counter - len(self._fragments)))
 
@@ -171,7 +173,7 @@ class HLSRing(Playlister):
         self._keysDict = {}
         self._secret = ''
         self._availableFragments = deque('')
-        self._duration = 0
+        self._duration = None
         self._fragments = []
         self._counter = None
 

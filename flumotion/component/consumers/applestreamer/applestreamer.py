@@ -140,7 +140,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self._lastUpdate = 0
         self._updateUI_DC = None
 
-        self._lastBufferOffset = 0
+        self._lastBufferOffset = -1
 
         for i in ('stream-mime', 'stream-uptime', 'stream-current-bitrate',
                   'stream-bitrate', 'stream-totalbytes', 'clients-current',
@@ -283,6 +283,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
                   "the initial fragments window")
         self.ready = False
         self._segmentsCount = 0
+        self._lastBufferOffset = -1
         self.hlsring.reset()
 
     def get_pipeline_string(self, properties):
@@ -477,7 +478,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
     def _processBuffer(self, buffer):
         offset = buffer.offset
-        if offset < self._lastBufferOffset:
+        if offset <= self._lastBufferOffset:
             self.warning("Fragment discontinuity. Last buffer offset "
                          "was: %s, incomming buffer offset is: %s" ,
                          self._lastBufferOffset, offset)

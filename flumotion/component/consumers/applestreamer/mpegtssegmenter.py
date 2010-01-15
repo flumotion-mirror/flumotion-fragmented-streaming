@@ -56,6 +56,9 @@ class MpegTSSegmenter(gst.Element):
         self.add_pad(self.srcpad)
 
         self._keyframesPerSegment = self._DEFAULT_KEYFRAMES
+        self._fullReset()
+
+    def _fullReset(self):
         self._lastTimestamp = gst.CLOCK_TIME_NONE
         self._syncKeyframe = False
         self._reset()
@@ -81,7 +84,6 @@ class MpegTSSegmenter(gst.Element):
         self._buffer.append(buffer.data)
 
     def _segment(self):
-
         outbuf = gst.Buffer(''.join(self._buffer))
         outbuf.set_caps(self.sinkpad.get_caps())
         outbuf.offset = self._count-self._keyframesPerSegment
@@ -93,6 +95,12 @@ class MpegTSSegmenter(gst.Element):
 
     def chainfunc(self, pad, buffer):
         ret = gst.FLOW_OK
+
+        # Check for discontinuities, like a muxer restart.
+        if buffer.offset <= self._count:
+            self.warning("Found a discontinuity in the buffers offset."
+                         "freeing fragment and resetting counters")
+            self._fullReset()
 
         # Discard first buffers until we have a valid sync keyframe
         if not self._syncKeyframe:
