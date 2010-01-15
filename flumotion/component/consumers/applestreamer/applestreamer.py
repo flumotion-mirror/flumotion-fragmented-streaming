@@ -496,7 +496,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             self.ready = True
         self.hlsring.addFragment(buffer.data,
                 offset/self.keyframesFramesPerSegment,
-                ceil(float(buffer.duration) / gst.SECOND))
+                buffer.duration / gst.SECOND)
         self.resource.bytesReceived += len(buffer.data)
 
     ### START OF THREAD-AWARE CODE (called from non-reactor threads)
