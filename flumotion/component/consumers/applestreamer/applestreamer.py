@@ -140,7 +140,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self._lastUpdate = 0
         self._updateUI_DC = None
 
-        self._lastBufferOffset = -1
+        self._lastBufferOffset = None
 
         for i in ('stream-mime', 'stream-uptime', 'stream-current-bitrate',
                   'stream-bitrate', 'stream-totalbytes', 'clients-current',
@@ -283,7 +283,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
                   "the initial fragments window")
         self.ready = False
         self._segmentsCount = 0
-        self._lastBufferOffset = -1
+        self._lastBufferOffset = None
         self.hlsring.reset()
 
     def get_pipeline_string(self, properties):
@@ -477,16 +477,25 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         return defer.DeferredList(l)
 
     def _processBuffer(self, buffer):
-        offset = buffer.offset
-        if offset <= self._lastBufferOffset:
-            self.warning("Fragment discontinuity. Last buffer offset "
-                         "was: %s, incomming buffer offset is: %s" ,
-                         self._lastBufferOffset, offset)
-            self.softRestart()
-        self._lastBufferOffset = offset
+        currOffset = buffer.offset
+        # When a streamer is plugged the buffer offset is not known yet
+        if self._lastBufferOffset is not None:
+            nextOffset = (self._lastBufferOffset +
+                    self.keyframesFramesPerSegment)
+            # Check for fragments discontinuities.
+            if currOffset != nextOffset:
+                self.warning("Fragment discontinuity. Expected buffer offset "
+                            "was: %s, incomming buffer offset is: %s",
+                            nextOffset, currOffset)
+                if currOffset < nextOffset:
+                    # Usually means that the muxer was restarted. The counters
+                    # and playlist needs a reset.
+                    self.softRestart()
+
+        self._lastBufferOffset = currOffset
         self._segmentsCount = self._segmentsCount + 1
         self.log("New fragment, duration=%s offset=%s" %
-                (gst.TIME_ARGS(buffer.duration), offset))
+                (gst.TIME_ARGS(buffer.duration), currOffset))
 
         # Wait hls-min-window fragments to set the component 'happy'
         if self._segmentsCount == self._minWindow:
@@ -495,7 +504,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             self.setMood(moods.happy)
             self.ready = True
         self.hlsring.addFragment(buffer.data,
-                offset/self.keyframesFramesPerSegment,
+                currOffset/self.keyframesFramesPerSegment,
                 buffer.duration / gst.SECOND)
         self.resource.bytesReceived += len(buffer.data)
 

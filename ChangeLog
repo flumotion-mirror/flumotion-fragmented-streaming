@@ -1,6 +1,12 @@
 2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Improve discontinuities failure detection
+
+2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
 	Do not round fragments duration to the upper value
 
 2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
@@ -18,15 +24,6 @@
 	duration as it's usually longer
 	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
 	Check for discontinuities in the stream to reset the segmenter
-
-2010-01-14  Andoni Morales Alastruey,,,  <amorales@flumotion.com>
-
-	reviewed by: <delete if not using a buddy>
-	patch by: <delete if not someone else's patch>
-
-	* flumotion/component/consumers/applestreamer/applestreamer.py:
-	* flumotion/component/consumers/applestreamer/hlsring.py:
-	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
 
 2010-01-14  Andoni Morales Alastruey  <amorales@flumotion.com>
 

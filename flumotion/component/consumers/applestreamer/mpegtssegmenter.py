@@ -96,12 +96,6 @@ class MpegTSSegmenter(gst.Element):
     def chainfunc(self, pad, buffer):
         ret = gst.FLOW_OK
 
-        # Check for discontinuities, like a muxer restart.
-        if buffer.offset <= self._count:
-            self.warning("Found a discontinuity in the buffers offset."
-                         "freeing fragment and resetting counters")
-            self._fullReset()
-
         # Discard first buffers until we have a valid sync keyframe
         if not self._syncKeyframe:
             if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):
@@ -134,7 +128,13 @@ class MpegTSSegmenter(gst.Element):
         if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):
             # We have a keyframe
             if buffer.offset != gst.BUFFER_OFFSET_NONE:
-                self._count = buffer.offset
+                # Check for discontinuities, like a muxer restart.
+                if self._count != 0 and buffer.offset != self._count + 1:
+                    self.warning("Found a discontinuity in the buffers offset."
+                                 "freeing fragment and resetting counters")
+                    self._fullReset()
+                else:
+                    self._count = buffer.offset
             else:
                 self._count = self._count + 1
             if (self._count % self._keyframesPerSegment) == 0 and\
