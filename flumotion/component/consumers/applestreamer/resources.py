@@ -47,7 +47,7 @@ SESSION_TIMEOUT = 30
 COOKIE_NAME = 'flumotion-session'
 SECRET='2Ed4sB/s#D%&"DGs36y5'
 NOT_VALID = 0
-VALID= 1
+VALID = 1
 RENEW_AUTH = 2
 
 ERROR_TEMPLATE = """<!doctype html public "-//IETF//DTD HTML 2.0//EN">
@@ -107,7 +107,6 @@ class Session(server.Session):
         self.lastModified = time.time()
         if self._expireCall is not None:
             self._expireCall.reset(self.sessionTimeout)
-
 
 
 class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
@@ -244,7 +243,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             return softmax - self.__reserve_fds__
 
     def reachedServerLimits(self):
-        if self.maxclients >= 0 and self.streamer.getClients() >= self.maxclients:
+        if self.maxclients >= 0 and \
+                self.streamer.getClients() >= self.maxclients:
             return True
         elif self.maxbandwidth >= 0:
             # Reject if adding one more client would take us over the limit.

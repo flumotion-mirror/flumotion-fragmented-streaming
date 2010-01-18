@@ -1,6 +1,17 @@
 2010-01-18  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Fix pep8 and remove unused variables and imports
+
+2010-01-18  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
 	Don't drop preroll buffers
 
 2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>

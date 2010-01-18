@@ -105,4 +105,3 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
         gst.element_register(KeyframesCounter, "flukeyframescounter",
                 gst.RANK_MARGINAL)
         return muxer
-

@@ -164,7 +164,6 @@ class HLSRing(Playlister):
                 * self.PADDING + s
         EncodeAES = lambda c, s: c.encrypt(right_pad(s))
 
-        a = left_pad(str(IV))
         cipher = AES.new(secret, AES.MODE_CBC, left_pad(str(IV)))
         return EncodeAES(cipher, fragment)
 

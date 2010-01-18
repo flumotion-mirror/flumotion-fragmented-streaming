@@ -14,7 +14,6 @@
 # Headers in this file shall remain intact.
 
 import time
-from math import ceil
 
 import gst
 import gobject
