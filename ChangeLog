@@ -1,3 +1,10 @@
+2010-01-19  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Fix the way the target duration is set.
+	* flumotion/test/test_resource.py:
+	Added test for authentication renewal.
+
 2010-01-18  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:

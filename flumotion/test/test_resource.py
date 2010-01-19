@@ -337,6 +337,41 @@ class TestAppleStreamerSessions(unittest.TestCase):
         request = FakeRequest(self.site, "GET", "/localhost/stream.m3u8")
         return self.assertAuthorized(request)
 
+    def testRenewAuthentication(self):
+
+        def checkSessionID(request):
+            # The auth is not valid anymore and has been renewed,
+            # but the session should be same
+            cookie = request.getCookie(resources.COOKIE_NAME)
+            self.failIf(cookie is None)
+            sessionID, authExpiracy, none = \
+                   base64.b64decode(cookie).split(':')
+            self.assertEquals(authExpiracy, '0')
+            self.assertEquals(sessionID, self.sessionID)
+            for d in reactor.getDelayedCalls():
+                d.cancel()
+
+        def resendRequest(request):
+            cookie = request.getCookie(resources.COOKIE_NAME)
+            self.failIf(cookie is None)
+            self.sessionID = base64.b64decode(cookie).split(':')[0]
+            cookie = self.resource._generateToken(
+                   self.sessionID, "255.255.255.255", 1)
+            d = defer.Deferred()
+            request = FakeRequest(self.site, "GET",
+                    "/localhost/stream.m3u8", onFinish=d)
+            request.addCookie("flumotion-session", cookie, "/localhost")
+            d.addCallback(checkSessionID)
+            # Send the same request after 2 seconds, when the auth has
+            # expired. The session id should be the same
+            reactor.callLater(2, self.resource.render_GET,request)
+            return d
+
+        self.streamer.httpauth.setBouncerName('fakebouncer')
+        self.streamer.httpauth.setDomain('FakeDomain')
+        d = self.processRequest("GET", "/localhost/stream.m3u8")
+        d.addCallback(resendRequest)
+        return d
 
 if __name__ == '__main__':
     unittest.main()
