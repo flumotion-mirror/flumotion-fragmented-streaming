@@ -512,7 +512,6 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
     def new_preroll(self, appsink):
         self.debug("new preroll buffer")
         buffer = appsink.emit('pull-preroll')
-        reactor.callFromThread(self._processBuffer, buffer)
 
     def new_buffer(self, appsink):
         self.debug("new buffer")

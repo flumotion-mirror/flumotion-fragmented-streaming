@@ -1,5 +1,12 @@
 2010-01-19  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Revert partially 26726: Don't drop preroll buffer
+	The preroll buffer is the same as the first buffer. We don't
+	need it
+
+2010-01-19  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/hlsring.py:
 	Fix the way the target duration is set.
 	* flumotion/test/test_resource.py:
