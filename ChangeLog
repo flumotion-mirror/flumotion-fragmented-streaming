@@ -1,3 +1,10 @@
+2010-01-20  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion-fragmented-streaming.spec.in:
+	Remove 'python-uuid' and 'gst-plugins-bad' dependencies.
+	They are handled by fsp-role-streamer.
+	Fix the release date
+
 2010-01-19  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:

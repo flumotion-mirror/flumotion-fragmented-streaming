@@ -10,8 +10,6 @@ Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
 Requires:       flumotion >= @FLU_REQ@
-Requires:       python-uuid
-Requires:       gstreamer-plugins-bad
 
 BuildRequires:  gettext
 BuildRequires:  intltool
@@ -46,7 +44,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/flumotion
 
 %changelog
-
-* Mon Nov 30 2009 Andoni Morales <amorales@flumotion.com>
+* Wed Jan 20 2010 Andoni Morales <amorales@flumotion.com>
 - Initial release
 
