@@ -39,6 +39,7 @@
 
         <directories>
             <directory name="flumotion/component/muxers/mpegts">
+                <filename location="__init__.py" />
                 <filename location="mpegts.py" />
             </directory>
         </directories>

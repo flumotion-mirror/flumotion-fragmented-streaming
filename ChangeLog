@@ -1,3 +1,8 @@
+2010-01-21  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Add missing __init__.py to the bundle
+
 2010-01-20  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion-fragmented-streaming.spec.in:
