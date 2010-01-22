@@ -1,3 +1,9 @@
+2010-01-22  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Round fragments's duration to prevent innacuracies in the encoder's
+	keyframe distance
+
 2010-01-21  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/muxers/mpegts/mpegts.xml:
