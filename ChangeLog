@@ -1,3 +1,15 @@
+2010-01-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	reviewed by: Marc-André
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Define remove_client called by the HTTPAuthenticator but not used
+	in the apple streamer, where expiration is checked on each request
+	using using cookies.
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Fragments must be available to clients for some time after they
+	have been removed from the playlist
+
 2010-01-22  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:

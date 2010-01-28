@@ -198,8 +198,14 @@ class HLSRing(Playlister):
         if fragmentName in self._availableFragments:
             return
 
-        # If the ring is full, delete the oldest segment
-        while len(self._fragmentsDict) >= self.window:
+        # If the ring is full, delete the oldest segment.
+        # From HTTP Live Streaming draft:
+        # "When the server removes a media file URI from the Playlist, the media
+        # file MUST remain available to clients for a period of time equal to
+        # the duration of the media file plus the duration of the longest
+        # Playlist file in which the media file has appeared.  The duration of
+        # a Playlist file is the sum of the durations of the media files within"
+        while len(self._fragmentsDict) >= 2 * self.window + 1:
             pop = self._availableFragments.popleft()
             del self._fragmentsDict[pop]
             if pop in self._keysDict:

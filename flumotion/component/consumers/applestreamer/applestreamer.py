@@ -274,6 +274,13 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             raise errors.WrongStateError(
                 "Can't specify porter details in master mode")
 
+    def remove_client(self, fd):
+        '''
+        Keycards expiration is checked by the twisted resource. Keep this
+        method for compatibility with the httpstreamer
+        '''
+        pass
+
     def softRestart(self):
         """Stops serving fragments, resets the playlist and starts
         waiting for new segments to become happy again
