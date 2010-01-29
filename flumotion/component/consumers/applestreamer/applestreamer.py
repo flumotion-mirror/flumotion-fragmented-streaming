@@ -335,6 +335,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             self.description,
             props.get('fragment-prefix', self.DEFAULT_FRAGMENT_PREFIX),
             props.get('max-window', self.DEFAULT_MAX_WINDOW),
+            props.get('max-extra-buffers', None),
             props.get('key-rotation', 0),
             props.get('keys-uri', None))
 

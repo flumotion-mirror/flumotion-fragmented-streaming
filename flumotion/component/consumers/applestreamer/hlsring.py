@@ -121,7 +121,8 @@ class HLSRing(Playlister):
     PADDING = '0'
 
     def __init__(self, hostname, mainPlaylist, streamPlaylist, title,
-            fragmentPrefix='mpegts', window=5, keyInterval=0, keysURI=None):
+            fragmentPrefix='mpegts', window=5, maxExtraBuffers=None,
+            keyInterval=0, keysURI=None):
         '''
         @param hostname:        hostname to use in the playlist
         @type  hostname:        str
@@ -135,6 +136,8 @@ class HLSRing(Playlister):
         @type  fragmentPrefix:  str
         @param window:          maximum number of fragments to buffer
         @type  window:          int
+        @param maxExtraBuffers: maximum number of extra fragments to buffer
+        @type  maxExtraBuffers: int
         @param keyInterval:     number of fragments sharing the same encryption
                                 key. O if not using encryption
         @type  keyInterval:     int
@@ -149,6 +152,10 @@ class HLSRing(Playlister):
         self.title = title
         self.fragmentPrefix = fragmentPrefix
         self.window = window
+        if maxExtraBuffers is None:
+            self.maxBuffers = 2 * window +1
+        else:
+            self.maxBuffers = window + maxExtraBuffers
         self.keyInterval = keyInterval
         self.keysURI = keysURI or self._hostname
         self._encrypted = (keyInterval != 0)
@@ -205,7 +212,7 @@ class HLSRing(Playlister):
         # the duration of the media file plus the duration of the longest
         # Playlist file in which the media file has appeared.  The duration of
         # a Playlist file is the sum of the durations of the media files within"
-        while len(self._fragmentsDict) >= 2 * self.window + 1:
+        while len(self._fragmentsDict) >= self.maxBuffers:
             pop = self._availableFragments.popleft()
             del self._fragmentsDict[pop]
             if pop in self._keysDict:

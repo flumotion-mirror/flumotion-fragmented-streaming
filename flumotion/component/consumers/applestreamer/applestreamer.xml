@@ -75,9 +75,11 @@
         <property name="keyframes-per-fragment" type="int"
                   _description="Number of keyframes per fragment (default:10)" />
         <property name="min-window" type="int"
-                  _description="Minimun number of fragments to buffer (default:2)" />
+                  _description="Minimun number of fragments to start streaming (default:2)" />
         <property name="max-window" type="int"
-                  _description="Maximum number of fragments to buffer (default:5)" />
+                  _description="Maximum number of fragments to expose in the playlist (default:5)" />
+        <property name="max-extra-buffers" type="int"
+                  _description="Maximum number of extra fragments kept in the ring (default:max-window+1)" />
         <property name="key-rotation" type="int"
                   _description="Number of fragments sharing the same encryption key. Use 0 for not using encryption (default:0)" />
         <property name="keys-uri" type="string"
