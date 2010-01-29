@@ -1,5 +1,15 @@
 2010-01-29  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/test/test_resource.py:
+	Fix pep8
+	* flumotion/test/test_hls_ring.py:
+	Fix test for the new max-extra-buffers property
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Disable untested properties
+
+2010-01-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	reviewed by: Xavi Martinez
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:

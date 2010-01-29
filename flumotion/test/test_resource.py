@@ -364,7 +364,7 @@ class TestAppleStreamerSessions(unittest.TestCase):
             d.addCallback(checkSessionID)
             # Send the same request after 2 seconds, when the auth has
             # expired. The session id should be the same
-            reactor.callLater(2, self.resource.render_GET,request)
+            reactor.callLater(2, self.resource.render_GET, request)
             return d
 
         self.streamer.httpauth.setBouncerName('fakebouncer')

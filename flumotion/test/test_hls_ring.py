@@ -63,13 +63,13 @@ http://localhost:8000/mpegts-5.ts
         self.assertEqual(fragment, 'string')
 
     def testWindowSize(self):
-        for i in range(6):
+        for i in range(11):
             self.ring.addFragment('fragment-%s' % i, i, 10)
-        self.assertEqual(len(self.ring._availableFragments), 5)
-        self.assertEqual(len(self.ring._fragmentsDict), 5)
-        self.ring.addFragment('fragment-5', 0, 10)
-        self.assertEqual(len(self.ring._availableFragments), 5)
-        self.assertEqual(len(self.ring._fragmentsDict), 5)
+        self.assertEqual(len(self.ring._availableFragments), 11)
+        self.assertEqual(len(self.ring._fragmentsDict), 11)
+        self.ring.addFragment('fragment-12', 0, 10)
+        self.assertEqual(len(self.ring._availableFragments), 11)
+        self.assertEqual(len(self.ring._fragmentsDict), 11)
         self.assert_('fragment-0' not in self.ring._fragmentsDict)
         self.assert_('fragment-0' not in self.ring._availableFragments)
 
