@@ -312,16 +312,16 @@ class TestAppleStreamerSessions(unittest.TestCase):
 
         cookie = self.resource._generateToken('1', IP1, 0)
         # Test wrong IP
-        self.assertEquals(self.resource._cookieIsValid(cookie, IP2),
-                resources.NOT_VALID)
+        self.assertEquals(self.resource._cookieIsValid(cookie, IP2)[0],
+                (resources.NOT_VALID))
         # Test Bad Signature
         cookie = self.resource._generateToken('1', IP1, 0)
         resources.SECRET = 'secret'
-        self.assertEquals(self.resource._cookieIsValid(cookie, IP1),
+        self.assertEquals(self.resource._cookieIsValid(cookie, IP1)[0],
                 resources.NOT_VALID)
         # Test authentication expired
         cookie = self.resource._generateToken('1', IP1, 1)
-        self.assertEquals(self.resource._cookieIsValid(cookie, IP1),
+        self.assertEquals(self.resource._cookieIsValid(cookie, IP1)[0],
                 resources.RENEW_AUTH)
 
     def testRenderHTTPAuthUnauthorized(self):

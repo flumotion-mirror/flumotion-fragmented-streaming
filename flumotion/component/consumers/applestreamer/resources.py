@@ -288,9 +288,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             cookie = request.getCookie(COOKIE_NAME)
             if cookie:
                 # The request has a flumotion cookie
-                cookieState = self._cookieIsValid(cookie,
+                cookieState, sessionID = self._cookieIsValid(cookie,
                         request.getClientIP())
-                sessionID = base64.b64decode(cookie).split(':')[0]
                 if cookieState != NOT_VALID:
                     # The cookie is valid: retrieve or create a session
                     try:
@@ -371,28 +370,28 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         RENEW_AUTH: the cookie is valid but the authentication has expired
         NOT_VALID: the cookie is not valid
         """
-        token = base64.b64decode(cookie)
         private = ':'.join([clientIP, self.mountPoint])
         try:
+            token = base64.b64decode(cookie)
             payload, sig = token.rsplit(':', 1)
             sessionID, authExpiracy = payload.split(':')
-        except:
+        except (TypeError, ValueError):
             self.debug("cookie is not valid. reason: malformed cookie")
-            return NOT_VALID
+            return (NOT_VALID, None)
 
         self.log("cheking cookie authentication: "
                 "session_id=%s auth_expiracy:%s" % (sessionID, authExpiracy))
         # Check signature
         if hmac.new(SECRET, ':'.join([payload, private])).hexdigest() != sig:
             self.debug("cookie is not valid. reason: invalid signature")
-            return NOT_VALID
+            return (NOT_VALID, None)
         # Check authentication expiracy
         if int(authExpiracy) != 0 and int(authExpiracy) < \
                 time.mktime(datetime.utcnow().timetuple()):
             self.debug("cookie is not valid. reason: authentication expired")
-            return RENEW_AUTH
+            return (RENEW_AUTH, sessionID)
         self.log("cookie is valid")
-        return VALID
+        return (VALID, sessionID)
 
     def _addClient(self):
         self.streamer.clientAdded()
