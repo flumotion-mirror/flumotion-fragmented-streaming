@@ -37,7 +37,7 @@ __packagePath = os.path.abspath(os.path.join(__thisdir, '..', '..'))
 if __thisdir.find('_build') != -1:
     log.debug('setup: distcheck mode (in %s)' % __thisdir)
     __packagePath = os.path.abspath(os.path.join(__thisdir, '..', '..'))
-else:    
+else:
     log.debug('setup: normal mode')
 
 from flumotion.common import package

@@ -1,5 +1,10 @@
 2010-02-03  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/test/setup.py.in:
+	Fix pep8
+
+2010-02-03  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	reviewed by: Xavi Martinez
 
 	* flumotion/component/consumers/applestreamer/applestreamer.py:
