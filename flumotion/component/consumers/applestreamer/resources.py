@@ -166,7 +166,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         Close the logfile, then reopen using the previous logfilename
         """
         for logger in self.loggers:
-            self.debug('rotating logger %r' % logger)
+            self.debug('rotating logger %r', logger)
             logger.rotate()
 
     def logWrite(self, request):
@@ -199,10 +199,10 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         return defer.DeferredList(l)
 
     def setUserLimit(self, limit):
-        self.info('setting maxclients to %d' % limit)
+        self.info('setting maxclients to %d', limit)
         self.maxclients = self.getMaxAllowedClients(limit)
         # Log what we actually managed to set it to.
-        self.info('set maxclients to %d' % self.maxclients)
+        self.info('set maxclients to %d', self.maxclients)
 
     def setBandwidthLimit(self, limit):
         self.maxbandwidth = limit
@@ -260,7 +260,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         # Delete, if it's present, the 'flumotion-session' cookie
         for cookie in request.cookies:
             if cookie.startswith('%s=%s' % (COOKIE_NAME, cookie)):
-                self.log("delete old cookie for session ID=%s" % sessionID)
+                self.log("delete old cookie for session ID=%s", sessionID)
                 request.cookies.remove(cookie)
 
         if authResponse and authResponse.duration != 0:
@@ -300,7 +300,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
                         # FIXME: We might want to be able to use the same
                         # session in several streamer. Create a new session
                         # here using the same sessionID
-                        pass
+                        self.log("session %s doesn't exist.", sessionID)
                     if cookieState == RENEW_AUTH:
                         # The authentication as expired, renew it
                         self.debug('renewing authentication')
@@ -345,7 +345,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
 
         self._addClient()
-        self.log('adding new client with session id: "%s"' %
+        self.debug('added new client with session id: "%s"' %
                 request.session.uid)
 
     def _generateToken(self, sessionID, clientIP, authExpiracy):
@@ -379,8 +379,9 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             self.debug("cookie is not valid. reason: malformed cookie")
             return (NOT_VALID, None)
 
-        self.log("cheking cookie authentication: "
-                "session_id=%s auth_expiracy:%s" % (sessionID, authExpiracy))
+        self.log("cheking cookie for client_ip=%s expiracy:%s",
+                clientIP, authExpiracy)
+
         # Check signature
         if hmac.new(SECRET, ':'.join([payload, private])).hexdigest() != sig:
             self.debug("cookie is not valid. reason: invalid signature")
@@ -397,7 +398,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         self.streamer.clientAdded()
 
     def _delClient(self, uid):
-        self.log("session %s expired" % uid)
+        self.log("session %s expired", uid)
         self.streamer.clientRemoved()
 
     def _errorMessage(self, request, error_code):
@@ -410,6 +411,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     def _handleNotReady(self, request):
         self.debug("Not sending data, it's not ready")
+        request.code = http.SERVICE_UNAVAILABLE
         return self._errorMessage(request, http.SERVICE_UNAVAILABLE)
 
     def _handleServerFull(self, request):
@@ -419,8 +421,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             error_code = http.FOUND
             request.setHeader('location', self._redirectOnFull)
         else:
-            self.debug('Refusing clients, client limit %d reached' %
-                self.maxclients)
+            self.debug('Refusing clients, client limit %d reached',
+                    self.maxclients)
             error_code = http.SERVICE_UNAVAILABLE
         return self._errorMessage(request, error_code)
 
@@ -437,7 +439,6 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     def _renderKey(self, res, request):
         self._writeHeaders(request, 'binary/octect-stream')
-        request.setHeader('Pragma', 'no-cache')
         if request.method == 'GET':
             key = self.ring.getEncryptionKey(request.args['key'][0])
             request.write(key)
@@ -449,9 +450,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         return res
 
     def _renderPlaylist(self, res, request, resource):
-        self.debug('_render(): asked for playlist %s' % resource)
+        self.debug('_render(): asked for playlist %s', resource)
         self._writeHeaders(request, M3U8_CONTENT_TYPE)
-        request.setHeader('Pragma', 'no-cache')
         if request.method == 'GET':
             playlist = self.ring.renderPlaylist(resource)
             request.write(playlist)
@@ -463,7 +463,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         return res
 
     def _renderFragment(self, res, request, resource):
-        self.debug('_render(): asked for fragment %s' % resource)
+        self.debug('_render(): asked for fragment %s', resource)
         self._writeHeaders(request, 'video/mpeg')
         if request.method == 'GET':
             data = self.ring.getFragment(resource)
@@ -499,10 +499,6 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             headers.append('%s: %s\r\n' % ("Set-Cookie", cookie))
 
     def _render(self, request):
-        self.info('Incoming client connection from %s' % (
-            request.getClientIP()))
-        self.debug('_render(): request %s' % (request))
-
         if not self.isReady():
             return self._handleNotReady(request)
         if self.reachedServerLimits():
@@ -537,6 +533,24 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     def getBytesReceived(self):
         return self.bytesReceived
+
+    def logRequest(self, error, request):
+        if error:
+            self.info("%s %s error:%s", request.getClientIP(), request, error)
+        else:
+            if request.session is None:
+                uid = None
+            else:
+                uid = request.session.uid
+            self.info("%s %s %s %s %s %s", request.getClientIP(), request,
+                request.code, request.getBytesSent(),
+                request.getDuration(), uid)
+
+    def render(self, request):
+        self.debug('Incoming client connection from %s: %s',
+                request.getClientIP(), request)
+        request.notifyFinish().addCallback(self.logRequest, request)
+        return web_resource.Resource.render(self, request)
 
     render_GET = _render
     render_HEAD = _render

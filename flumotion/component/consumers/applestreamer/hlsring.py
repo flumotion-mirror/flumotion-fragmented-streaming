@@ -194,6 +194,9 @@ class HLSRing(Playlister):
         @type  sequenceNumber:  int
         @param duration:        duration of the the segment in seconds
         @type  duration:        int
+
+        @return:                the name used in the playlist for the fragment
+        @rtype :                str
         '''
 
         # We only care about the name used in the playlist, we let the
@@ -227,6 +230,7 @@ class HLSRing(Playlister):
                     sequenceNumber)
             self._keysDict[fragmentName] = self._secret
         self._fragmentsDict[fragmentName] = fragment
+        return fragmentName
 
     def getFragment(self, fragmentName):
         '''

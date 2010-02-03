@@ -501,33 +501,33 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
         self._lastBufferOffset = currOffset
         self._segmentsCount = self._segmentsCount + 1
-        self.log("New fragment, duration=%s offset=%s" %
-                (gst.TIME_ARGS(buffer.duration), currOffset))
 
         # Wait hls-min-window fragments to set the component 'happy'
         if self._segmentsCount == self._minWindow:
-            self.log("%d fragments received. Changing mood to 'happy'" %
+            self.info("%d fragments received. Changing mood to 'happy'",
                     self._segmentsCount)
             self.setMood(moods.happy)
             self.ready = True
-        self.hlsring.addFragment(buffer.data,
+        fragName = self.hlsring.addFragment(buffer.data,
                 currOffset/self.keyframesFramesPerSegment,
                 round(float(buffer.duration) / float(gst.SECOND)))
         self.resource.bytesReceived += len(buffer.data)
+        self.info('Added fragment "%s", duration=%s offset=%s',
+                fragName, gst.TIME_ARGS(buffer.duration), currOffset)
 
     ### START OF THREAD-AWARE CODE (called from non-reactor threads)
 
     def new_preroll(self, appsink):
-        self.debug("new preroll buffer")
+        self.log("appsink received a preroll buffer")
         buffer = appsink.emit('pull-preroll')
 
     def new_buffer(self, appsink):
-        self.debug("new buffer")
+        self.log("appsink received a new buffer")
         buffer = appsink.emit('pull-buffer')
         reactor.callFromThread(self._processBuffer, buffer)
 
     def eos(self, appsink):
         #FIXME: How do we handle this for live?
-        self.debug('received eos')
+        self.log('appsink received an eos')
 
     ### END OF THREAD-AWARE CODE
