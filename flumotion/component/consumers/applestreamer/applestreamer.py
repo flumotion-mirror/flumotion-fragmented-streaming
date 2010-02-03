@@ -302,14 +302,15 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self.keyframesFramesPerSegment = props.get('keyframes-per-fragment',
                 self.DEFAULT_KEYFRAMES_PER_SEGMENT)
         element = pipeline.get_by_name('segmenter')
+        element.get_pad("sink").add_buffer_probe(self._sinkPadProbe, None)
         element.set_property('keyframes-per-segment',
                 self.keyframesFramesPerSegment)
 
         appsink = pipeline.get_by_name('appsink')
         appsink.set_property('emit-signals', True)
-        appsink.connect("new-preroll", self.new_preroll)
-        appsink.connect("new-buffer", self.new_buffer)
-        appsink.connect("eos", self.eos)
+        appsink.connect("new-preroll", self._new_preroll)
+        appsink.connect("new-buffer", self._new_buffer)
+        appsink.connect("eos", self._eos)
 
         self._segmentsCount = 0
 
@@ -511,22 +512,28 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         fragName = self.hlsring.addFragment(buffer.data,
                 currOffset/self.keyframesFramesPerSegment,
                 round(float(buffer.duration) / float(gst.SECOND)))
-        self.resource.bytesReceived += len(buffer.data)
         self.info('Added fragment "%s", duration=%s offset=%s',
                 fragName, gst.TIME_ARGS(buffer.duration), currOffset)
 
+    def updateBytesReceived(self, length):
+        self.resource.bytesReceived += length
+
     ### START OF THREAD-AWARE CODE (called from non-reactor threads)
 
-    def new_preroll(self, appsink):
+    def _sinkPadProbe(self, pad, buffer, none):
+        reactor.callFromThread(self.updateBytesReceived, len(buffer.data))
+        return True
+
+    def _new_preroll(self, appsink):
         self.log("appsink received a preroll buffer")
         buffer = appsink.emit('pull-preroll')
 
-    def new_buffer(self, appsink):
+    def _new_buffer(self, appsink):
         self.log("appsink received a new buffer")
         buffer = appsink.emit('pull-buffer')
         reactor.callFromThread(self._processBuffer, buffer)
 
-    def eos(self, appsink):
+    def _eos(self, appsink):
         #FIXME: How do we handle this for live?
         self.log('appsink received an eos')
 
