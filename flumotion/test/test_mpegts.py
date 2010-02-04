@@ -48,6 +48,8 @@ class MPEGTSTester(feedcomponent.ParseLaunchComponent):
         appsink.connect("eos", self.eos)
 
     def _processBuffer(self, buffer):
+        if buffer.flag_is_set(gst.BUFFER_FLAG_IN_CAPS):
+            return
         if buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):
             return
         self.log("New fragment, duration=%s offset=%s ts=%s" %
