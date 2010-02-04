@@ -84,7 +84,7 @@ class MpegTSSegmenter(gst.Element):
 
         if len(self._buffer) == 0:
             # Write PAT and PMT at the beginning of each fragment
-            s = buffer.get_caps().get_structure(0)
+            s = buffer.get_caps()[0]
             if s.has_field('streamheader'):
                 for h in s['streamheader']:
                     self._buffer.append(h.data)
