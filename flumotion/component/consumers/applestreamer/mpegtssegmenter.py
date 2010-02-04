@@ -81,6 +81,15 @@ class MpegTSSegmenter(gst.Element):
             raise AttributeError('unknown property %s' % property.name)
 
     def _addBuffer(self, buffer):
+
+        if len(self._buffer) == 0:
+            # Write PAT and PMT at the beginning of each fragment
+            s = buffer.get_caps().get_structure(0)
+            if s.has_field('streamheader'):
+                for h in s['streamheader']:
+                    self._buffer.append(h.data)
+            else:
+                self.warning("The TS Stream does not have streamheader")
         self._buffer.append(buffer.data)
 
     def _segment(self):
@@ -94,8 +103,10 @@ class MpegTSSegmenter(gst.Element):
         return ret
 
     def chainfunc(self, pad, buffer):
-        ret = gst.FLOW_OK
+        if buffer.flag_is_set(gst.BUFFER_FLAG_IN_CAPS):
+            return gst.FLOW_OK
 
+        ret = gst.FLOW_OK
         # Discard first buffers until we have a valid sync keyframe
         if not self._syncKeyframe:
             if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):

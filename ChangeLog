@@ -1,3 +1,12 @@
+2010-02-04   Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Use 'streamheaders' to get PAT and PMT and write them only once at the
+	beginning of each fragment
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Use the new 'pat/pmt-interval' property in mepgtsmux set the
+	insertion interval to the maximum allowed
+
 2010-02-03  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/test/setup.py.in:

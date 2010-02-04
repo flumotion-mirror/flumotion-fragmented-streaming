@@ -13,6 +13,8 @@
 
 # Headers in this file shall remain intact.
 
+import sys
+
 import gst
 import gobject
 
@@ -91,7 +93,7 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
         # until gst-plugin-bad-0.10.18. Patched versions in the platform
         # will be numberer using minor=10 to check if the plugin has been
         # patched
-        if v <= (0, 10, 17, 0) and v[3] != 10:
+        if v <= (0, 10, 17, 0) and v[3] != 11:
             m = messages.Warning(
                 T_(N_("Versions up to and including %s of the '%s' "
                       "GStreamer plug-in are not suitable for "
@@ -100,7 +102,8 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
             self.addMessage(m)
 
     def get_muxer_string(self, properties):
-        muxer = 'mpegtsmux name=muxer ! flukeyframescounter name=counter'
+        muxer = 'mpegtsmux name=muxer pat-interval=%d pmt-interval=%d ! \
+                flukeyframescounter name=counter' % (sys.maxint, sys.maxint)
         gobject.type_register(KeyframesCounter)
         gst.element_register(KeyframesCounter, "flukeyframescounter",
                 gst.RANK_MARGINAL)
