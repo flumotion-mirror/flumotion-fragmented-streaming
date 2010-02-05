@@ -451,6 +451,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     def _renderPlaylist(self, res, request, resource):
         self.debug('_render(): asked for playlist %s', resource)
+        request.setHeader("Connection", "Keep-Alive")
         self._writeHeaders(request, M3U8_CONTENT_TYPE)
         if request.method == 'GET':
             playlist = self.ring.renderPlaylist(resource)
@@ -464,6 +465,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     def _renderFragment(self, res, request, resource):
         self.debug('_render(): asked for fragment %s', resource)
+        request.setHeader('Connection', 'close')
         self._writeHeaders(request, 'video/mpeg')
         if request.method == 'GET':
             data = self.ring.getFragment(resource)
@@ -483,7 +485,6 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         request.setResponseCode(200)
         request.setHeader('Server', HTTP_SERVER)
         request.setHeader('Date', http.datetimeToString())
-        request.setHeader('Connection', 'close')
         request.setHeader('Cache-Control', 'no-cache')
         request.setHeader('Content-type', content)
 

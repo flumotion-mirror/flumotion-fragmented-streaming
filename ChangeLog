@@ -1,3 +1,12 @@
+2010-02-04  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed by: Andoni Morales Alastruey
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Set "Keep-Alive" for playlist, it can increase by 2 the number of
+	request processed. However, it needs a good reactor that can
+	handle idle connections.
+
 2010-02-04  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/test/test_mpegts.py:
