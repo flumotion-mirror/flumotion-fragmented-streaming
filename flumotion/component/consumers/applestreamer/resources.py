@@ -270,8 +270,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             authExpiracy = 0
         # Create a new token with the same Session ID and the renewed
         # authentication's expiration time
-        token = self._generateToken(
-                sessionID, request.getClientIP(), authExpiracy)
+        token = self._generateToken(sessionID, request.getClientIP())
         request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
 
     def _checkSession(self, request):
@@ -284,23 +283,31 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         If the cookie is not valid (bad IP or bad signature) or the session
         has expired, it creates a new session.
         """
+
+        def processAuthentication(response):
+            if response is None or response.duration == 0:
+                authExpiracy = 0
+            else:
+                authExpiracy = time.mktime((datetime.utcnow() +
+                    timedelta(seconds=res.duration)).timetuple())
+            self._createSession(request, authExpiracy)
+
         if not request.session:
             cookie = request.getCookie(COOKIE_NAME)
             if cookie:
                 # The request has a flumotion cookie
-                cookieState, sessionID = self._cookieIsValid(cookie,
-                        request.getClientIP())
+                cookieState, sessionID, authExpiracy = \
+                        self._cookieIsValid(cookie, request.getClientIP(),
+                                request.args.get('GKID', [None])[0])
                 if cookieState != NOT_VALID:
                     # The cookie is valid: retrieve or create a session
                     try:
                         # The session exists in this streamer
                         request.session = request.site.getSession(sessionID)
                     except KeyError:
-                        # The session doesn't exist
-                        # FIXME: We might want to be able to use the same
-                        # session in several streamer. Create a new session
-                        # here using the same sessionID
-                        self.log("session %s doesn't exist.", sessionID)
+                        # The session doesn't exists in this streamer
+                        self._createSession(request, authExpiracy, sessionID)
+                        self.log("replicating session %s.", sessionID)
                     if cookieState == RENEW_AUTH:
                         # The authentication as expired, renew it
                         self.debug('renewing authentication')
@@ -314,25 +321,21 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             if not request.session:
                 self.debug('asked for authentication')
                 d = self.httpauth.startAuthentication(request)
-                d.addCallback(lambda res:
-                    self._createSession(request, authResponse=res))
+                d.addCallback(lambda res: processAuthentication(res))
                 d.addErrback(lambda x: None)
                 return d
 
         request.session.touch()
 
-    def _createSession(self, request, authResponse=None):
+    def _createSession(self, request, authExpiracy=None, sessionID=None):
         """
         From t.w.s.Site.makeSession()
         Generates a new Session instance and store it for future reference
         """
-        sessionID = uuid.uuid1().hex
-        if authResponse and authResponse.duration is not 0:
-            authExpiracy = time.mktime((datetime.utcnow() +
-            timedelta(seconds=authResponse.duration)).timetuple())
-        else:
+        if authExpiracy is None:
             authExpiracy = 0
-
+        if sessionID is None:
+            sessionID = request.args.get('GKID', [uuid.uuid1().hex])[0]
         token = self._generateToken(
                 sessionID, request.getClientIP(), authExpiracy)
 
@@ -358,10 +361,11 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         """
         payload = ':'.join([sessionID, str(authExpiracy)])
         private = ':'.join([clientIP, self.mountPoint])
-        sig = hmac.new(self.secretKey, ':'.join([payload, private])).hexdigest()
+        sig = hmac.new(
+                self.secretKey, ':'.join([payload, private])).hexdigest()
         return base64.b64encode(':'.join([payload, sig]))
 
-    def _cookieIsValid(self, cookie, clientIP):
+    def _cookieIsValid(self, cookie, clientIP, urlSessionID):
         """
         Checks whether the cookie is valid against the authentication expiracy
         time and the signature (and implicitly the client IP and mount point).
@@ -377,22 +381,27 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             sessionID, authExpiracy = payload.split(':')
         except (TypeError, ValueError):
             self.debug("cookie is not valid. reason: malformed cookie")
-            return (NOT_VALID, None)
+            return (NOT_VALID, None, None)
 
-        self.log("cheking cookie for client_ip=%s expiracy:%s",
+        self.log("cheking cookie for client_ip=%s auth_expiracy:%s",
                 clientIP, authExpiracy)
 
         # Check signature
-        if hmac.new(self.secretKey, ':'.join([payload, private])).hexdigest() != sig:
+        if hmac.new(self.secretKey, ':'.join([payload, private])).hexdigest()\
+                != sig:
             self.debug("cookie is not valid. reason: invalid signature")
-            return (NOT_VALID, None)
+            return (NOT_VALID, None, None)
+        # Check sessionID
+        if urlSessionID is not None and urlSessionID != sessionID:
+            self.debug("cookie is not valid. reason: different sessions")
+            return (NOT_VALID, None, None)
+        now = time.mktime(datetime.utcnow().timetuple())
         # Check authentication expiracy
-        if int(authExpiracy) != 0 and int(authExpiracy) < \
-                time.mktime(datetime.utcnow().timetuple()):
+        if float(authExpiracy) != 0 and float(authExpiracy) < now:
             self.debug("cookie is not valid. reason: authentication expired")
-            return (RENEW_AUTH, sessionID)
+            return (RENEW_AUTH, sessionID, authExpiracy)
         self.log("cookie is valid")
-        return (VALID, sessionID)
+        return (VALID, sessionID, None)
 
     def _addClient(self):
         self.streamer.clientAdded()
