@@ -220,7 +220,7 @@ class TestAppleStreamerSessions(unittest.TestCase):
     def setUp(self):
         self.streamer = FakeStreamer()
         self.resource = resources.HTTPLiveStreamingResource(
-                self.streamer, self.streamer.httpauth)
+                self.streamer, self.streamer.httpauth, 'secret', 0.001)
         self.site = server.Site(self.resource)
 
     def testNotReady(self):
@@ -309,20 +309,25 @@ class TestAppleStreamerSessions(unittest.TestCase):
     def testTokens(self):
         IP1='192.168.1.1'
         IP2='192.168.1.2'
+        SESSIONID='1111'
 
-        cookie = self.resource._generateToken('1', IP1, 0)
+        cookie = self.resource._generateToken(SESSIONID, IP1, 0)
         # Test wrong IP
-        self.assertEquals(self.resource._cookieIsValid(cookie, IP2)[0],
-                (resources.NOT_VALID))
+        self.assertEquals(self.resource._cookieIsValid(
+            cookie, IP2, SESSIONID)[0], resources.NOT_VALID)
         # Test Bad Signature
-        cookie = self.resource._generateToken('1', IP1, 0)
-        resources.SECRET = 'secret'
-        self.assertEquals(self.resource._cookieIsValid(cookie, IP1)[0],
-                resources.NOT_VALID)
+        cookie = self.resource._generateToken(SESSIONID, IP1, 0)
+        self.resource.secretKey= 'bad-secret'
+        self.assertEquals(self.resource._cookieIsValid(
+            cookie, IP1, SESSIONID)[0], resources.NOT_VALID)
         # Test authentication expired
-        cookie = self.resource._generateToken('1', IP1, 1)
-        self.assertEquals(self.resource._cookieIsValid(cookie, IP1)[0],
-                resources.RENEW_AUTH)
+        cookie = self.resource._generateToken(SESSIONID, IP1, 1)
+        self.assertEquals(self.resource._cookieIsValid(
+            cookie, IP1, SESSIONID)[0], resources.RENEW_AUTH)
+        # Test different sessions ID
+        cookie = self.resource._generateToken(SESSIONID, IP1, 1)
+        self.assertEquals(self.resource._cookieIsValid(
+            cookie, IP1, SESSIONID+'1')[0], resources.NOT_VALID)
 
     def testRenderHTTPAuthUnauthorized(self):
         self.streamer.httpauth.setBouncerName('fakebouncer')
@@ -341,12 +346,12 @@ class TestAppleStreamerSessions(unittest.TestCase):
 
         def checkSessionID(request):
             # The auth is not valid anymore and has been renewed,
-            # but the session should be same
+            # but the session should stay the same
             cookie = request.getCookie(resources.COOKIE_NAME)
             self.failIf(cookie is None)
             sessionID, authExpiracy, none = \
                    base64.b64decode(cookie).split(':')
-            self.assertEquals(authExpiracy, '0')
+            self.assertEquals(authExpiracy, '10')
             self.assertEquals(sessionID, self.sessionID)
             for d in reactor.getDelayedCalls():
                 d.cancel()
@@ -356,7 +361,7 @@ class TestAppleStreamerSessions(unittest.TestCase):
             self.failIf(cookie is None)
             self.sessionID = base64.b64decode(cookie).split(':')[0]
             cookie = self.resource._generateToken(
-                   self.sessionID, "255.255.255.255", 1)
+                   self.sessionID, "255.255.255.255", 10)
             d = defer.Deferred()
             request = FakeRequest(self.site, "GET",
                     "/localhost/stream.m3u8", onFinish=d)

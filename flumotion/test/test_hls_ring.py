@@ -45,10 +45,26 @@ http://localhost:8000/mpegts-4.ts
 #EXTINF:2,Title
 http://localhost:8000/mpegts-5.ts
 """
+    STREAM_WITH_GKID_PLAYLIST = """\
+#EXTM3U
+#EXT-X-ALLOW-CACHE:YES
+#EXT-X-TARGETDURATION:2
+#EXT-X-MEDIA-SEQUENCE:1
+#EXTINF:2,Title
+http://localhost:8000/mpegts-1.ts?GKID=%s
+#EXTINF:2,Title
+http://localhost:8000/mpegts-2.ts?GKID=%s
+#EXTINF:2,Title
+http://localhost:8000/mpegts-3.ts?GKID=%s
+#EXTINF:2,Title
+http://localhost:8000/mpegts-4.ts?GKID=%s
+#EXTINF:2,Title
+http://localhost:8000/mpegts-5.ts?GKID=%s
+"""
 
     def setUp(self):
         self.ring = hlsring.HLSRing('localhost', 'live.m3u8', 'stream.m3u8',
-                'title', window=5)
+                '300000', 'title', window=5)
 
     def testAddFragment(self):
         self.ring.addFragment('', 0, 10)
@@ -85,15 +101,27 @@ http://localhost:8000/mpegts-5.ts
 
     def testMainPlaylist(self):
         self.ring._hostname = 'http://localhost:8000/'
-        self.assertEqual(self.ring._renderMainPlaylist(), self.MAIN_PLAYLIST)
+        self.assertEqual(self.ring._renderMainPlaylist(''), self.MAIN_PLAYLIST)
 
     def testStreamPlaylist(self):
         self.ring._hostname = 'http://localhost:8000/'
         self.ring.title = 'Title'
         for i in range(6):
             self.ring.addFragment('', i, 2)
-        self.assertEqual(self.ring._renderStreamPlaylist(),
+        self.assertEqual(self.ring._renderStreamPlaylist(''),
                 self.STREAM_PLAYLIST)
+
+    def testStreamPlaylistiWithGKID(self):
+        ID = '12345'
+        args = {}
+        args['GKID'] = [ID]
+        self.ring._hostname = 'http://localhost:8000/'
+        self.ring.title = 'Title'
+        for i in range(6):
+            self.ring.addFragment('', i, 2)
+        self.assertEqual(self.ring._renderStreamPlaylist(args),
+                self.STREAM_WITH_GKID_PLAYLIST % tuple(5*[ID]))
+
 
 if __name__ == '__main__':
     unittest.main()

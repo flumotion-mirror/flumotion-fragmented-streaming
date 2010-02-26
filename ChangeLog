@@ -1,5 +1,13 @@
 2010-02-24  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_resource.py:
+	Fix make check
+	Added test for playlist with GKID argument in the request
+	Add test for different sessions ID's (url and cookie)
+
+2010-02-24  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/resources.py:
 	Do not create several sessions for the same sessionID if the
 	client doesn't use cookies
