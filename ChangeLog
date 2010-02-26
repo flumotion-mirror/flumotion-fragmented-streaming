@@ -1,5 +1,12 @@
 2010-02-10  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Uses incomming buffers' offset to calculate the buffer offset
+	of outgoing keyframes. Allows synchronizing several streams
+	with a common upstream element, usually the flow's source
+
+2010-02-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/hlsring.py:
 	Get the media sequence from the last fragment in the playlist
 	and save the sequence number rather than the segment name.

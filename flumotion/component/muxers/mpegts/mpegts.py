@@ -25,65 +25,6 @@ from flumotion.common.i18n import N_, gettexter
 T_ = gettexter()
 
 
-class KeyframesCounter(gst.Element):
-    '''
-    I count incoming key frames using the delta unit flag.
-    I use the buffer's 'offset' value to store the counter
-    '''
-
-    __gproperties__ = {
-        'silent': (bool,
-            'silent',
-            'Whether to count keyframes or not',
-            False,
-            gobject.PARAM_READWRITE)}
-
-    __gstdetails__ =('KeyframesCounter', 'Generic',
-                      'Key frames counter for flumotion', 'Flumotion Dev Team')
-
-    _sinkpadtemplate = gst.PadTemplate("sink",
-                                         gst.PAD_SINK,
-                                         gst.PAD_ALWAYS,
-                                         gst.caps_from_string("video/mpegts"))
-
-    _srcpadtemplate = gst.PadTemplate("src",
-                                         gst.PAD_SRC,
-                                         gst.PAD_ALWAYS,
-                                         gst.caps_from_string("video/mpegts"))
-
-    def __init__(self):
-        gst.Element.__init__(self)
-
-        self.sinkpad = gst.Pad(self._sinkpadtemplate, "sink")
-        self.sinkpad.set_chain_function(self.chainfunc)
-        self.add_pad(self.sinkpad)
-
-        self.srcpad = gst.Pad(self._srcpadtemplate, "src")
-        self.add_pad(self.srcpad)
-
-        self._silent = False
-        self._keyframesCount = 0
-
-    def do_get_property(self, property):
-        if property.name == "silent":
-            return self._silent
-        else:
-            raise AttributeError('unknown property %s' % property.name)
-
-    def do_set_property(self, property, value):
-        if property.name == "silent":
-            self._silent = bool(value)
-        else:
-            raise AttributeError('unknown property %s' % property.name)
-
-    def chainfunc(self, pad, buffer):
-        if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT) \
-                and not self._silent:
-            buffer.offset = self._keyframesCount
-            self._keyframesCount += 1
-        return self.srcpad.push(buffer)
-
-
 class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
     checkTimestamp = True
 
@@ -102,9 +43,31 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
             self.addMessage(m)
 
     def get_muxer_string(self, properties):
-        muxer = 'mpegtsmux name=muxer pat-interval=%d pmt-interval=%d ! \
-                flukeyframescounter name=counter' % (sys.maxint, sys.maxint)
-        gobject.type_register(KeyframesCounter)
-        gst.element_register(KeyframesCounter, "flukeyframescounter",
-                gst.RANK_MARGINAL)
+        muxer = 'mpegtsmux name=muxer pat-interval=%d pmt-interval=%d'\
+                % (sys.maxint, sys.maxint)
         return muxer
+
+    def configure_pipeline(self, pipeline, properties):
+        muxer = pipeline.get_by_name("muxer")
+        muxer.get_pad("sink_64").add_buffer_probe(self._sinkPadProbe)
+        muxer.get_pad("src").add_buffer_probe(self._srcPadProbe)
+        self._inOffset = 0L
+        self._count = 0L
+
+    def _sinkPadProbe(self, pad, buffer):
+        if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):
+            if buffer.offset_end != gst.BUFFER_OFFSET_NONE:
+                self._inOffset = buffer.offset_end
+            else:
+                self._inOffset = self._count
+                self._count += 1
+        return True
+
+    def _srcPadProbe(self, pad, buffer):
+        if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):
+                buffer.offset = self._inOffset
+        return True
+
+
+
+
