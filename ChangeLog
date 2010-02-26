@@ -1,3 +1,9 @@
+2010-02-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Get the media sequence from the last fragment in the playlist
+	and save the sequence number rather than the segment name.
+
 2010-02-04  Marc-André Lureau  <mlureau@flumotion.com>
 
 	reviewed by: Andoni Morales Alastruey

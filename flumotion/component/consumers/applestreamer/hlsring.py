@@ -53,6 +53,9 @@ class Playlister:
     def setAllowCache(self, allowed):
         self.allowCache = allowed
 
+    def _getFragmentName(self, sequenceNumber):
+        return '%s-%s.ts' % (self.fragmentPrefix, sequenceNumber)
+
     def _addPlaylistFragment(self, sequenceNumber, duration, encrypted):
         # Fragments are supposed to have a constant duration which is used
         # to set the target duration. This value will be overwritten if
@@ -61,11 +64,10 @@ class Playlister:
         if self._duration is None or sequenceNumber == 1:
             self._duration = duration
         self._counter = sequenceNumber + 1
-        fragmentName = '%s-%s.ts' % (self.fragmentPrefix, sequenceNumber)
-        self._fragments.append((fragmentName, duration, encrypted))
+        self._fragments.append((sequenceNumber, duration, encrypted))
         while len(self._fragments) > self.window:
             del self._fragments[0]
-        return fragmentName
+        return self._getFragmentName(sequenceNumber)
 
     def _renderMainPlaylist(self):
         lines = []
@@ -85,15 +87,15 @@ class Playlister:
         lines.append("#EXT-X-ALLOW-CACHE:%s" %
                 (self.allowCache and 'YES' or 'NO'))
         lines.append("#EXT-X-TARGETDURATION:%d" % self._duration)
-        lines.append("#EXT-X-MEDIA-SEQUENCE:%d" %
-            (self._counter - len(self._fragments)))
+        lines.append("#EXT-X-MEDIA-SEQUENCE:%s" % self._fragments[0][0])
 
-        for fragment, duration, encrypted in self._fragments:
+        for sequenceNumber, duration, encrypted in self._fragments:
             if encrypted:
                 lines.append('#EXT-X-KEY:METHOD=AES-128,URI="%skey?key=%s"' %
                         (self.keysURI, fragment))
             lines.append("#EXTINF:%d,%s" % (duration, self.title))
-            lines.append(self._hostname + fragment)
+            lines.append(self._hostname +
+                    self._getFragmentName(sequenceNumber))
 
         lines.append("")
 
