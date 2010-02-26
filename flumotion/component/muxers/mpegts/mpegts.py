@@ -19,6 +19,7 @@ import gst
 import gobject
 
 from flumotion.component import feedcomponent
+from flumotion.component.component import moods
 from flumotion.common import gstreamer, messages
 from flumotion.common.i18n import N_, gettexter
 
@@ -47,9 +48,29 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
                 % (sys.maxint, sys.maxint)
         return muxer
 
+    def do_pipeline_playing(self):
+        # The component must stay 'waiking' until it receives at least
+        # a video source
+        pass
+
+    def sink_pad_notify_caps(self, sp, _):
+        caps = sp.get_negotiated_caps()
+        if caps is None:
+            return
+        struct_name = caps[0].get_name()
+        if not self.has_video and struct_name.startswith("video"):
+            self.has_video = True
+            self.setMood(moods.happy)
+        else:
+            sp.remove_buffer_probe(self._padProbeIDs[sp])
+
     def configure_pipeline(self, pipeline, properties):
+        self._padProbeIDs = {}
         muxer = pipeline.get_by_name("muxer")
-        muxer.get_pad("sink_64").add_buffer_probe(self._sinkPadProbe)
+        self.has_video = False
+        for sp in muxer.sink_pads():
+            self._padProbeIDs[sp] = sp.add_buffer_probe(self._sinkPadProbe)
+            sp.connect_after("notify::caps", self.sink_pad_notify_caps)
         muxer.get_pad("src").add_buffer_probe(self._srcPadProbe)
         self._inOffset = 0L
         self._count = 0L
@@ -65,7 +86,7 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
 
     def _srcPadProbe(self, pad, buffer):
         if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):
-                buffer.offset = self._inOffset
+            buffer.offset = self._inOffset
         return True
 
 

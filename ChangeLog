@@ -1,3 +1,9 @@
+2010-02-24  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Take the first video pad, instead of hard-coded one.
+	Stay waking until there is a video source.
+
 2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/common.py:
