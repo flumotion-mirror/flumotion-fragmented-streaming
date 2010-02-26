@@ -43,9 +43,7 @@ HTTP_SERVER = '%s/%s' % (HTTP_NAME, HTTP_VERSION)
 
 M3U8_CONTENT_TYPE = 'application/vnd.apple.mpegurl'
 PLAYLIST_EXTENSION = '.m3u8'
-SESSION_TIMEOUT = 30
 COOKIE_NAME = 'flumotion-session'
-SECRET='2Ed4sB/s#D%&"DGs36y5'
 NOT_VALID = 0
 VALID = 1
 RENEW_AUTH = 2
@@ -120,12 +118,14 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
     # getChildWithDefault
     isLeaf = True
 
-    def __init__(self, streamer, httpauth):
+    def __init__(self, streamer, httpauth, secretKey, sessionTimeout):
         """
         @param streamer: L{AppleHTTPLiveStreamer}
         """
         self.streamer = streamer
         self.httpauth = httpauth
+        self.secretKey = secretKey
+        self.sessionTimeout = sessionTimeout
         self.setMountPoint(streamer.mountPoint)
         self.ring = streamer.getRing()
 
@@ -338,7 +338,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
         request.session = request.site.sessions[sessionID] =\
                 Session(request.site, sessionID)
-        request.session.sessionTimeout = SESSION_TIMEOUT
+        request.session.sessionTimeout = self.sessionTimeout
         request.session.startCheckingExpiration()
         request.session.notifyOnExpire(lambda:
                 self._delClient(sessionID))
@@ -358,7 +358,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         """
         payload = ':'.join([sessionID, str(authExpiracy)])
         private = ':'.join([clientIP, self.mountPoint])
-        sig = hmac.new(SECRET, ':'.join([payload, private])).hexdigest()
+        sig = hmac.new(self.secretKey, ':'.join([payload, private])).hexdigest()
         return base64.b64encode(':'.join([payload, sig]))
 
     def _cookieIsValid(self, cookie, clientIP):
@@ -383,7 +383,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
                 clientIP, authExpiracy)
 
         # Check signature
-        if hmac.new(SECRET, ':'.join([payload, private])).hexdigest() != sig:
+        if hmac.new(self.secretKey, ':'.join([payload, private])).hexdigest() != sig:
             self.debug("cookie is not valid. reason: invalid signature")
             return (NOT_VALID, None)
         # Check authentication expiracy

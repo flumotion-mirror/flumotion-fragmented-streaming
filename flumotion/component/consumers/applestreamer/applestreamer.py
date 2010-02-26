@@ -107,6 +107,8 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
     DEFAULT_MIN_WINDOW = 2
     DEFAULT_MAX_WINDOW = 5
     DEFAULT_PORT = 8080
+    DEFAULT_SECRET_KEY = 'aR%$w34Y=&08gFm%&!s8080'
+    DEFAULT_SESSION_TIMEOUT = 30
 
     def init(self):
         reactor.debug = True
@@ -347,7 +349,9 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
         # FIXME: tie these together more nicely
         self.httpauth = http.HTTPAuthentication(self)
-        self.resource = HTTPLiveStreamingResource(self, self.httpauth)
+        self.resource = HTTPLiveStreamingResource(self, self.httpauth,
+                props.get('secret-key', self.DEFAULT_SECRET_KEY),
+                props.get('session-timeout', self.DEFAULT_SESSION_TIMEOUT))
 
         Stats.__init__(self, self.resource)
         self._updateCallLaterId = reactor.callLater(10, self._updateStats)

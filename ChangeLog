@@ -1,5 +1,12 @@
 2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Added 'session-timeout' and 'secret-key' properties
+
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/applestreamer/applestreamer.py:
 	* flumotion/component/consumers/applestreamer/applestreamer.xml:
 	* flumotion/component/consumers/applestreamer/hlsring.py:

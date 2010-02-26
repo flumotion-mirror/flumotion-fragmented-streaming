@@ -84,6 +84,10 @@
                   _description="Maximum number of fragments to expose in the playlist (default:5)" />
         <property name="max-extra-buffers" type="int"
                   _description="Maximum number of extra fragments kept in the ring (default:max-window+1)" />
+        <property name="secret-key" type="string"
+                  _description="Secret key used for HMAC" />
+        <property name="session-timeout" type="int"
+                  _description="Session timeout in seconds (default:30)" />
         <!--property name="key-rotation" type="int"
                   _description="Number of fragments sharing the same encryption key. Use 0 for not using encryption (default:0)" />
         <property name="keys-uri" type="string"
