@@ -338,16 +338,20 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             sessionID = request.args.get('GKID', [uuid.uuid1().hex])[0]
         token = self._generateToken(
                 sessionID, request.getClientIP(), authExpiracy)
-
-        request.session = request.site.sessions[sessionID] =\
-                Session(request.site, sessionID)
-        request.session.sessionTimeout = self.sessionTimeout
-        request.session.startCheckingExpiration()
-        request.session.notifyOnExpire(lambda:
-                self._delClient(sessionID))
+        try:
+           # Check if the session already exists
+           request.session = request.site.getSession(sessionID)
+           self.log("session already exists, the client is not using cookies")
+        except:
+            request.session = request.site.sessions[sessionID] =\
+                    Session(request.site, sessionID)
+            request.session.sessionTimeout = self.sessionTimeout
+            request.session.startCheckingExpiration()
+            request.session.notifyOnExpire(lambda:
+                    self._delClient(sessionID))
+            self._addClient()
         request.addCookie(COOKIE_NAME, token, path=self.mountPoint)
 
-        self._addClient()
         self.debug('added new client with session id: "%s"' %
                 request.session.uid)
 

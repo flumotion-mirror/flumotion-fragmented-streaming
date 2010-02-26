@@ -1,3 +1,9 @@
+2010-02-24  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Do not create several sessions for the same sessionID if the
+	client doesn't use cookies
+
 2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/hlsring.py:
