@@ -42,6 +42,7 @@ class Playlister:
         self.allowCache = True
         self._duration = None
         self._fragments = []
+        self._dummyFragments = []
         self._counter = 0
         self._isAutoUpdate = False
 
@@ -63,6 +64,7 @@ class Playlister:
     def _autoUpdate(self, count):
         if self._counter == count:
             self._isAutoUpdate = True
+            self._dummyFragments.append(self._getFragmentName(count))
             self._addPlaylistFragment(count, self._duration, False)
 
     def _addPlaylistFragment(self, sequenceNumber, duration, encrypted):
@@ -80,6 +82,10 @@ class Playlister:
             self._counter = sequenceNumber + 1
             # Remove fragments that are out of the window
             while len(self._fragments) > self.window:
+                # If it's a dummy fragment, remove it from the list too
+                fragName = self._getFragmentName(self._fragments[0][0])
+                if fragName in self._dummyFragments:
+                    self._dummyFragments.remove(fragName)
                 del self._fragments[0]
 
         # Auto update the playlist when the next fragment was not added
@@ -217,6 +223,7 @@ class HLSRing(Playlister):
         self._availableFragments = deque('')
         self._duration = None
         self._fragments = []
+        self._dummyFragments = []
         self._lastSequence = None
         self._counter = 0
 
@@ -283,6 +290,8 @@ class HLSRing(Playlister):
 
         if fragmentName in self._fragmentsDict:
             return self._fragmentsDict[fragmentName]
+        if fragmentName in self._dummyFragments:
+            raise common.FragmentNotAvailable()
         raise common.FragmentNotFound()
 
     def getEncryptionKey(self, key):

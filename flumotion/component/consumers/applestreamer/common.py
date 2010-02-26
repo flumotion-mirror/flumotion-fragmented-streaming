@@ -18,7 +18,11 @@
 
 
 class FragmentNotFound(Exception):
-    "The requested segment is not found."
+    "The requested fragment is not found."
+
+
+class FragmentNotAvailable(Exception):
+    "The requested fragment is not available."
 
 
 class PlaylistNotFound(Exception):

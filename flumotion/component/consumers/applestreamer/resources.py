@@ -32,7 +32,7 @@ except ImportError:
 from flumotion.configure import configure
 from flumotion.common import log
 from flumotion.component.consumers.applestreamer.common import\
-    FragmentNotFound, PlaylistNotFound, KeyNotFound
+    FragmentNotFound, FragmentNotAvailable, PlaylistNotFound, KeyNotFound
 
 
 __version__ = "$Rev: $"
@@ -436,7 +436,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         return self._errorMessage(request, error_code)
 
     def _renderNotFoundResponse(self, failure, request):
-        failure.trap(FragmentNotFound, PlaylistNotFound, KeyNotFound)
+        r = failure.trap(FragmentNotAvailable, FragmentNotFound,
+                PlaylistNotFound, KeyNotFound)
         request.write(self._errorMessage(request, http.NOT_FOUND))
         request.finish()
         return ''
