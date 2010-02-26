@@ -98,7 +98,7 @@ class Playlister:
 
         return self._getFragmentName(sequenceNumber)
 
-    def _renderMainPlaylist(self):
+    def _renderMainPlaylist(self, getParam):
         lines = []
 
         lines.append("#EXTM3U")
@@ -110,7 +110,11 @@ class Playlister:
 
         return "\n".join(lines)
 
-    def _renderStreamPlaylist(self):
+    def _renderStreamPlaylist(self, args):
+        def renderArgs(args):
+            return args and '?' + '&'.join(["%s=%s" % (k,value) for k, v in
+                args.iteritems() for value in v if k != 'FLUREQID']) or ''
+
         lines = []
 
         lines.append("#EXTM3U")
@@ -126,22 +130,22 @@ class Playlister:
                 lines.append('#EXT-X-KEY:METHOD=AES-128,URI="%skey?key=%s"' %
                         (self.keysURI, fragment))
             lines.append("#EXTINF:%d,%s" % (duration, self.title))
-            lines.append(self._hostname +
-                    self._getFragmentName(sequenceNumber))
+            lines.append("%s%s%s" % (self._hostname,
+                self._getFragmentName(sequenceNumber), renderArgs(args)))
 
         lines.append("")
 
         return "\n".join(lines)
 
-    def renderPlaylist(self, playlist):
+    def renderPlaylist(self, playlist, args):
         '''
-        Returns a string representation of the requestd playlist or raise
+        Returns a string representation of the requested playlist or raise
         an Exception if the playlist is not found
         '''
         if playlist == self.mainPlaylist:
-            return self._renderMainPlaylist()
+            return self._renderMainPlaylist(args)
         elif playlist == self.streamPlaylist:
-            return self._renderStreamPlaylist()
+            return self._renderStreamPlaylist(args)
         raise common.PlaylistNotFound()
 
 

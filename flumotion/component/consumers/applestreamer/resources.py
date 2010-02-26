@@ -464,7 +464,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         request.setHeader("Connection", "Keep-Alive")
         self._writeHeaders(request, M3U8_CONTENT_TYPE)
         if request.method == 'GET':
-            playlist = self.ring.renderPlaylist(resource)
+            playlist = self.ring.renderPlaylist(resource, request.args)
             request.write(playlist)
             self.bytesSent += len(playlist)
             self.logWrite(request)
