@@ -72,6 +72,8 @@
                   _description="Main playlist resource name relative to the mount point (default:main.m3u8)" />
         <property name="stream-playlist" type="string"
                   _description="Stream playlist resource name relative to the mount point (default:stream.m3u8)" />
+        <property name="stream-bitrate" type="int"
+                  _description="Stream bitrate shown in the playlist in bps (default:300000)" />
         <property name="keyframes-per-fragment" type="int"
                   _description="Number of keyframes per fragment (default:10)" />
         <property name="new-fragment-tolerance" type="float"

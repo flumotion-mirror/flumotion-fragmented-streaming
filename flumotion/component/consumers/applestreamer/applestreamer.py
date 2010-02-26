@@ -102,6 +102,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
     DEFAULT_FRAGMENT_PREFIX = 'fragment'
     DEFAULT_MAIN_PLAYLIST = 'main.m3u8'
     DEFAULT_STREAM_PLAYLIST = 'stream.m3u8'
+    DEFAULT_STREAM_BITRATE = 300000
     DEFAULT_KEYFRAMES_PER_SEGMENT = 10
     DEFAULT_MIN_WINDOW = 2
     DEFAULT_MAX_WINDOW = 5
@@ -333,6 +334,7 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             '%s:%s%s' % (hostname, port, mountPoint),
             props.get('main-playlist', self.DEFAULT_MAIN_PLAYLIST),
             props.get('stream-playlist', self.DEFAULT_STREAM_PLAYLIST),
+            props.get('stream-bitrate', self.DEFAULT_STREAM_BITRATE),
             self.description,
             props.get('fragment-prefix', self.DEFAULT_FRAGMENT_PREFIX),
             props.get('new-fragment-tolerance', 0),

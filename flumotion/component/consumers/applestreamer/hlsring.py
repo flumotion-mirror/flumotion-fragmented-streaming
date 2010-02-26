@@ -32,6 +32,7 @@ class Playlister:
         self._hostname = ''
         self.mainPlaylist = ''
         self.streamPlaylist = ''
+        self.streamBitrate = 0
         self.title = ''
         self.fragmentPrefix = ''
         self.newFragmentTolerance = 0
@@ -96,7 +97,8 @@ class Playlister:
 
         lines.append("#EXTM3U")
         #The bandwith value is not significant for single bitrate
-        lines.append("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=300000")
+        lines.append("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=%s" %
+                self.streamBitrate)
         lines.append(self._hostname + self.streamPlaylist)
         lines.append("")
 
@@ -146,9 +148,10 @@ class HLSRing(Playlister):
     BLOCK_SIZE = 16
     PADDING = '0'
 
-    def __init__(self, hostname, mainPlaylist, streamPlaylist, title='',
-            fragmentPrefix='mpegts', newFragTolerance = 0, window=5,
-            maxExtraBuffers=None, keyInterval=0, keysURI=None):
+    def __init__(self, hostname, mainPlaylist, streamPlaylist,
+            streamBitrate=300000, title='', fragmentPrefix='mpegts',
+            newFragTolerance = 0, window=5, maxExtraBuffers=None,
+            keyInterval=0, keysURI=None):
         '''
         @param hostname:        hostname to use in the playlist
         @type  hostname:        str
@@ -156,6 +159,8 @@ class HLSRing(Playlister):
         @type  mainPlaylist:    str
         @param streamPlaylists: resource names of the playlists
         @type  streamPlaylist:  str
+        @param streamBitrate:   Bitrate of the stream in bps
+        @type  streamBitrate:   int
         @param title:           description of the stream
         @type  title:           str
         @param fragmentPrefix:  fragment name prefix
@@ -177,6 +182,7 @@ class HLSRing(Playlister):
         self.setHostname(hostname)
         self.mainPlaylist = mainPlaylist
         self.streamPlaylist = streamPlaylist
+        self.streamBitrate = streamBitrate
         self.title = title
         self.fragmentPrefix = fragmentPrefix
         self.newFragmentTolerance = newFragTolerance
