@@ -18,6 +18,7 @@ from collections import deque
 
 from Crypto.Cipher import AES
 
+from twisted.internet import reactor
 from flumotion.component.consumers.applestreamer import common
 
 
@@ -33,13 +34,15 @@ class Playlister:
         self.streamPlaylist = ''
         self.title = ''
         self.fragmentPrefix = ''
+        self.newFragmentTolerance = 0
         self.window = 0
         self.keysURI = ''
         #FIXME: Make it a property
         self.allowCache = True
         self._duration = None
         self._fragments = []
-        self._counter = None
+        self._counter = 0
+        self._isAutoUpdate = False
 
     def setHostname(self, hostname):
         if hostname.startswith('/'):
@@ -56,6 +59,11 @@ class Playlister:
     def _getFragmentName(self, sequenceNumber):
         return '%s-%s.ts' % (self.fragmentPrefix, sequenceNumber)
 
+    def _autoUpdate(self, count):
+        if self._counter == count:
+            self._isAutoUpdate = True
+            self._addPlaylistFragment(count, self._duration, False)
+
     def _addPlaylistFragment(self, sequenceNumber, duration, encrypted):
         # Fragments are supposed to have a constant duration which is used
         # to set the target duration. This value will be overwritten if
@@ -63,10 +71,24 @@ class Playlister:
         # than the rest due to innacuracies in the encoder.
         if self._duration is None or sequenceNumber == 1:
             self._duration = duration
-        self._counter = sequenceNumber + 1
-        self._fragments.append((sequenceNumber, duration, encrypted))
-        while len(self._fragments) > self.window:
-            del self._fragments[0]
+        # Add the fragment to the playlist if it wasn't added before
+        if not sequenceNumber in [frag[0] for frag in self._fragments]:
+            # Add a discontinuity if the sequenceNumber is not the expected
+            self._fragments.append((sequenceNumber, duration, encrypted,
+                sequenceNumber != self._counter and self._counter != 0))
+            self._counter = sequenceNumber + 1
+            # Remove fragments that are out of the window
+            while len(self._fragments) > self.window:
+                del self._fragments[0]
+
+        # Auto update the playlist when the next fragment was not added
+        # If the fragment was automatically added update again after 'duration'
+        if self.newFragmentTolerance != 0:
+            reactor.callLater(self._isAutoUpdate and
+                    duration or duration * (1 + self.newFragmentTolerance),
+                    self._autoUpdate, self._counter)
+        self._isAutoUpdate= False
+
         return self._getFragmentName(sequenceNumber)
 
     def _renderMainPlaylist(self):
@@ -89,7 +111,9 @@ class Playlister:
         lines.append("#EXT-X-TARGETDURATION:%d" % self._duration)
         lines.append("#EXT-X-MEDIA-SEQUENCE:%s" % self._fragments[0][0])
 
-        for sequenceNumber, duration, encrypted in self._fragments:
+        for sequenceNumber, duration, encrypted, discon in self._fragments:
+            if discon:
+                lines.append("#EXT-X-DISCONTINUITY")
             if encrypted:
                 lines.append('#EXT-X-KEY:METHOD=AES-128,URI="%skey?key=%s"' %
                         (self.keysURI, fragment))
@@ -122,9 +146,9 @@ class HLSRing(Playlister):
     BLOCK_SIZE = 16
     PADDING = '0'
 
-    def __init__(self, hostname, mainPlaylist, streamPlaylist, title,
-            fragmentPrefix='mpegts', window=5, maxExtraBuffers=None,
-            keyInterval=0, keysURI=None):
+    def __init__(self, hostname, mainPlaylist, streamPlaylist, title='',
+            fragmentPrefix='mpegts', newFragTolerance = 0, window=5,
+            maxExtraBuffers=None, keyInterval=0, keysURI=None):
         '''
         @param hostname:        hostname to use in the playlist
         @type  hostname:        str
@@ -136,6 +160,8 @@ class HLSRing(Playlister):
         @type  title:           str
         @param fragmentPrefix:  fragment name prefix
         @type  fragmentPrefix:  str
+        @param newFragTolerance:Tolerance to automatically add new fragments.
+        @type  newFragTolerance:float
         @param window:          maximum number of fragments to buffer
         @type  window:          int
         @param maxExtraBuffers: maximum number of extra fragments to buffer
@@ -153,6 +179,7 @@ class HLSRing(Playlister):
         self.streamPlaylist = streamPlaylist
         self.title = title
         self.fragmentPrefix = fragmentPrefix
+        self.newFragmentTolerance = newFragTolerance
         self.window = window
         if maxExtraBuffers is None:
             self.maxBuffers = 2 * window +1
@@ -165,6 +192,7 @@ class HLSRing(Playlister):
         self._keysDict = {}
         self._secret = ''
         self._availableFragments = deque('')
+        self._lastSequence = None
 
     def _encryptFragment(self, fragment, secret, IV):
         right_pad = lambda s: s + (self.BLOCK_SIZE -len(s) % self.BLOCK_SIZE)\
@@ -183,7 +211,8 @@ class HLSRing(Playlister):
         self._availableFragments = deque('')
         self._duration = None
         self._fragments = []
-        self._counter = None
+        self._lastSequence = None
+        self._counter = 0
 
     def addFragment(self, fragment, sequenceNumber, duration):
         '''
@@ -205,10 +234,10 @@ class HLSRing(Playlister):
         # playlister name it using an appropiate extension
         fragmentName = self._addPlaylistFragment(sequenceNumber, duration,
                 self._encrypted)
-
         # Don't add duplicated fragments
         if fragmentName in self._availableFragments:
             return
+        self._lastSequence = sequenceNumber
 
         # If the ring is full, delete the oldest segment.
         # From HTTP Live Streaming draft:

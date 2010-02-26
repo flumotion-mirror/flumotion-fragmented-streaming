@@ -1,3 +1,11 @@
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Added property to autoupdate the playlist when a new fragment
+	is missing and manage discontinuities
+
 2010-02-10  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/muxers/mpegts/mpegts.py:

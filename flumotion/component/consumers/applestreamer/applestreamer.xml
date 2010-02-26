@@ -74,6 +74,8 @@
                   _description="Stream playlist resource name relative to the mount point (default:stream.m3u8)" />
         <property name="keyframes-per-fragment" type="int"
                   _description="Number of keyframes per fragment (default:10)" />
+        <property name="new-fragment-tolerance" type="float"
+                  _description="Tolerance to automatically add new fragments to the playlist. A 0 value means that the playlist won't be uptdated.(default:0)" />
         <property name="min-window" type="int"
                   _description="Minimun number of fragments to start streaming (default:2)" />
         <property name="max-window" type="int"
