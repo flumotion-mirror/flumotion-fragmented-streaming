@@ -170,13 +170,12 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
             logger.rotate()
 
     def logWrite(self, request):
-
         headers = request.getAllHeaders()
         if self.httpauth:
             username = self.httpauth.bouncerName
         else:
             username = '-'
-
+        uid = request.session and request.session.uid or None
         args = {'ip': request.getClientIP(),
                 'time': time.gmtime(),
                 'method': request.method,
@@ -189,7 +188,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
                 'referer': headers.get('referer', None),
                 'user-agent': headers.get('user-agent', None),
                 'time-connected': request.getDuration(),
-                'session-id': request.session.uid}
+                'session-id': uid}
 
         l = []
         for logger in self.loggers:
@@ -553,10 +552,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         if error:
             self.info("%s %s error:%s", request.getClientIP(), request, error)
         else:
-            if request.session is None:
-                uid = None
-            else:
-                uid = request.session.uid
+            uid = request.session and request.session.uid or None
             self.info("%s %s %s %s %s %s", request.getClientIP(), request,
                 request.code, request.getBytesSent(),
                 request.getDuration(), uid)
