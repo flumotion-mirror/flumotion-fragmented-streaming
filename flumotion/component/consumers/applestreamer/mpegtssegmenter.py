@@ -59,13 +59,12 @@ class MpegTSSegmenter(gst.Element):
         self._fullReset()
 
     def _fullReset(self):
-        self._lastTimestamp = gst.CLOCK_TIME_NONE
         self._syncKeyframe = False
         self._reset()
 
     def _reset(self):
-        self._segmentDuration = 0L
         self._count = 0
+        self._fragmentTimestamp = gst.CLOCK_TIME_NONE
         self._buffer = []
 
     def do_get_property(self, property):
@@ -88,26 +87,16 @@ class MpegTSSegmenter(gst.Element):
                 for h in s['streamheader']:
                     self._buffer.append(h.data)
 
-        # Update segment duration
-        if buffer.duration != gst.CLOCK_TIME_NONE:
-            self._segmentDuration += buffer.duration
-        else:
-            # Buffer has no duration, using timestamp
-            if buffer.timestamp != gst.CLOCK_TIME_NONE:
-                # First buffer received, setting timestamp reference
-                if self._lastTimestamp == gst.CLOCK_TIME_NONE:
-                    self._lastTimestamp = buffer.timestamp
-                # Update last timestamp and duration
-                self._segmentDuration += buffer.timestamp - self._lastTimestamp
-                self._lastTimestamp = buffer.timestamp
+        if self._fragmentTimestamp == gst.CLOCK_TIME_NONE:
+            self._fragmentTimestamp = buffer.timestamp
 
         self._buffer.append(buffer.data)
 
-    def _segment(self):
+    def _segment(self, duration):
         outbuf = gst.Buffer(''.join(self._buffer))
         outbuf.set_caps(self.sinkpad.get_caps())
         outbuf.offset = self._count-self._keyframesPerSegment
-        outbuf.duration = self._segmentDuration
+        outbuf.duration = duration
         ret = self.srcpad.push(outbuf)
         self.log('Pushed buffer with lenght:%d' % len(outbuf))
         self._reset()
@@ -151,7 +140,8 @@ class MpegTSSegmenter(gst.Element):
                 # Segment if we have enough keyframes
                 self.debug('%d keyframes detected, segmenting' %
                         self._keyframesPerSegment)
-                ret = self._segment()
+                ret = self._segment(buffer.timestamp - self._fragmentTimestamp)
+                self._fragmentTimestamp = gst.CLOCK_TIME_NONE
             else:
                 # Wait for more keyframes
                 self.log('%d keyframes detected, waiting for %d more' %

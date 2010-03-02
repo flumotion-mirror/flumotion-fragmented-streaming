@@ -1,6 +1,13 @@
 2010-03-02  Marc-André Lureau  <mlureau@flumotion.com>
 
 	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Compute fragment duration based only on buffer timestamps, since
+	buffer duration is almost never available, and titimestamp
+	difference should be enough.
+
+2010-03-02  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
 	Count the keyframe buffer duration in the current fragment,
 	instead of the one in the next fragment.
 
