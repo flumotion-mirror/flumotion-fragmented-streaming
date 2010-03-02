@@ -87,6 +87,20 @@ class MpegTSSegmenter(gst.Element):
             if s.has_field('streamheader'):
                 for h in s['streamheader']:
                     self._buffer.append(h.data)
+
+        # Update segment duration
+        if buffer.duration != gst.CLOCK_TIME_NONE:
+            self._segmentDuration += buffer.duration
+        else:
+            # Buffer has no duration, using timestamp
+            if buffer.timestamp != gst.CLOCK_TIME_NONE:
+                # First buffer received, setting timestamp reference
+                if self._lastTimestamp == gst.CLOCK_TIME_NONE:
+                    self._lastTimestamp = buffer.timestamp
+                # Update last timestamp and duration
+                self._segmentDuration += buffer.timestamp - self._lastTimestamp
+                self._lastTimestamp = buffer.timestamp
+
         self._buffer.append(buffer.data)
 
     def _segment(self):
@@ -118,19 +132,6 @@ class MpegTSSegmenter(gst.Element):
                     self._syncKeyframe = True
                     self._addBuffer(buffer)
             return gst.FLOW_OK
-
-        # Update segment duration
-        if buffer.duration != gst.CLOCK_TIME_NONE:
-            self._segmentDuration += buffer.duration
-        else:
-            # Buffer has no duration, using timestamp
-            if buffer.timestamp != gst.CLOCK_TIME_NONE:
-                # First buffer received, setting timestamp reference
-                if self._lastTimestamp == gst.CLOCK_TIME_NONE:
-                    self._lastTimestamp = buffer.timestamp
-                # Update last timestamp and duration
-                self._segmentDuration += buffer.timestamp - self._lastTimestamp
-                self._lastTimestamp = buffer.timestamp
 
         # Detect keyframes
         if not buffer.flag_is_set(gst.BUFFER_FLAG_DELTA_UNIT):
