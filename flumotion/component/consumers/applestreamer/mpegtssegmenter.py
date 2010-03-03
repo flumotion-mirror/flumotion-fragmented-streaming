@@ -131,6 +131,7 @@ class MpegTSSegmenter(gst.Element):
                     self.warning("Found a discontinuity in the buffers offset."
                                  "freeing fragment and resetting counters")
                     self._fullReset()
+                    return gst.FLOW_OK
                 else:
                     self._count = buffer.offset
             else:
