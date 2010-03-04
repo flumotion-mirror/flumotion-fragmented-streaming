@@ -98,23 +98,24 @@ class Playlister:
 
         return self._getFragmentName(sequenceNumber)
 
-    def _renderMainPlaylist(self, getParam):
+    def renderArgs(self, args):
+        return args and '?' + '&'.join(["%s=%s" % (k,value) for k, v in
+            args.iteritems() for value in v if k != 'FLUREQID']) or ''
+
+    def _renderMainPlaylist(self, args):
         lines = []
 
         lines.append("#EXTM3U")
         #The bandwith value is not significant for single bitrate
         lines.append("#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=%s" %
                 self.streamBitrate)
-        lines.append(self._hostname + self.streamPlaylist)
+        lines.append("".join([self._hostname,self.streamPlaylist,
+            self.renderArgs(args)]))
         lines.append("")
 
         return "\n".join(lines)
 
     def _renderStreamPlaylist(self, args):
-        def renderArgs(args):
-            return args and '?' + '&'.join(["%s=%s" % (k,value) for k, v in
-                args.iteritems() for value in v if k != 'FLUREQID']) or ''
-
         lines = []
 
         lines.append("#EXTM3U")
@@ -130,8 +131,8 @@ class Playlister:
                 lines.append('#EXT-X-KEY:METHOD=AES-128,URI="%skey?key=%s"' %
                         (self.keysURI, fragment))
             lines.append("#EXTINF:%d,%s" % (duration, self.title))
-            lines.append("%s%s%s" % (self._hostname,
-                self._getFragmentName(sequenceNumber), renderArgs(args)))
+            lines.append(''.join([self._hostname,
+                self._getFragmentName(sequenceNumber), self.renderArgs(args)]))
 
         lines.append("")
 

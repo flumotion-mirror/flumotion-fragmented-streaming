@@ -340,7 +340,8 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         try:
            # Check if the session already exists
            request.session = request.site.getSession(sessionID)
-           self.log("session already exists, the client is not using cookies")
+           self.log("session already exists, the client is not using cookies"
+                    "or the IP changed.")
         except:
             request.session = request.site.sessions[sessionID] =\
                     Session(request.site, sessionID)
