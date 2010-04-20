@@ -20,7 +20,7 @@ import gobject
 
 from flumotion.component import feedcomponent
 from flumotion.component.component import moods
-from flumotion.common import gstreamer, messages
+from flumotion.common import gstreamer, messages, documentation
 from flumotion.common.i18n import N_, gettexter
 
 T_ = gettexter()
@@ -30,6 +30,18 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
     checkTimestamp = True
 
     def do_check(self):
+
+        exists = gstreamer.element_factory_exists('mpegtsmux')
+        if not exists:
+            m = messages.Error(T_(N_(
+                        "%s is missing. Make sure your %s "
+                        "installation is complete."),
+                        'mpegtsmux', 'mpegtsmux'))
+            documentation.messageAddGStreamerInstall(m)
+            self.debug(m)
+            self.addMessage(m)
+            return
+
         v = gstreamer.get_plugin_version('mpegtsmux')
         # The mpegtsmuxer does not use the delta unit flag to mark keyframes
         # until gst-plugin-bad-0.10.18. Patched versions in the platform
