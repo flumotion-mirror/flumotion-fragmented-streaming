@@ -1,3 +1,11 @@
+2010-07-09  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed by: Andoni Morales Alastruey
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Do not use "chunked" HTTP for fragments data.
+	This is a regression from iOS 4.0. See #10794.
+
 2010-04-20  Alvin Delagon  <adelagon@flumotion.com>
 
 	reviewed by: Xavier Martinez

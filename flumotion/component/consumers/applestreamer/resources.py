@@ -483,6 +483,7 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         self._writeHeaders(request, 'video/mpeg')
         if request.method == 'GET':
             data = self.ring.getFragment(resource)
+            request.setHeader('content-length', len(data))
             request.write(data)
             self.bytesSent += len(data)
             self.logWrite(request)
