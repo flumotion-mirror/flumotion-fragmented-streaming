@@ -60,6 +60,7 @@ class MpegTSSegmenter(gst.Element):
 
     def _fullReset(self):
         self._syncKeyframe = False
+        self._send_new_segment = True
         self._reset()
 
     def _reset(self):
@@ -97,8 +98,15 @@ class MpegTSSegmenter(gst.Element):
         outbuf.set_caps(self.sinkpad.get_caps())
         outbuf.offset = self._count-self._keyframesPerSegment
         outbuf.duration = duration
+        outbuf.timestamp = self._fragmentTimestamp
+        if self._send_new_segment:
+            e = gst.event_new_new_segment(False, 1.0, gst.FORMAT_TIME,
+                self._fragmentTimestamp, -1, 0)
+            self.send_event(e)
+            self._send_new_segment = False
         ret = self.srcpad.push(outbuf)
-        self.log('Pushed buffer with lenght:%d' % len(outbuf))
+        self.log('Pushed buffer with length:%d, ts: %d'
+            % (len(outbuf), outbuf.timestamp))
         self._reset()
         return ret
 
@@ -139,9 +147,10 @@ class MpegTSSegmenter(gst.Element):
             if (self._count % self._keyframesPerSegment) == 0 and\
                     self._count != 0:
                 # Segment if we have enough keyframes
-                self.debug('%d keyframes detected, segmenting' %
-                        self._keyframesPerSegment)
-                ret = self._segment(buffer.timestamp - self._fragmentTimestamp)
+                duration = buffer.timestamp - self._fragmentTimestamp
+                self.debug('%d keyframes detected, segmenting duration %d' %
+                    (self._keyframesPerSegment, duration))
+                ret = self._segment(duration)
                 self._fragmentTimestamp = gst.CLOCK_TIME_NONE
             else:
                 # Wait for more keyframes
@@ -153,4 +162,5 @@ class MpegTSSegmenter(gst.Element):
         self._addBuffer(buffer)
         return gst.FLOW_OK
 
-gobject.type_register(MpegTSSegmenter)
+gst.element_register(MpegTSSegmenter,  "flumpegtssegmenter",
+    gst.RANK_MARGINAL)

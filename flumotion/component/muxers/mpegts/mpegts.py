@@ -22,6 +22,7 @@ from flumotion.component import feedcomponent
 from flumotion.component.component import moods
 from flumotion.common import gstreamer, messages, documentation
 from flumotion.common.i18n import N_, gettexter
+from flumotion.component.consumers.applestreamer import mpegtssegmenter
 
 T_ = gettexter()
 
@@ -56,8 +57,9 @@ class MPEGTS(feedcomponent.MultiInputParseLaunchComponent):
             self.addMessage(m)
 
     def get_muxer_string(self, properties):
-        muxer = 'mpegtsmux name=muxer pat-interval=%d pmt-interval=%d'\
-                % (sys.maxint, sys.maxint)
+        muxer = 'mpegtsmux name=muxer pat-interval=%d pmt-interval=%d '\
+            '! flumpegtssegmenter keyframes-per-segment=1'\
+            % (sys.maxint, sys.maxint)
         return muxer
 
     def do_pipeline_playing(self):

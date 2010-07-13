@@ -1,3 +1,17 @@
+2010-07-13  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed by: Xavier Queralt
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Do segment per 1-keyframe at the muxer level to avoid reaching the
+	limit of 500 TS buffers at the multifdsink level (network speed
+	variability can hit this limit at the feeder level, and cause huge
+	number of buffer drops, resulting in discontinuities and 404 and
+	the streamer level)
+
 2010-07-09  Marc-André Lureau  <mlureau@flumotion.com>
 
 	reviewed by: Andoni Morales Alastruey

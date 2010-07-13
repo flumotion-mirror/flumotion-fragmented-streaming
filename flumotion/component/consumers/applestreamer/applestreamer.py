@@ -296,9 +296,6 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self.hlsring.reset()
 
     def get_pipeline_string(self, properties):
-        gobject.type_register(mpegtssegmenter.MpegTSSegmenter)
-        gst.element_register(mpegtssegmenter.MpegTSSegmenter,
-                "flumpegtssegmenter", gst.RANK_MARGINAL)
         return " flumpegtssegmenter name=segmenter ! appsink name=appsink"
 
     def configure_pipeline(self, pipeline, props):

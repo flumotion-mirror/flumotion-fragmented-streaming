@@ -35,6 +35,7 @@
     <bundle project="fragmentedstreaming" name="mpegts">
         <dependencies>
             <dependency name="component" />
+            <dependency name="applestreamer" />
         </dependencies>
 
         <directories>
