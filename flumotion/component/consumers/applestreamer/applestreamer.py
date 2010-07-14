@@ -296,7 +296,8 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self.hlsring.reset()
 
     def get_pipeline_string(self, properties):
-        return " flumpegtssegmenter name=segmenter ! appsink name=appsink"
+        return " flumpegtssegmenter name=segmenter "\
+            "! appsink name=appsink sync=false"
 
     def configure_pipeline(self, pipeline, props):
         self.keyframesFramesPerSegment = props.get('keyframes-per-fragment',

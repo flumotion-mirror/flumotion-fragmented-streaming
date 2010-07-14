@@ -60,7 +60,6 @@ class MpegTSSegmenter(gst.Element):
 
     def _fullReset(self):
         self._syncKeyframe = False
-        self._send_new_segment = True
         self._reset()
 
     def _reset(self):
@@ -99,11 +98,6 @@ class MpegTSSegmenter(gst.Element):
         outbuf.offset = self._count-self._keyframesPerSegment
         outbuf.duration = duration
         outbuf.timestamp = self._fragmentTimestamp
-        if self._send_new_segment:
-            e = gst.event_new_new_segment(False, 1.0, gst.FORMAT_TIME,
-                self._fragmentTimestamp, -1, 0)
-            self.send_event(e)
-            self._send_new_segment = False
         ret = self.srcpad.push(outbuf)
         self.log('Pushed buffer with length:%d, ts: %d'
             % (len(outbuf), outbuf.timestamp))
