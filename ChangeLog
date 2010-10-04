@@ -1,3 +1,10 @@
+2010-10-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Add support for audio only streams using the video stream
+	only for synchronisation
+
 2010-07-14  Marc-André Lureau  <mlureau@flumotion.com>
 
 	reviewed by: Julien Le Goff
