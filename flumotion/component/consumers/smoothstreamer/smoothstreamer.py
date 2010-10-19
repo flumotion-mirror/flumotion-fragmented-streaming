@@ -47,7 +47,6 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
     logCategory = 'smooth-streamer'
 
     def init(self):
-        reactor.debug = True
         self.store = FragmentStore()
         self.debug("Smooth HTTP live streamer initialising")
 
