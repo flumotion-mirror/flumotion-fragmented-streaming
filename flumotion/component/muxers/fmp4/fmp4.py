@@ -33,12 +33,12 @@ class FMP4(feedcomponent.MuxerComponent):
     DEFAULT_FRAGMENT_DURATION=5000
 
     def do_check(self):
-        exists = gstreamer.element_factory_exists('mp4mux')
+        exists = gstreamer.element_factory_exists('ismlmux')
         if not exists:
             m = messages.Error(T_(N_(
                         "%s is missing. Make sure your %s "
                         "installation is complete."),
-                        'mp4mux', 'mp4mux'))
+                        'ismlmux', 'ismlmux'))
             documentation.messageAddGStreamerInstall(m)
             self.debug(m)
             self.addMessage(m)
@@ -58,7 +58,7 @@ class FMP4(feedcomponent.MuxerComponent):
             self.addMessage(m)
 
     def get_muxer_string(self, props):
-        muxer = 'mp4mux name=muxer fragment-duration=%d ' \
+        muxer = 'ismlmux name=muxer fragment-duration=%d ' \
             'movie-timescale=10000000 trak-timescale=10000000 streamable=1' % \
             props.get('fragment-duration', self.DEFAULT_FRAGMENT_DURATION)
         return muxer
