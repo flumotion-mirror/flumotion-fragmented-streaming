@@ -75,6 +75,10 @@ class SmoothStreamingResource(FragmentedResource):
         self._writeHeaders(request, XML_CONTENT_TYPE)
         if request.method == 'GET':
             manifest = self.store.renderManifest()
+            request.setHeader('content-length', len(manifest))
+            # under 1.1, make sure to Close, we want clientaccesspolicy.xml
+            # to be served by http-server, when running with a porter.
+            request.setHeader('Connection', 'Close')
             request.write(manifest)
             self.bytesSent += len(manifest)
             self.logWrite(request)
