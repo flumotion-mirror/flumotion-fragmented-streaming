@@ -125,6 +125,7 @@ class FragmentedStreamer(feedcomponent.ParseLaunchComponent, Stats):
         # We listen on this interface, if set.
         self.iface = None
         self._tport = None
+        self.httpauth = None
 
         self.ready = False
         self._updateCallLaterId = None

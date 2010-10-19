@@ -15,6 +15,9 @@
 
 import base64
 
+import setup
+setup.setup()
+
 from twisted.trial import unittest
 from twisted.web import server
 from twisted.web.http import Request, HTTPChannel
@@ -27,9 +30,6 @@ except ImportError:
 from flumotion.common import keycards, errors
 from flumotion.component.consumers.applestreamer import resources, hlsring
 from flumotion.component.base.http import HTTPAuthentication
-
-import setup
-setup.setup()
 
 MAIN_PLAYLIST=\
 """#EXTM3U
