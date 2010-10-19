@@ -328,7 +328,7 @@ class FragmentStore(log.Loggable):
         q = stream.getQuality(bitrate)
         q.setStream(stream)
         q.setTrackId(trak.tkhd.id)
-        self.warning ("AAC type %d" % (bytearray(esds.data[0])[0] >> 3))
+        #self.warning ("AAC type %d" % (bytearray(esds.data[0])[0] >> 3))
         q.FourCC = "AACL"
         q.BitsPerSample = mp4a.samplesize
         q.Channels = mp4a.channelcount
