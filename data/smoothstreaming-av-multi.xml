@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<planet>
+  <flow name="xxflow">
+
+     <component name="video-source" type="videotest-producer" worker="localhost">
+        <property name="width">320</property>
+        <property name="height">240</property>
+        <property name="framerate">25/1</property>
+     </component>
+
+    <component name="video-encoder-200" type="h264-encoder" worker="localhost">
+      <eater name="default"><feed>video-source</feed></eater>
+      <property name="bitrate">200000</property>
+      <property name="profile">base</property>
+      <property name="byte-stream">0</property>
+      <property name="max-keyframe-distance">50</property> 
+      <property name="min-keyframe-distance">50</property> 
+      <property name="sync-on-offset">true</property>
+    </component>
+
+
+    <component name="video-encoder-600" type="h264-encoder" worker="localhost">
+      <eater name="default"><feed>video-source</feed></eater>
+      <property name="bitrate">600000</property>
+      <property name="profile">base</property>
+      <property name="byte-stream">0</property>
+      <property name="max-keyframe-distance">50</property> 
+      <property name="min-keyframe-distance">50</property> 
+      <property name="sync-on-offset">true</property>
+    </component>
+
+    <component name="video-encoder-1200" type="h264-encoder" worker="localhost">
+      <eater name="default"><feed>video-source</feed></eater>
+      <property name="bitrate">1200000</property>
+      <property name="profile">base</property>
+      <property name="byte-stream">0</property>
+      <property name="max-keyframe-distance">50</property> 
+      <property name="min-keyframe-distance">50</property> 
+      <property name="sync-on-offset">true</property>
+    </component>
+
+     <component name="audio-source" type="audiotest-producer" worker="localhost">
+	<clock-master>true</clock-master>
+        <property name="samplerate">44100</property>
+     </component>
+
+    <component name="audio-encoder" type="aac-encoder" worker="localhost">
+      <eater name="default"><feed>audio-source</feed></eater>
+      <property name="high-efficiency-version">0</property>
+      <property name="bitrate">64000</property>
+    </component>
+
+    <component name="mu" type="fmp4-muxer" worker="localhost">
+      <eater name="default"><feed>video-encoder-200</feed></eater>
+      <eater name="default"><feed>video-encoder-600</feed></eater>
+      <eater name="default"><feed>video-encoder-1200</feed></eater>
+      <eater name="default"><feed>audio-encoder</feed></eater>
+      <property name="fragment-duration">2000</property>
+    </component>
+
+    <component name="gdp" type="gdp-consumer" worker="localhost">
+      <eater name="default"><feed>mu</feed></eater>
+      <property name="port">4321</property>
+    </component>
+    <component name="gdp2" type="gdp-consumer" worker="localhost">
+      <eater name="default"><feed>video-encoder-600</feed></eater>
+      <property name="port">4322</property>
+    </component>
+
+    <component name="ss" type="http-smoothstreamer" worker="localhost">
+      <eater name="default"><feed>mu</feed></eater>
+    </component>
+
+  </flow>
+</planet>
+<!-- FLU_DEBUG=*:3 flumotion-launch -d5 videotest-producer ! h264-encoder byte-stream=0 max-keyframe-distance=150 min-keyframe-distance=150 sync-on-offset=true ! gdp-consumer port=4321 -->
+
