@@ -44,6 +44,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/flumotion
 
 %changelog
+* Wed Oct 06 2010 Marc-André Lureau <mlureau@flumotion.com> 0.7.0.2-1
+- Smooth streaming release
+
 * Wed Jan 20 2010 Andoni Morales <amorales@flumotion.com>
 - Initial release
 

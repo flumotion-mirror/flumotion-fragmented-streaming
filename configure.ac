@@ -1,5 +1,5 @@
 AC_INIT(flumotion-fragmented-streaming,
-   0.7.0.1,
+   0.7.0.2,
    https://code.area51.fluendo.com/private/trac/newticket?component=flumotion-fragmentedstreaming,
    flumotion-fragmented-streaming)
 
