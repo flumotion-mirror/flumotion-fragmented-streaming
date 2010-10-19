@@ -94,13 +94,16 @@
         <dependencies>
             <dependency name="component" />
             <dependency name="smoothstreamer-base" />
+            <dependency name="applestreamer" />
         </dependencies>
 
         <directories>
             <directory name="flumotion/component/consumers/smoothstreamer">
                 <filename location="avcc.py" />
-                <filename location="smoothstreamer.py" />
                 <filename location="common.py" />
+                <filename location="resources.py" />
+                <filename location="smoothstreamer.py" />
+                <filename location="waveformatex.py" />
             </directory>
         </directories>
     </bundle>
