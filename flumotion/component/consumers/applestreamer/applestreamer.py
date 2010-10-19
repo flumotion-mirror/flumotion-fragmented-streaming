@@ -430,6 +430,27 @@ class FragmentedStreamer(feedcomponent.ParseLaunchComponent, Stats):
     def __repr__(self):
         return '<FragmentedStreamer (%s)>' % self.name
 
+    ### START OF THREAD-AWARE CODE (called from non-reactor threads)
+
+    def _sinkPadProbe(self, pad, buffer, none):
+        reactor.callFromThread(self.updateBytesReceived, len(buffer.data))
+        return True
+
+    def _new_preroll(self, appsink):
+        self.log("appsink received a preroll buffer")
+        buffer = appsink.emit('pull-preroll')
+
+    def _new_buffer(self, appsink):
+        self.log("appsink received a new buffer")
+        buffer = appsink.emit('pull-buffer')
+        reactor.callFromThread(self._processBuffer, buffer)
+
+    def _eos(self, appsink):
+        #FIXME: How do we handle this for live?
+        self.log('appsink received an eos')
+
+    ### END OF THREAD-AWARE CODE
+
 
 class AppleHTTPLiveStreamer(FragmentedStreamer):
     logCategory = 'apple-streamer'
@@ -544,23 +565,3 @@ class AppleHTTPLiveStreamer(FragmentedStreamer):
         self.info('Added fragment "%s", duration=%s offset=%s',
                 fragName, gst.TIME_ARGS(buffer.duration), currOffset)
 
-    ### START OF THREAD-AWARE CODE (called from non-reactor threads)
-
-    def _sinkPadProbe(self, pad, buffer, none):
-        reactor.callFromThread(self.updateBytesReceived, len(buffer.data))
-        return True
-
-    def _new_preroll(self, appsink):
-        self.log("appsink received a preroll buffer")
-        buffer = appsink.emit('pull-preroll')
-
-    def _new_buffer(self, appsink):
-        self.log("appsink received a new buffer")
-        buffer = appsink.emit('pull-buffer')
-        reactor.callFromThread(self._processBuffer, buffer)
-
-    def _eos(self, appsink):
-        #FIXME: How do we handle this for live?
-        self.log('appsink received an eos')
-
-    ### END OF THREAD-AWARE CODE

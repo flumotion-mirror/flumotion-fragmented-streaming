@@ -110,27 +110,6 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
             self.setMood(moods.happy)
             self.ready = True
 
-    ### START OF THREAD-AWARE CODE (called from non-reactor threads)
-
-    def _sinkPadProbe(self, pad, buffer, none):
-        reactor.callFromThread(self.updateBytesReceived, len(buffer.data))
-        return True
-
-    def _new_preroll(self, appsink):
-        self.log("appsink received a preroll buffer")
-        buffer = appsink.emit('pull-preroll')
-
-    def _new_buffer(self, appsink):
-        self.log("appsink received a new buffer")
-        buffer = appsink.emit('pull-buffer')
-        reactor.callFromThread(self._processBuffer, buffer)
-
-    def _eos(self, appsink):
-        #FIXME: How do we handle this for live?
-        self.log('appsink received an eos')
-
-    ### END OF THREAD-AWARE CODE
-
 
 class AttributesMixin:
 
