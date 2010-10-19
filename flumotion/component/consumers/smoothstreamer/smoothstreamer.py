@@ -28,13 +28,15 @@ from flumotion.component import feedcomponent
 from flumotion.common import interfaces, netutils, errors, messages
 from flumotion.component.component import moods
 
+from flumotion.extern.log import log
 from flumotion.component.consumers.applestreamer.common import\
     FragmentNotFound, FragmentNotAvailable, PlaylistNotFound, KeyNotFound
 from flumotion.component.consumers.applestreamer.applestreamer import\
     FragmentedStreamer
 from flumotion.component.consumers.smoothstreamer.resources import\
     SmoothStreamingResource
-from flumotion.component.consumers.smoothstreamer import avcc
+from flumotion.component.consumers.smoothstreamer import\
+    avcc, waveformatex
 
 __all__ = ['HTTPMedium', 'SmoothHTTPLiveStreamer']
 __version__ = ""
@@ -161,6 +163,7 @@ class Quality(AttributesMixin):
             ad, al, timestamp, duration = self._lookaheads.pop(0)
             moof = iso.select_atoms(ad, ('moof', 1, 1))[0]
             mdat = iso.select_atoms(ad, ('mdat', 1, 1))[0]
+
             # prepare "next" uuid box
             next = []
             for la in self._lookaheads:
@@ -170,20 +173,29 @@ class Quality(AttributesMixin):
             moof.traf.uuid.extend(extra)
             # make sure they are also written
             moof.traf.add_extra_children(extra)
+
             # get the modified buffer back
             outf = StringIO()
             iso.write_atoms([moof, mdat], outf)
             b = outf.getvalue()
+            outf = StringIO()
+            iso.write_atoms([moof], outf)
+            info = outf.getvalue()
+
             # it's a size-limited list..
             if (len(self._fragments) == self._maxfragments):
                 del self._fragments[min(self._fragments.keys())]
+
             # & add our buffer to the list of fragments
-            self._fragments[timestamp] = b
+            self._fragments[timestamp] = [b, info]
 
         return name
 
-    def getFragment(self, timestamp):
-        return self._fragments[timestamp]
+    def getFragment(self, timestamp, kind=None):
+        if kind == "info":
+            return self._fragments[timestamp][1]
+
+        return self._fragments[timestamp][0]
 
 
 class Chunk(AttributesMixin):
@@ -193,18 +205,24 @@ class Chunk(AttributesMixin):
 
 class Stream(AttributesMixin):
 
-    def __init__(self, type, subtype, mime, timescale, chunks=0):
+    def __init__(self, type, subtype="", mime=None, timescale=10000000, chunks=0):
         self.Type = type
-        self.SubType = subtype
+        if subtype:
+            self.SubType = subtype
+        else:
+            self.SubType = ""
         self.TimeScale = timescale
         self.Chunks = chunks
         self.Url = "QualityLevels({bitrate})/Fragments(%s={start time})" % type
         self._qualities = {} # bitrate -> q
-        self._mime = mime
+        if mime:
+            self._mime = mime
+        else:
+            self._mime = "video/mp4"
 
-    def getQuality(self, bitrate):
+    def getQuality(self, bitrate, setdefault=True):
         bitrate = int(bitrate)
-        if not self._qualities.has_key(bitrate):
+        if not self._qualities.has_key(bitrate) and setdefault:
             q = Quality(bitrate)
             q.Index = len(self._qualities)
             self._qualities[bitrate] = q
@@ -231,7 +249,7 @@ class Stream(AttributesMixin):
         return self.__dict__
 
 
-class FragmentStore:
+class FragmentStore(log.Loggable):
 
     logCategory = 'fragment-store'
 
@@ -254,13 +272,21 @@ class FragmentStore:
             # we need to handle h264, aac and then vc1, wma
             if type == "avc1":
                 self._addH264Track(t)
+            if type == "mp4a":
+                self._addAACTrack(t)
 
-    def getFragment(self, bitrate, type, time):
+    def getFragment(self, bitrate, type, time, kind=None):
         stream = self._streams.get(type)
-        quality = stream.getQuality(bitrate)
+        if not stream:
+            self.warning("bad type %s" % type)
+            raise FragmentNotFound(time)
 
+        quality = stream.getQuality(bitrate, False)
+        if not quality:
+            self.warning("bad bitrate %d" % bitrate)
+            raise FragmentNotFound(time)
         try:
-            return (quality.getFragment(time), stream.getMime())
+            return (quality.getFragment(time, kind), stream.getMime())
         except KeyError:
             raise FragmentNotFound(time)
 
@@ -270,6 +296,10 @@ class FragmentStore:
         track_id = moof.traf.tfhd.track_id
         return self._qualities[track_id].addFragment(ad, al, timestamp, duration)
 
+    def getStream(self, type, timescale, subtype=None, mime=None):
+        # Fixme what if we have several stream of the same type but different subtypes etc..?
+        return self._streams.setdefault(type, Stream(type, subtype, mime, timescale))
+
     def _addH264Track(self, trak):
         sps, pps, btrt = None, None, None
         avc1 = trak.mdia.minf.stbl.stsd.entries[0]
@@ -278,17 +308,41 @@ class FragmentStore:
                 sps, pps = avcc.extract_sps_pps(e)
             elif e._atom.type == "btrt":
                 btrt = e.avgBitrate
-        stream = self._streams.get("video")
-        if not stream:
-            timescale = trak.mdia.mdhd.timescale
-            stream = self._streams["video"] = Stream("video", "H264", "video/mp4", timescale)
+        timescale = trak.mdia.mdhd.timescale
+        stream = self.getStream("video", timescale)
         q = stream.getQuality(btrt)
         q.setStream(stream)
         q.setTrackId(trak.tkhd.id)
-        q.FourCC = "H264"
+        q.FourCC = "AVC1"
         q.CodecPrivateData = "00000001" +  base64.b16encode(sps[0]) + "00000001" + base64.b16encode(pps[0])
         q.MaxWidth = avc1.width
         q.MaxHeight = avc1.height
+        self._qualities[q.getTrackId()] = q
+
+    def _addAACTrack(self, trak):
+        mp4a = trak.mdia.minf.stbl.stsd.entries[0]
+        esds = mp4a.extra[0]
+        timescale = trak.mdia.mdhd.timescale
+        stream = self.getStream("audio", timescale)
+        bitrate = esds.avgBitrate
+        q = stream.getQuality(bitrate)
+        q.setStream(stream)
+        q.setTrackId(trak.tkhd.id)
+        self.warning ("AAC type %d" % (bytearray(esds.data[0])[0] >> 3))
+        q.FourCC = "AACL"
+        q.BitsPerSample = mp4a.samplesize
+        q.Channels = mp4a.channelcount
+        q.PacketSize = 1 # = blockalign?
+        q.SamplingRate = mp4a.sampleratehi
+        q.AudioTag = waveformatex.object_type_id_to_wFormatTag(esds.object_type_id)
+        q.CodecPrivateData = base64.b16encode(waveformatex.waveformatex(
+            waveformatex.object_type_id_to_wFormatTag(esds.object_type_id),
+            mp4a.channelcount,
+            mp4a.sampleratehi,
+            0, # avgbytepersec
+            1, # blockalign
+            mp4a.samplesize,
+            esds.data))
         self._qualities[q.getTrackId()] = q
 
     def renderManifest(self):

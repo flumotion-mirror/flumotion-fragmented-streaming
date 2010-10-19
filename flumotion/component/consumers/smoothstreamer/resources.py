@@ -84,16 +84,26 @@ class SmoothStreamingResource(FragmentedResource):
         return res
 
     def _renderFragment(self, res, request, resource):
-        l = resource[:-1].replace("QualityLevels(", "").replace(")/Fragments(", "/").split("/") 
-        if len(l) != 2:
-            l = resource[:-1].replace("QualityLevels(", "").replace(")/FragmentInfo(", "/").split("/")
-        if len(l) != 2:
+        p = [c for c in resource.split('/') if c]
+        if p[0].startswith("QualityLevels("):
+            p[0] = p[0][14:-1]
+        else:
             raise FragmentNotAvailable("Invalid fragment request")
 
-        bitrate, (type, time) = l[0], l[1].split("=")
-        fragment, mime = self.store.getFragment(bitrate, type, int(time))
+        if p[1].startswith("FragmentInfo("):
+            p[1] = p[1][13:-1]
+            kind = "info"
+        elif p[1].startswith("Fragments("):
+            p[1] = p[1][10:-1]
+            kind = "fragment"
+        else:
+            raise FragmentNotAvailable("Invalid fragment request")
+
+        bitrate, (type, time) = p[0], p[1].split("=")
+        fragment, mime = self.store.getFragment(bitrate, type, int(time), kind)
         self._writeHeaders(request, mime)
         if request.method == 'GET':
+            request.setHeader('content-length', len(fragment))
             request.write(fragment)
             self.bytesSent += len(fragment)
             self.logWrite(request)

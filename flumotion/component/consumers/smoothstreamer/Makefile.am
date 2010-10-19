@@ -5,7 +5,9 @@ component_PYTHON = __init__.py \
 		   resources.py \
 		   smoothstreamer.py \
 		   admin_gtk.py \
-		   avcc.py
+		   avcc.py \
+		   waveformatex.py
+
 
 componentdir = $(libdir)/flumotion/python/flumotion/component/consumers/smoothstreamer
 component_DATA = \
