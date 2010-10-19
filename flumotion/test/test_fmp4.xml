@@ -1,0 +1,19 @@
+<registry>
+  <components>
+   
+    <component type="fmp4-tester" base="flumotion/test"
+               _description="Test fmp4-muxer">
+      <source location="flumotion.test.test_fmp4"/>
+      
+      <eater name="default" multiple="yes"/>
+      
+      <entries>
+        <entry type="component" location="test_fmp4.py"
+               function="FMP4Tester"/>
+      </entries>
+
+    </component>
+
+  </components>
+
+</registry>
