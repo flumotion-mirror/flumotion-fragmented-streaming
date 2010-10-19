@@ -95,7 +95,9 @@ class FMP4(feedcomponent.MuxerComponent):
                              "marked as desync (%r != %r)" %
                              (gst.TIME_ARGS(pts), gst.TIME_ARGS(ts)))
                 synced = False
-            if not synced:
+
+            # don't check fragment sync immediately, as pts is invalid
+            elif not synced:
                 frag_duration = self.duration * gst.MSECOND
                 # detect beginning of fragment, if looping over frag_duration
                 _ts = pts % frag_duration
