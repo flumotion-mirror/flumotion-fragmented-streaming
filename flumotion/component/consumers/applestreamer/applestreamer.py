@@ -457,7 +457,10 @@ class AppleHTTPLiveStreamer(FragmentedStreamer):
         return 'video/mpegts'
 
     def getUrl(self):
-        return "http://%s:%d%s" % (self.hostname, self.port, self.mountPoint)
+        slash = ""
+        if not self.mountPoint.startswith("/"):
+            slash = "/"
+        return "http://%s:%d%s%s" % (self.hostname, self.port, slash, self.mountPoint)
 
     def softRestart(self):
         """Stops serving fragments, resets the playlist and starts
