@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
 <planet>
+  <atmosphere>
+    <component name="tokenbouncer" project="flumotion"
+	       type="tokentest-bouncer" version="0.3.0.1" worker="localhost">
+      <property name="authorized-token">test</property>
+  </component>
+</atmosphere>
   <flow name="xxflow">
 
      <component name="video-source" type="videotest-producer" worker="localhost">
@@ -13,8 +19,8 @@
       <property name="bitrate">200000</property>
       <property name="profile">base</property>
       <property name="byte-stream">0</property>
-      <property name="max-keyframe-distance">50</property> 
-      <property name="min-keyframe-distance">50</property> 
+      <property name="max-keyframe-distance">50</property>
+      <property name="min-keyframe-distance">50</property>
       <property name="sync-on-offset">true</property>
     </component>
 
@@ -24,8 +30,8 @@
       <property name="bitrate">600000</property>
       <property name="profile">base</property>
       <property name="byte-stream">0</property>
-      <property name="max-keyframe-distance">50</property> 
-      <property name="min-keyframe-distance">50</property> 
+      <property name="max-keyframe-distance">50</property>
+      <property name="min-keyframe-distance">50</property>
       <property name="sync-on-offset">true</property>
     </component>
 
@@ -34,8 +40,8 @@
       <property name="bitrate">1200000</property>
       <property name="profile">base</property>
       <property name="byte-stream">0</property>
-      <property name="max-keyframe-distance">50</property> 
-      <property name="min-keyframe-distance">50</property> 
+      <property name="max-keyframe-distance">50</property>
+      <property name="min-keyframe-distance">50</property>
       <property name="sync-on-offset">true</property>
     </component>
 
@@ -70,6 +76,8 @@
     <component name="ss" type="http-smoothstreamer" worker="localhost">
       <eater name="default"><feed>mu</feed></eater>
       <property name="mount-point">test</property>
+      <property name="issuer-class">HTTPTokenIssuer</property>
+      <property name="bouncer">tokenbouncer</property>
     </component>
 
   </flow>
