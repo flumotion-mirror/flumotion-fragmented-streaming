@@ -37,7 +37,6 @@ from flumotion.component.consumers.smoothstreamer.resources import\
     SmoothStreamingResource
 from flumotion.component.consumers.smoothstreamer import\
     avcc, waveformatex
-
 __all__ = ['HTTPMedium', 'SmoothHTTPLiveStreamer']
 __version__ = ""
 T_ = gettexter()
@@ -128,7 +127,7 @@ class AttributesMixin:
         return self.__dict__
 
 
-class Quality(AttributesMixin):
+class Quality(log.Loggable, AttributesMixin):
     def __init__(self, bitrate, lookahead=2, maxfragments=10):
         self.Bitrate = bitrate
         if (lookahead < 1):
@@ -184,10 +183,14 @@ class Quality(AttributesMixin):
 
             # it's a size-limited list..
             if (len(self._fragments) == self._maxfragments):
-                del self._fragments[min(self._fragments.keys())]
+                m = min(self._fragments.keys())
+                self.debug("removing %r" % m)
+                del self._fragments[m]
 
             # & add our buffer to the list of fragments
             self._fragments[timestamp] = [b, info]
+            self.debug("added %s, resulting len %d" % (name,
+                len(self._fragments)))
 
         return name
 
