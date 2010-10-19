@@ -67,7 +67,10 @@ class MPEGTS(feedcomponent.MuxerComponent):
         # until gst-plugin-bad-0.10.18. Patched versions in the platform
         # will be numberer using minor=10 to check if the plugin has been
         # patched
-        if v <= (0, 10, 17, 0) and v[3] != 11:
+        if v is None:
+            m = messages.Warning(T_(N_("GStreamer mpegtsmux not found")))
+            self.addMessage(m)
+        elif v <= (0, 10, 17, 0) and v[3] != 11:
             m = messages.Warning(
                 T_(N_("Versions up to and including %s of the '%s' "
                       "GStreamer plug-in are not suitable for "
