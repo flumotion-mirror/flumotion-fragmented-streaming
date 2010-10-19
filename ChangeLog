@@ -1,3 +1,10 @@
+2010-10-19  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed and corrected by: Andoni Morales Alastruey
+
+	* merged Smooth Streaming branch from git
+	453cc2f262b64c0508f6b918b74677b5f287a819.
+
 2010-10-05  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/muxers/mpegts/mpegts.py:
