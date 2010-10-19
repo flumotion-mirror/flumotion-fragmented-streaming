@@ -1,0 +1,56 @@
+<registry>
+  <components>
+
+    <component type="fmp4-muxer" base="flumotion/component/muxers/fmp4"
+               _description="Muxes encoded feeds into a fragmented MP4 feed.">
+      <source location="flumotion.component.muxers.fmp4.fmp4"/>
+
+      <feeder name="default"/>
+
+      <eater name="default" multiple="yes"/>
+
+      <entries>
+        <entry type="component" location="fmp4.py"
+               function="FMP4"/>
+      </entries>
+
+      <properties>
+        <property name="fragment-duration" type="int"
+                  _description="Fragment durations in ms (produce a fragmented file if > 0)"/>
+      </properties>
+
+      <wizard _description="FMP4" type="muxer"
+              feeder="default" eater="default">
+        <accept-format media-type="dirac" />
+        <accept-format media-type="mp3" />
+        <accept-format media-type="h264" />
+        <accept-format media-type="aac" />
+        <accept-format media-type="wmv" />
+        <accept-format media-type="wma" />
+
+        <provide-format media-type="fmp4" />
+       </wizard>
+
+    </component>
+
+  </components>
+
+  <bundles>
+
+    <bundle project="fragmentedstreaming" name="fmp4">
+        <dependencies>
+            <dependency name="component" />
+            <dependency name="applestreamer" />
+        </dependencies>
+
+        <directories>
+            <directory name="flumotion/component/muxers/fmp4">
+                <filename location="__init__.py" />
+                <filename location="fmp4.py" />
+            </directory>
+        </directories>
+    </bundle>
+
+  </bundles>
+
+</registry>

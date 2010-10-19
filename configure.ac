@@ -95,6 +95,7 @@ flumotion/component/Makefile
 flumotion/component/consumers/Makefile
 flumotion/component/consumers/applestreamer/Makefile
 flumotion/component/muxers/Makefile
+flumotion/component/muxers/fmp4/Makefile
 flumotion/component/muxers/mpegts/Makefile
 flumotion/project/Makefile
 flumotion/project/fragmentedstreaming.py
