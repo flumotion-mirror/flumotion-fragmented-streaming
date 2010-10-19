@@ -83,21 +83,29 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         self._lastBufferOffset = currOffset
         self._segmentsCount = self._segmentsCount + 1
 
+        f = StringIO(buffer.data)
+        al = list(atoms.read_atoms(f))
+        ad = atoms.atoms_dict(al)
+        if (buffer.flag_is_set (gst.BUFFER_FLAG_IN_CAPS)):
+            try:
+                self.store.setMoov(ad)
+            except Exception, e:
+                m = messages.Error(T_(N_(
+                    "First buffer cannot be parsed as a moov,"\
+                    "check mp4seek version")))
+                self.addMessage(m)
+                self.error("First buffer cannot be parsed as a moov: %r" % e)
+                return
+        elif iso.select_atoms(ad, ('moof', 0, 1))[0]:
+            fragName = self.store.addFragment(ad, al, buffer.offset, buffer.duration)
+            self.info('Added fragment "%s", duration=%s offset=%s',
+                      fragName, gst.TIME_ARGS(buffer.duration), currOffset)
         # Wait min-window fragments to set the component 'happy'
         if self._segmentsCount == self._minWindow:
             self.info("%d fragments received. Changing mood to 'happy'",
                     self._segmentsCount)
             self.setMood(moods.happy)
             self.ready = True
-        f = StringIO(buffer.data)
-        al = list(atoms.read_atoms(f))
-        ad = atoms.atoms_dict(al)
-        if (buffer.flag_is_set (gst.BUFFER_FLAG_IN_CAPS)):
-            self.store.setMoov(ad)
-        elif iso.select_atoms(ad, ('moof', 0, 1))[0]:
-            fragName = self.store.addFragment(ad, al, buffer.offset, buffer.duration)
-            self.info('Added fragment "%s", duration=%s offset=%s',
-                      fragName, gst.TIME_ARGS(buffer.duration), currOffset)
 
     ### START OF THREAD-AWARE CODE (called from non-reactor threads)
 
@@ -278,6 +286,8 @@ class FragmentStore(log.Loggable):
         pprint.pprint(moov)
         self.TimeScale = moov.mvhd.timescale
         self._streams = {}
+        if len(moov.trak) == 0:
+            raise Exception("Empty trak list")
         for t in moov.trak:
             type = t.mdia.minf.stbl.stsd.entries[0]._atom.type
             # we need to handle h264, aac and then vc1, wma
