@@ -69,6 +69,7 @@
 
     <component name="ss" type="http-smoothstreamer" worker="localhost">
       <eater name="default"><feed>mu</feed></eater>
+      <property name="mount-point">test</property>
     </component>
 
   </flow>

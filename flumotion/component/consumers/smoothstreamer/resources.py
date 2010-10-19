@@ -136,7 +136,7 @@ class SmoothStreamingResource(FragmentedResource):
 
         d = defer.maybeDeferred(self._checkSession, request)
         # Manifest
-        if resource.endswith(MANIFEST_NAME):
+        if resource == MANIFEST_NAME:
             d.addCallback(self._renderManifest, request, resource)
         elif resource.endswith(CLIENT_ACCESS_POLICY_NAME):
             d.addCallback(self._renderClientAccessPolicy, request, resource)
