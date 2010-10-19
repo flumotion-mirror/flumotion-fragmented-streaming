@@ -45,16 +45,12 @@ class FMP4(feedcomponent.MuxerComponent):
             return
 
         v = gstreamer.get_plugin_version('qtmux')
-        # The mpegtsmuxer does not use the delta unit flag to mark keyframes
-        # until gst-plugin-bad-0.10.18. Patched versions in the platform
-        # will be numberer using minor=10 to check if the plugin has been
-        # patched
-        if v <= (0, 10, 19, 0) and v[3] != 11:
+        if v < (0, 10, 11, 0):
             m = messages.Warning(
                 T_(N_("Versions up to and including %s of the '%s' "
                       "GStreamer plug-in are not suitable for "
                       "smooth streaming.\n"),
-                      '0.10.19', 'qtmux'))
+                      '0.10.11', 'qtmux'))
             self.addMessage(m)
 
     def get_muxer_string(self, props):
