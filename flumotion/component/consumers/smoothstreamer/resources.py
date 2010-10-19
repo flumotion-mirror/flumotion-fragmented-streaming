@@ -89,7 +89,7 @@ class SmoothStreamingResource(FragmentedResource):
 
     def _renderFragment(self, res, request, resource):
         p = [c for c in resource.split('/') if c]
-        if p[0].startswith("QualityLevels("):
+        if len(p) != 0 and p[0].startswith("QualityLevels("):
             p[0] = p[0][14:-1]
         else:
             raise FragmentNotAvailable("Invalid fragment request")
