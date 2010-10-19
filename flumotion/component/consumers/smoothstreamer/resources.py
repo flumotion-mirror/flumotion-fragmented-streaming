@@ -103,8 +103,13 @@ class SmoothStreamingResource(FragmentedResource):
         else:
             raise FragmentNotAvailable("Invalid fragment request")
 
-        bitrate, (type, time) = p[0], p[1].split("=")
-        fragment, mime, code = self.store.getFragment(bitrate, type, int(time), kind)
+        try:
+            bitrate, (type, time) = p[0], p[1].split("=")
+            time = int(time)
+        except ValueError:
+            raise FragmentNotAvailable("Invalid fragment request")
+
+        fragment, mime, code = self.store.getFragment(bitrate, type, time, kind)
         self._writeHeaders(request, mime, code)
         if request.method == 'GET' and code == 200:
             request.setHeader('content-length', len(fragment))
