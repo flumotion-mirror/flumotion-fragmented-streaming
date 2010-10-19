@@ -99,7 +99,7 @@
         <directories>
             <directory name="flumotion/component/consumers/smoothstreamer">
                 <filename location="avcc.py" />
-                <filename location="smooothstreamer.py" />
+                <filename location="smoothstreamer.py" />
                 <filename location="common.py" />
             </directory>
         </directories>
