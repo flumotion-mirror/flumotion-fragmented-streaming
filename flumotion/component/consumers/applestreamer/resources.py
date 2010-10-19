@@ -107,12 +107,10 @@ class Session(server.Session):
             self._expireCall.reset(self.sessionTimeout)
 
 
-class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
+class FragmentedResource(web_resource.Resource, log.Loggable):
 
     __reserve_fds__ = 50 # number of fd's to reserve for non-streaming
-
-    logCategory = 'apple-streamer'
-
+    logCategory = 'fragmented-resource'
     # IResource interface variable; True means it will not chain requests
     # further down the path to other resource providers through
     # getChildWithDefault
@@ -120,15 +118,12 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
     def __init__(self, streamer, httpauth, secretKey, sessionTimeout):
         """
-        @param streamer: L{AppleHTTPLiveStreamer}
+        @param streamer: L{FragmentedStreamer}
         """
         self.streamer = streamer
         self.httpauth = httpauth
         self.secretKey = secretKey
         self.sessionTimeout = sessionTimeout
-        self.setMountPoint(streamer.mountPoint)
-        self.ring = streamer.getRing()
-
         self.maxclients = self.getMaxAllowedClients(-1)
         self.maxbandwidth = -1 # not limited by default
 
@@ -451,6 +446,41 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
         request.finish()
         return ''
 
+    def getBytesSent(self):
+        return self.bytesSent
+
+    def getBytesReceived(self):
+        return self.bytesReceived
+
+    def logRequest(self, error, request):
+        if error:
+            self.info("%s %s error:%s", request.getClientIP(), request, error)
+        else:
+            uid = request.session and request.session.uid or None
+            self.info("%s %s %s %s %s %s", request.getClientIP(), request,
+                request.code, request.getBytesSent(),
+                request.getDuration(), uid)
+
+    def render(self, request):
+        self.debug('Incoming client connection from %s: %s',
+                request.getClientIP(), request)
+        request.notifyFinish().addCallback(self.logRequest, request)
+        return web_resource.Resource.render(self, request)
+
+
+class HTTPLiveStreamingResource(FragmentedResource):
+
+    logCategory = 'apple-streamer'
+
+    def __init__(self, streamer, httpauth, secretKey, sessionTimeout):
+        """
+        @param streamer: L{AppleHTTPLiveStreamer}
+        """
+        self.ring = streamer.getRing()
+        self.setMountPoint(streamer.mountPoint)
+        FragmentedResource.__init__(self, streamer, httpauth, secretKey,
+            sessionTimeout)
+
     def _renderKey(self, res, request):
         self._writeHeaders(request, 'binary/octect-stream')
         if request.method == 'GET':
@@ -543,27 +573,6 @@ class HTTPLiveStreamingResource(web_resource.Resource, log.Loggable):
 
         d.addErrback(self._renderNotFoundResponse, request)
         return server.NOT_DONE_YET
-
-    def getBytesSent(self):
-        return self.bytesSent
-
-    def getBytesReceived(self):
-        return self.bytesReceived
-
-    def logRequest(self, error, request):
-        if error:
-            self.info("%s %s error:%s", request.getClientIP(), request, error)
-        else:
-            uid = request.session and request.session.uid or None
-            self.info("%s %s %s %s %s %s", request.getClientIP(), request,
-                request.code, request.getBytesSent(),
-                request.getDuration(), uid)
-
-    def render(self, request):
-        self.debug('Incoming client connection from %s: %s',
-                request.getClientIP(), request)
-        request.notifyFinish().addCallback(self.logRequest, request)
-        return web_resource.Resource.render(self, request)
 
     render_GET = _render
     render_HEAD = _render
