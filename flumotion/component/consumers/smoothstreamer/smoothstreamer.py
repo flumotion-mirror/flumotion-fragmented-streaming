@@ -83,7 +83,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         self._lastBufferOffset = currOffset
         self._segmentsCount = self._segmentsCount + 1
 
-        # Wait hls-min-window fragments to set the component 'happy'
+        # Wait min-window fragments to set the component 'happy'
         if self._segmentsCount == self._minWindow:
             self.info("%d fragments received. Changing mood to 'happy'",
                     self._segmentsCount)
@@ -188,18 +188,26 @@ class Quality(log.Loggable, AttributesMixin):
                 del self._fragments[m]
 
             # & add our buffer to the list of fragments
+            self.debug("added %r buffer" % timestamp)
             self._fragments[timestamp] = [b, info]
-            self.debug("added %s, resulting len %d" % (name,
-                len(self._fragments)))
 
         return name
 
     def getFragment(self, timestamp, kind=None):
+        f = self._fragments.get(timestamp)
+        if not f:
+            return None
+
         if kind == "info":
-            return self._fragments[timestamp][1]
+            return f[1]
 
-        return self._fragments[timestamp][0]
+        return f[0]
 
+    def getFragmentInLookAhead(self, timestamp, kind=None):
+        for l in self._lookaheads:
+            if l[2] == timestamp:
+                return True
+        return False
 
 class Chunk(AttributesMixin):
     def __init__(self, t):
@@ -288,9 +296,12 @@ class FragmentStore(log.Loggable):
         if not quality:
             self.warning("bad bitrate %d" % bitrate)
             raise FragmentNotFound(time)
-        try:
-            return (quality.getFragment(time, kind), stream.getMime())
-        except KeyError:
+        f = quality.getFragment(time, kind)
+        if f:
+            return (f, stream.getMime(), 200)
+        elif quality.getFragmentInLookAhead(time, kind):
+            return (None, None, 412)
+        else:
             raise FragmentNotFound(time)
 
     def addFragment(self, ad, al, timestamp, duration):

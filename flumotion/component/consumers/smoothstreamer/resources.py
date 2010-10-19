@@ -13,7 +13,7 @@
 
 # Headers in this file shall remain intact.
 
-from flumotion.component.consumers.applestreamer.common import\
+from flumotion.component.consumers.applestreamer.common import \
     FragmentNotFound, FragmentNotAvailable, PlaylistNotFound, KeyNotFound
 from flumotion.component.consumers.applestreamer.resources import \
     FragmentedResource
@@ -104,14 +104,14 @@ class SmoothStreamingResource(FragmentedResource):
             raise FragmentNotAvailable("Invalid fragment request")
 
         bitrate, (type, time) = p[0], p[1].split("=")
-        fragment, mime = self.store.getFragment(bitrate, type, int(time), kind)
-        self._writeHeaders(request, mime)
-        if request.method == 'GET':
+        fragment, mime, code = self.store.getFragment(bitrate, type, int(time), kind)
+        self._writeHeaders(request, mime, code)
+        if request.method == 'GET' and code == 200:
             request.setHeader('content-length', len(fragment))
             request.write(fragment)
             self.bytesSent += len(fragment)
-            self.logWrite(request)
-            request.finish()
+        self.logWrite(request)
+        request.finish()
         return res
 
     def _renderError(self, res, request, resource):
