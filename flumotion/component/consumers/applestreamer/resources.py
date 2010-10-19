@@ -446,6 +446,28 @@ class FragmentedResource(web_resource.Resource, log.Loggable):
         request.finish()
         return ''
 
+    def _writeHeaders(self, request, content):
+        """
+        Write out the HTTP headers for the incoming HTTP request.
+        """
+
+        request.setResponseCode(200)
+        request.setHeader('Server', HTTP_SERVER)
+        request.setHeader('Date', http.datetimeToString())
+        request.setHeader('Cache-Control', 'no-cache')
+        request.setHeader('Content-type', content)
+
+        # Call request modifiers
+        for modifier in self.modifiers:
+            modifier.modify(request)
+
+        # Mimic Twisted as close as possible
+        headers = []
+        for name, value in request.headers.items():
+            headers.append('%s: %s\r\n' % (name.capitalize(), value))
+        for cookie in request.cookies:
+            headers.append('%s: %s\r\n' % ("Set-Cookie", cookie))
+
     def getBytesSent(self):
         return self.bytesSent
 
@@ -521,28 +543,6 @@ class HTTPLiveStreamingResource(FragmentedResource):
             self.debug('handling HEAD request')
         request.finish()
         return res
-
-    def _writeHeaders(self, request, content):
-        """
-        Write out the HTTP headers for the incoming HTTP request.
-        """
-
-        request.setResponseCode(200)
-        request.setHeader('Server', HTTP_SERVER)
-        request.setHeader('Date', http.datetimeToString())
-        request.setHeader('Cache-Control', 'no-cache')
-        request.setHeader('Content-type', content)
-
-        # Call request modifiers
-        for modifier in self.modifiers:
-            modifier.modify(request)
-
-        # Mimic Twisted as close as possible
-        headers = []
-        for name, value in request.headers.items():
-            headers.append('%s: %s\r\n' % (name.capitalize(), value))
-        for cookie in request.cookies:
-            headers.append('%s: %s\r\n' % ("Set-Cookie", cookie))
 
     def _render(self, request):
         if not self.isReady():

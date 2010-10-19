@@ -1,0 +1,125 @@
+<registry>
+
+  <components>
+    <component type="http-smoothstreamer"
+               base="flumotion/component/consumers/smoothstreamer"
+               _description="A consumer to do Microsoft smooth streaming">
+      <source location="flumotion.component.consumers.smoothstreamer.smoothstreamer"/>
+
+      <eater name="default" />
+
+      <!-- entry points for distributable code bundles -->
+      <entries>
+        <entry type="component" location="smoothstreamer.py"
+               function="SmoothHTTPLiveStreamer" />
+        <entry type="admin/gtk" location="admin_gtk.py"
+               function="GUIClass" />
+      </entries>
+
+      <sockets>
+        <socket type="flumotion.component.plugs.request.RequestLoggerPlug" />
+        <socket type="flumotion.component.plugs.streamdata.StreamDataProviderPlug" />
+        <socket type="flumotion.component.plugs.rrd.ComponentRRDPlug" />
+      </sockets>
+
+      <properties>
+        <property name="description" type="string"
+                  _description="A description of the stream."/>
+
+        <property name="mount-point" type="string"
+                  _description="The mount point on which the playlist and the stream can be accessed." />
+
+        <!-- FIXME, authenticating against remote bouncers should happen through
+             a plug, not this property -->
+        <property name="bouncer" type="string"
+                  _description="The name of a bouncer in the atmosphere to authenticate against." />
+        <property name="issuer-class" type="string"
+                  _description="The Python class of the Keycard issuer to use." />
+
+        <property name="type" type="string"
+                  _description="'master' to listen on a port, or 'slave' to slave to a porter (default master)." />
+
+        <!-- If type is 'master' (default) -->
+        <property name="port" type="int"
+                  _description="The port to listen on (if type is 'master')." />
+
+        <!-- If type is 'slave' -->
+        <property name="porter-socket-path" type="string"
+                  _description="The path to the socket to communicate with the porter." />
+        <property name="porter-username" type="string"
+                  _description="The username to authenticate to the porter." />
+        <property name="porter-password" type="string"
+                  _description="The password to authenticate to the porter." />
+
+        <property name="hostname" type="string"
+                  _description="The server's host name to display." />
+        <property name="domain" type="string"
+                  _description="The domain of the server for authentication." />
+
+        <property name="client-limit" type="int"
+                  _description="The maximum number of clients allowed." />
+        <property name="bandwidth-limit" type="int"
+                  _description="The maximum bandwidth usage allowed in bits per second." />
+        <property name="redirect-on-overflow" type="string"
+                  _description="A URL to redirect clients to if either of the limits have been reached." />
+
+        <property name="duration" type="float"
+                  _description="How long to keep clients connected (in seconds)."/>
+
+        <property name="min-window" type="int"
+                  _description="Minimun number of fragments to start streaming (default:2)" />
+        <property name="secret-key" type="string"
+                  _description="Secret key used for HMAC" />
+        <property name="session-timeout" type="int"
+                  _description="Session timeout in seconds (default:30)" />
+      </properties>
+
+    </component>
+  </components>
+
+  <bundles>
+    <bundle project="fragmentedstreaming" name="smoothstreamer-base">
+        <dependencies>
+            <dependency name="component" />
+        </dependencies>
+
+        <directories>
+            <directory name="flumotion/component/consumers/smoothstreamer">
+                <filename location="__init__.py" />
+            </directory>
+        </directories>
+    </bundle>
+
+    <bundle project="fragmentedstreaming" name="smoothstreamer">
+        <dependencies>
+            <dependency name="component" />
+            <dependency name="smoothstreamer-base" />
+        </dependencies>
+
+        <directories>
+            <directory name="flumotion/component/consumers/smoothstreamer">
+                <filename location="avcc.py" />
+                <filename location="smooothstreamer.py" />
+                <filename location="common.py" />
+            </directory>
+        </directories>
+    </bundle>
+
+    <bundle project="fragmentedstreaming" name="smoothstreamer-admin">
+        <dependencies>
+            <dependency name="component" />
+            <dependency name="base-admin-gtk"/>
+            <dependency name="smoothstreamer-base" />
+        </dependencies>
+
+        <directories>
+            <directory name="flumotion/component/consumers/smoothstreamer">
+                <filename location="smoothstreamer.glade" />
+                <filename location="admin_gtk.py" />
+            </directory>
+        </directories>
+    </bundle>
+
+  </bundles>
+
+</registry>
