@@ -351,6 +351,8 @@ class FragmentedStreamer(feedcomponent.ParseLaunchComponent, Stats):
         # and the assignment needs to be done after initializing Stats?
         self.hostname = hostname
         self.mountPoint = mountPoint
+        if not self.mountPoint.endswith("/"):
+            self.mountPoint += "/"
         self.port = port
 
         self._minWindow = props.get('hls-min-window',

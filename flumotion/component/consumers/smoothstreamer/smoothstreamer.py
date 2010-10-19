@@ -52,7 +52,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         self.debug("Smooth HTTP live streamer initialising")
 
     def getUrl(self):
-        return "http://%s:%d%s/Manifest" % (self.hostname, self.port, self.mountPoint)
+        return "http://%s:%d%sManifest" % (self.hostname, self.port, self.mountPoint)
 
     def __repr__(self):
         return '<SmoothHTTPLiveStreamer (%s)>' % self.name
