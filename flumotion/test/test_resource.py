@@ -50,8 +50,9 @@ class FakeStreamer:
         self.currentBitRate = 1000
         self.ready = True
         self.mountPoint = "localhost"
-        self.ring = hlsring.HLSRing("localhost", "main.m3u8",
+        self.ring = hlsring.HLSRing("main.m3u8",
                 "stream.m3u8", "")
+        self.ring.setHostname("localhost")
         self.ring.addFragment(FRAGMENT, 0, 10)
 
         self.medium = FakeAuthMedium()

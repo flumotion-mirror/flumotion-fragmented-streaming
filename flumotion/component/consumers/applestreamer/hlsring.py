@@ -159,13 +159,11 @@ class HLSRing(Playlister):
     BLOCK_SIZE = 16
     PADDING = '0'
 
-    def __init__(self, hostname, mainPlaylist, streamPlaylist,
+    def __init__(self, mainPlaylist, streamPlaylist,
             streamBitrate=300000, title='', fragmentPrefix='mpegts',
             newFragTolerance = 0, window=5, maxExtraBuffers=None,
             keyInterval=0, keysURI=None):
         '''
-        @param hostname:        hostname to use in the playlist
-        @type  hostname:        str
         @param mainPlaylist:    resource name of the main playlist
         @type  mainPlaylist:    str
         @param streamPlaylists: resource names of the playlists
@@ -190,7 +188,6 @@ class HLSRing(Playlister):
 
         '''
         Playlister.__init__(self)
-        self.setHostname(hostname)
         self.mainPlaylist = mainPlaylist
         self.streamPlaylist = streamPlaylist
         self.streamBitrate = streamBitrate

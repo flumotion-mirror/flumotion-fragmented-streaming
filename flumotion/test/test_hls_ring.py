@@ -63,8 +63,9 @@ http://localhost:8000/mpegts-5.ts?GKID=%s
 """
 
     def setUp(self):
-        self.ring = hlsring.HLSRing('localhost', 'live.m3u8', 'stream.m3u8',
+        self.ring = hlsring.HLSRing('live.m3u8', 'stream.m3u8',
                 '300000', 'title', window=5)
+        self.ring.setHostname('localhost')
 
     def testAddFragment(self):
         self.ring.addFragment('', 0, 10)

@@ -92,31 +92,24 @@ class Site(server.Site):
         server.Site.__init__(self, resource)
 
 
-class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
+class FragmentedStreamer(feedcomponent.ParseLaunchComponent, Stats):
     implements(interfaces.IStreamingComponent)
 
-    logCategory = 'apple-streamer'
-
-    componentMediumClass = HTTPMedium
-
-    DEFAULT_FRAGMENT_PREFIX = 'fragment'
-    DEFAULT_MAIN_PLAYLIST = 'main.m3u8'
-    DEFAULT_STREAM_PLAYLIST = 'stream.m3u8'
-    DEFAULT_STREAM_BITRATE = 300000
-    DEFAULT_KEYFRAMES_PER_SEGMENT = 10
     DEFAULT_MIN_WINDOW = 2
     DEFAULT_MAX_WINDOW = 5
     DEFAULT_PORT = 8080
     DEFAULT_SECRET_KEY = 'aR%$w34Y=&08gFm%&!s8080'
     DEFAULT_SESSION_TIMEOUT = 30
 
+    componentMediumClass = HTTPMedium
+    logCategory = 'fragmented-streamer'
+
     def init(self):
         reactor.debug = True
-        self.debug("Apple HTTP live streamer initialising")
+        self.debug("HTTP live fragmented streamer initialising")
 
         self.mountPoint = None
         self.description = None
-        self.hlsring = None
         self.resource = None
 
         # Used if we've slaved to a porter.
@@ -133,16 +126,10 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
         self.iface = None
         self._tport = None
 
-        self._updateCallLaterId = None
-        self._lastUpdate = 0
-        self._updateUI_DC = None
-
         self.ready = False
         self._updateCallLaterId = None
         self._lastUpdate = 0
         self._updateUI_DC = None
-
-        self._lastBufferOffset = None
 
         for i in ('stream-mime', 'stream-uptime', 'stream-current-bitrate',
                   'stream-bitrate', 'stream-totalbytes', 'clients-current',
@@ -154,15 +141,6 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
                   'consumption-totalbytes-raw', 'stream-url'):
             self.uiState.addKey(i, None)
 
-    def getDescription(self):
-        return self.description
-
-    def getRing(self):
-        return self.hlsring
-
-    def isReady(self):
-        return self.ready
-
     def check_properties(self, props, addMessage):
         if props.get('type', 'master') == 'slave':
             for k in 'socket-path', 'username', 'password':
@@ -170,17 +148,8 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
                     raise errors.ConfigError("slave mode, missing required"
                                              " property 'porter-%s'" % k)
 
-    def __repr__(self):
-        return '<AppleHTTPLiveStreamer (%s)>' % self.name
-
-    def getMaxClients(self):
-        return self.resource.maxclients
-
-    def get_mime(self):
-        return 'video/mpegts'
-
-    def getUrl(self):
-        return "http://%s:%d%s" % (self.hostname, self.port, self.mountPoint)
+    def getDescription(self):
+        return self.description
 
     def getStreamData(self):
         socket = 'flumotion.component.plugs.streamdata.StreamDataProviderPlug'
@@ -191,6 +160,13 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             return {'protocol': 'HTTP',
                     'description': self.description,
                     'url': self.getUrl()}
+
+    def remove_client(self, fd):
+        '''
+        Keycards expiration is checked by the twisted resource. Keep this
+        method for compatibility with the httpstreamer
+        '''
+        pass
 
     def getLoadData(self):
         """Return a tuple (deltaadded, deltaremoved, bytes_transferred,
@@ -277,148 +253,6 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             raise errors.WrongStateError(
                 "Can't specify porter details in master mode")
 
-    def remove_client(self, fd):
-        '''
-        Keycards expiration is checked by the twisted resource. Keep this
-        method for compatibility with the httpstreamer
-        '''
-        pass
-
-    def softRestart(self):
-        """Stops serving fragments, resets the playlist and starts
-        waiting for new segments to become happy again
-        """
-        self.info("Soft restart, resetting playlist and waiting to fill "
-                  "the initial fragments window")
-        self.ready = False
-        self._segmentsCount = 0
-        self._lastBufferOffset = None
-        self.hlsring.reset()
-
-    def get_pipeline_string(self, properties):
-        return " flumpegtssegmenter name=segmenter "\
-            "! appsink name=appsink sync=false"
-
-    def configure_pipeline(self, pipeline, props):
-        self.keyframesFramesPerSegment = props.get('keyframes-per-fragment',
-                self.DEFAULT_KEYFRAMES_PER_SEGMENT)
-        element = pipeline.get_by_name('segmenter')
-        element.get_pad("sink").add_buffer_probe(self._sinkPadProbe, None)
-        element.set_property('keyframes-per-segment',
-                self.keyframesFramesPerSegment)
-
-        appsink = pipeline.get_by_name('appsink')
-        appsink.set_property('emit-signals', True)
-        appsink.connect("new-preroll", self._new_preroll)
-        appsink.connect("new-buffer", self._new_buffer)
-        appsink.connect("eos", self._eos)
-
-        self._segmentsCount = 0
-
-        mountPoint = props.get('mount-point', '')
-
-        hostname = props.get('hostname', None)
-        self.iface = hostname
-        if not hostname:
-            # Don't call this function unless we need to.
-            # It's much preferable to just configure it
-            hostname = netutils.guess_public_hostname()
-
-        port = props.get('port', self.DEFAULT_PORT)
-
-        self.description = props.get('description', None)
-        if self.description is None:
-            self.description = "Flumotion Stream"
-
-        self.hlsring = HLSRing(
-            '%s:%s%s' % (hostname, port, mountPoint),
-            props.get('main-playlist', self.DEFAULT_MAIN_PLAYLIST),
-            props.get('stream-playlist', self.DEFAULT_STREAM_PLAYLIST),
-            props.get('stream-bitrate', self.DEFAULT_STREAM_BITRATE),
-            self.description,
-            props.get('fragment-prefix', self.DEFAULT_FRAGMENT_PREFIX),
-            props.get('new-fragment-tolerance', 0),
-            props.get('max-window', self.DEFAULT_MAX_WINDOW),
-            props.get('max-extra-buffers', None),
-            props.get('key-rotation', 0),
-            props.get('keys-uri', None))
-
-        self.mountPoint = mountPoint
-
-        # FIXME: tie these together more nicely
-        self.httpauth = http.HTTPAuthentication(self)
-        self.resource = HTTPLiveStreamingResource(self, self.httpauth,
-                props.get('secret-key', self.DEFAULT_SECRET_KEY),
-                props.get('session-timeout', self.DEFAULT_SESSION_TIMEOUT))
-
-        Stats.__init__(self, self.resource)
-        self._updateCallLaterId = reactor.callLater(10, self._updateStats)
-
-        # FIXME: Stats needs some love: init funtion reset all these values
-        # and the assignment needs to be done after initializing Stats
-        self.hostname = hostname
-        self.mountPoint = mountPoint
-        self.port = port
-
-        self._minWindow = props.get('hls-min-window',
-                self.DEFAULT_MIN_WINDOW)
-
-        if 'client-limit' in props:
-            limit = int(props['client-limit'])
-            self.resource.setUserLimit(limit)
-            if limit != self.resource.maxclients:
-                m = messages.Info(T_(N_(
-                    "Your system configuration does not allow the maximum "
-                    "client limit to be set to %d clients."),
-                    limit))
-                m.description = T_(N_(
-                    "Learn how to increase the maximum number of clients."))
-                m.section = 'chapter-optimization'
-                m.anchor = 'section-configuration-system-fd'
-                self.addMessage(m)
-
-        if 'bandwidth-limit' in props:
-            limit = int(props['bandwidth-limit'])
-            if limit < 1000:
-                # The wizard used to set this as being in Mbps, oops.
-                self.debug("Bandwidth limit set to unreasonably low %d bps, "
-                    "assuming this is meant to be Mbps", limit)
-                limit *= 1000000
-            self.resource.setBandwidthLimit(limit)
-
-        if 'redirect-on-overflow' in props:
-            self.resource.setRedirectionOnLimits(
-                props['redirect-on-overflow'])
-
-        if 'bouncer' in props:
-            self.httpauth.setBouncerName(props['bouncer'])
-
-        if 'issuer-class' in props:
-            self.httpauth.setIssuerClass(props['issuer-class'])
-
-        if 'duration' in props:
-            self.httpauth.setDefaultDuration(
-                float(props['duration']))
-
-        if 'domain' in props:
-            self.httpauth.setDomain(props['domain'])
-
-        if 'avatarId' in self.config:
-            self.httpauth.setRequesterId(self.config['avatarId'])
-
-        if 'ip-filter' in props:
-            logFilter = http.LogFilter()
-            for f in props['ip-filter']:
-                logFilter.addIPFilter(f)
-            self.resource.setLogFilter(logFilter)
-
-        self.type = props.get('type', 'master')
-        if self.type == 'slave':
-            # already checked for these in do_check
-            self._porterPath = props['porter-socket-path']
-            self._porterUsername = props['porter-username']
-            self._porterPassword = props['porter-password']
-
     def do_setup(self):
         root = self.resource
 
@@ -489,6 +323,186 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
             l.append(self._pbclient.deregisterPrefix(self.mountPoint))
         return defer.DeferredList(l)
 
+    def make_resource(self, httpauth, props):
+        raise Exception("Make resource must be overriden")
+
+    def configure_pipeline(self, pipeline, props):
+        mountPoint = props.get('mount-point', '')
+
+        hostname = props.get('hostname', None)
+        self.iface = hostname
+        if not hostname:
+            # Don't call this function unless we need to.
+            # It's much preferable to just configure it
+            hostname = netutils.guess_public_hostname()
+
+        port = props.get('port', self.DEFAULT_PORT)
+
+        self.description = props.get('description', "Flumotion Stream")
+
+        # FIXME: tie these together more nicely
+        self.mountPoint = mountPoint
+        self.httpauth = http.HTTPAuthentication(self)
+        self.resource = self.make_resource(self.httpauth, props)
+        Stats.__init__(self, self.resource)
+        self._updateCallLaterId = reactor.callLater(10, self._updateStats)
+        # FIXME: Stats needs some love: init funtion reset all these values
+        # and the assignment needs to be done after initializing Stats?
+        self.hostname = hostname
+        self.mountPoint = mountPoint
+        self.port = port
+
+        self._minWindow = props.get('hls-min-window',
+                self.DEFAULT_MIN_WINDOW)
+
+        if 'client-limit' in props:
+            limit = int(props['client-limit'])
+            self.resource.setUserLimit(limit)
+            if limit != self.resource.maxclients:
+                m = messages.Info(T_(N_(
+                    "Your system configuration does not allow the maximum "
+                    "client limit to be set to %d clients."),
+                    limit))
+                m.description = T_(N_(
+                    "Learn how to increase the maximum number of clients."))
+                m.section = 'chapter-optimization'
+                m.anchor = 'section-configuration-system-fd'
+                self.addMessage(m)
+
+        if 'bandwidth-limit' in props:
+            limit = int(props['bandwidth-limit'])
+            if limit < 1000:
+                # The wizard used to set this as being in Mbps, oops.
+                self.debug("Bandwidth limit set to unreasonably low %d bps, "
+                    "assuming this is meant to be Mbps", limit)
+                limit *= 1000000
+            self.resource.setBandwidthLimit(limit)
+
+        if 'redirect-on-overflow' in props:
+            self.resource.setRedirectionOnLimits(
+                props['redirect-on-overflow'])
+
+        if 'bouncer' in props:
+            self.httpauth.setBouncerName(props['bouncer'])
+
+        if 'issuer-class' in props:
+            self.httpauth.setIssuerClass(props['issuer-class'])
+
+        if 'duration' in props:
+            self.httpauth.setDefaultDuration(
+                float(props['duration']))
+
+        if 'domain' in props:
+            self.httpauth.setDomain(props['domain'])
+
+        if 'avatarId' in self.config:
+            self.httpauth.setRequesterId(self.config['avatarId'])
+
+        if 'ip-filter' in props:
+            logFilter = http.LogFilter()
+            for f in props['ip-filter']:
+                logFilter.addIPFilter(f)
+            self.resource.setLogFilter(logFilter)
+
+        self.type = props.get('type', 'master')
+        if self.type == 'slave':
+            # already checked for these in do_check
+            self._porterPath = props['porter-socket-path']
+            self._porterUsername = props['porter-username']
+            self._porterPassword = props['porter-password']
+
+    def updateBytesReceived(self, length):
+        self.resource.bytesReceived += length
+
+    def isReady(self):
+        return self.ready
+
+    def getMaxClients(self):
+        return self.resource.maxclients
+
+    def __repr__(self):
+        return '<FragmentedStreamer (%s)>' % self.name
+
+
+class AppleHTTPLiveStreamer(FragmentedStreamer):
+    logCategory = 'apple-streamer'
+
+    DEFAULT_FRAGMENT_PREFIX = 'fragment'
+    DEFAULT_MAIN_PLAYLIST = 'main.m3u8'
+    DEFAULT_STREAM_PLAYLIST = 'stream.m3u8'
+    DEFAULT_STREAM_BITRATE = 300000
+    DEFAULT_KEYFRAMES_PER_SEGMENT = 10
+
+    def init(self):
+        self.debug("Apple HTTP live streamer initialising")
+
+        self.hlsring = None
+
+        self._lastBufferOffset = None
+
+    def getRing(self):
+        return self.hlsring
+
+    def __repr__(self):
+        return '<AppleHTTPLiveStreamer (%s)>' % self.name
+
+    def get_mime(self):
+        return 'video/mpegts'
+
+    def getUrl(self):
+        return "http://%s:%d%s" % (self.hostname, self.port, self.mountPoint)
+
+    def softRestart(self):
+        """Stops serving fragments, resets the playlist and starts
+        waiting for new segments to become happy again
+        """
+        self.info("Soft restart, resetting playlist and waiting to fill "
+                  "the initial fragments window")
+        self.ready = False
+        self._segmentsCount = 0
+        self._lastBufferOffset = None
+        self.hlsring.reset()
+
+    def get_pipeline_string(self, properties):
+        return " flumpegtssegmenter name=segmenter "\
+            "! appsink name=appsink sync=false"
+
+    def make_resource(self, httpauth, props):
+        return HTTPLiveStreamingResource(self, httpauth,
+                props.get('secret-key', self.DEFAULT_SECRET_KEY),
+                props.get('session-timeout', self.DEFAULT_SESSION_TIMEOUT))
+
+    def configure_pipeline(self, pipeline, props):
+        self.keyframesFramesPerSegment = props.get('keyframes-per-fragment',
+                self.DEFAULT_KEYFRAMES_PER_SEGMENT)
+        element = pipeline.get_by_name('segmenter')
+        element.get_pad("sink").add_buffer_probe(self._sinkPadProbe, None)
+        element.set_property('keyframes-per-segment',
+                self.keyframesFramesPerSegment)
+
+        appsink = pipeline.get_by_name('appsink')
+        appsink.set_property('emit-signals', True)
+        appsink.connect("new-preroll", self._new_preroll)
+        appsink.connect("new-buffer", self._new_buffer)
+        appsink.connect("eos", self._eos)
+
+        self._segmentsCount = 0
+
+        self.hlsring = HLSRing(
+            props.get('main-playlist', self.DEFAULT_MAIN_PLAYLIST),
+            props.get('stream-playlist', self.DEFAULT_STREAM_PLAYLIST),
+            props.get('stream-bitrate', self.DEFAULT_STREAM_BITRATE),
+            self.description,
+            props.get('fragment-prefix', self.DEFAULT_FRAGMENT_PREFIX),
+            props.get('new-fragment-tolerance', 0),
+            props.get('max-window', self.DEFAULT_MAX_WINDOW),
+            props.get('max-extra-buffers', None),
+            props.get('key-rotation', 0),
+            props.get('keys-uri', None))
+
+        FragmentedStreamer.configure_pipeline(self, pipeline, props)
+        self.hlsring.setHostname('%s:%s%s' % (self.hostname, self.port, self.mountPoint))
+
     def _processBuffer(self, buffer):
         currOffset = buffer.offset
         # When a streamer is plugged the buffer offset is not known yet
@@ -519,9 +533,6 @@ class AppleHTTPLiveStreamer(feedcomponent.ParseLaunchComponent, Stats):
                 round(float(buffer.duration) / float(gst.SECOND)))
         self.info('Added fragment "%s", duration=%s offset=%s',
                 fragName, gst.TIME_ARGS(buffer.duration), currOffset)
-
-    def updateBytesReceived(self, length):
-        self.resource.bytesReceived += length
 
     ### START OF THREAD-AWARE CODE (called from non-reactor threads)
 
