@@ -62,27 +62,28 @@ class FMP4(feedcomponent.MuxerComponent):
         return muxer
 
     def _pad_added_cb(self, element, pad):
-        self._pad_info[pad] = (False, gst.CLOCK_TIME_NONE, gst.CLOCK_TIME_NONE)
-        pad.add_buffer_probe(self._sinkPadProbe)
+        id = pad.add_buffer_probe(self._sinkPadProbe)
+        self._pad_info[pad] = (False, gst.CLOCK_TIME_NONE,
+            gst.CLOCK_TIME_NONE, id)
 
     def configure_pipeline(self, pipeline, properties):
         feedcomponent.MuxerComponent.configure_pipeline(self, pipeline, properties)
         element = pipeline.get_by_name('muxer')
-        self._pad_info = {} # pad -> (synced, prev_ts, prev_dur)
+        self._pad_info = {} # pad -> (synced, prev_ts, prev_dur, probe_id)
         element.connect('pad-added', self._pad_added_cb)
 
     def _sinkPadProbe(self, pad, buffer):
         ts = buffer.timestamp
         duration = buffer.duration
+        synced, pts, pdur, id = self._pad_info[pad]
+
         if ts == gst.CLOCK_TIME_NONE or duration == gst.CLOCK_TIME_NONE:
             m = messages.Warning(T_(N_(
                 "Can't sync on keyframes, the input source does not write the"
                 " timestamp.")))
             self.addMessage(m)
-            # FIXME pad.remove_buffer_probe(self._sinkID)
+            pad.remove_buffer_probe(id)
             return True
-
-        synced, pts, pdur = self._pad_info[pad]
 
         if pts != gst.BUFFER_OFFSET_NONE:
             if (pts + pdur) != ts:
@@ -104,6 +105,6 @@ class FMP4(feedcomponent.MuxerComponent):
                     self.info("Syncing muxer input at %r" % gst.TIME_ARGS(ts))
                     synced = True
 
-        self._pad_info[pad] = (synced, ts, duration)
+        self._pad_info[pad] = (synced, ts, duration, id)
 
         return synced
