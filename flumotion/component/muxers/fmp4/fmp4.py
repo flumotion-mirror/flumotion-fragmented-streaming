@@ -59,7 +59,7 @@ class FMP4(feedcomponent.MuxerComponent):
 
     def get_muxer_string(self, props):
         muxer = 'mp4mux name=muxer fragment-duration=%d ' \
-            'movie-timescale=10000000 trak-timescale=10000000' % \
+            'movie-timescale=10000000 trak-timescale=10000000 streamable=1' % \
             props.get('main-playlist', self.DEFAULT_FRAGMENT_DURATION)
         return muxer
 
