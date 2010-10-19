@@ -148,6 +148,13 @@ class FragmentedStreamer(feedcomponent.ParseLaunchComponent, Stats):
                 if not 'porter-' + k in props:
                     raise errors.ConfigError("slave mode, missing required"
                                              " property 'porter-%s'" % k)
+        if 'issuer-class' in props:
+            self.warning("The component property 'issuer-class' has been"
+                         "deprecated.")
+            msg = messages.Warning(T_(N_(
+                        "The component property 'issuer-class' has "
+                        "been deprecated.")))
+            self.addMessage(msg)
 
     def getDescription(self):
         return self.description
@@ -387,9 +394,6 @@ class FragmentedStreamer(feedcomponent.ParseLaunchComponent, Stats):
 
         if 'bouncer' in props:
             self.httpauth.setBouncerName(props['bouncer'])
-
-        if 'issuer-class' in props:
-            self.httpauth.setIssuerClass(props['issuer-class'])
 
         if 'duration' in props:
             self.httpauth.setDefaultDuration(
