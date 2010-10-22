@@ -1,3 +1,9 @@
+2010-10-22  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* add support for basic seeking with dvr-window property.
+	WARNING: this patch has not been reviewed, and has been quickly 
+	tested. Ciao, Flumotion! And thanks for all the fish.
+
 2010-10-19  Marc-André Lureau  <mlureau@flumotion.com>
 
 	reviewed and corrected by: Andoni Morales Alastruey

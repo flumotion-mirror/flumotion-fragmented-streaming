@@ -66,8 +66,8 @@
         <property name="duration" type="float"
                   _description="How long to keep clients connected (in seconds)."/>
 
-        <property name="min-window" type="int"
-                  _description="Minimun number of fragments to start streaming (default:2)" />
+        <property name="dvr-window" type="int"
+                  _description="Maximum duration a fragment is available (in seconds, default: 20)" />
         <property name="secret-key" type="string"
                   _description="Secret key used for HMAC" />
         <property name="session-timeout" type="int"

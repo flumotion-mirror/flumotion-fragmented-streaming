@@ -41,6 +41,7 @@ __all__ = ['HTTPMedium', 'SmoothHTTPLiveStreamer']
 __version__ = ""
 T_ = gettexter()
 
+DEFAULT_DVR_WINDOW = 20
 
 class SmoothHTTPLiveStreamer(FragmentedStreamer):
 
@@ -48,7 +49,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
 
     def init(self):
         self.store = FragmentStore()
-        self.debug("Smooth HTTP live streamer initialising")
+        self.debug("Smooth HTTP live streamer initializing")
 
     def getUrl(self):
         slash = ""
@@ -63,6 +64,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         return 'text/xml'
 
     def make_resource(self, httpauth, props):
+        self.store.setDVRWindowLength(props.get('dvr-window', DEFAULT_DVR_WINDOW))
         return SmoothStreamingResource(self, self.store, httpauth,
                 props.get('secret-key', self.DEFAULT_SECRET_KEY),
                 props.get('session-timeout', self.DEFAULT_SESSION_TIMEOUT))
@@ -93,8 +95,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 self.store.setMoov(ad)
             except Exception, e:
                 m = messages.Error(T_(N_(
-                    "First buffer cannot be parsed as a moov,"\
-                    "check mp4seek version")))
+                    "First buffer cannot be parsed as a moov. "\
+                    "The required mp4seek version is 1.0-6")))
                 self.addMessage(m)
                 self.error("First buffer cannot be parsed as a moov: %r" % e)
                 return
@@ -117,17 +119,17 @@ class AttributesMixin:
 
 
 class Quality(log.Loggable, AttributesMixin):
-    def __init__(self, bitrate, lookahead=2, maxfragments=10):
+    def __init__(self, store, bitrate, lookahead=2):
         self.Bitrate = bitrate
         if (lookahead < 1):
             self.warning('Setting miniumum lookahead to 1')
             lookahead = 1
         self._lookahead = lookahead
         self._lookaheads = [] # list of (atomd, atoml, ts, buffer) for lookahead?
-        self._fragments = {} # ts -> buffer
-        self._maxfragments = maxfragments + lookahead
+        self._fragments = {} # ts -> [buffer, info_buffer, duration]
         self._track_id = None
         self._stream = None
+        self._store = store
 
     def setStream(self, stream):
         self._stream = stream
@@ -170,15 +172,24 @@ class Quality(log.Loggable, AttributesMixin):
             iso.write_atoms([moof], outf)
             info = outf.getvalue()
 
-            # it's a size-limited list..
-            if (len(self._fragments) == self._maxfragments):
-                m = min(self._fragments.keys())
-                self.debug("removing %r" % m)
-                del self._fragments[m]
+            # it's a duration-limited list..
+            ts = self._fragments.keys()
+            if len(ts) > 0:
+                ts.sort()
+                window = ts[-1] - ts[0]
+                while True:
+                    if (window > self._store.DVRWindowLength):
+                        m = min(self._fragments.keys())
+                        self.debug("removing %r" % m)
+                        frag_duration = self._fragments[m][2]
+                        del self._fragments[m]
+                        window -= frag_duration
+                    else:
+                        break
 
             # & add our buffer to the list of fragments
             self.debug("added %r buffer" % timestamp)
-            self._fragments[timestamp] = [b, info]
+            self._fragments[timestamp] = [b, info, duration]
 
         return name
 
@@ -220,10 +231,10 @@ class Stream(AttributesMixin):
         else:
             self._mime = "video/mp4"
 
-    def getQuality(self, bitrate, setdefault=True):
+    def getQuality(self, store, bitrate, setdefault=True):
         bitrate = int(bitrate)
         if not self._qualities.has_key(bitrate) and setdefault:
-            q = Quality(bitrate)
+            q = Quality(store, bitrate)
             q.Index = len(self._qualities)
             self._qualities[bitrate] = q
         q = self._qualities[bitrate]
@@ -257,15 +268,20 @@ class FragmentStore(log.Loggable):
         # default values
         self.Duration = 0
         self.LookAheadFragmentCount = 2
-        self.DVRWindowLength = 0
+        self.DVRWindowLength = 0 # in TimeScale
+        self._dvr_window_length_sec = 0 # in seconds
         self.IsLive = "TRUE"
         self._streams = {} # type (audio,video,text) -> stream
         self._qualities = {} # track_id -> quality
+
+    def setDVRWindowLength(self, window_in_sec):
+        self._dvr_window_length_sec = window_in_sec
 
     def setMoov(self, moovd):
         moov = iso.select_atoms(moovd, ('moov', 1, 1))[0]
         pprint.pprint(moov)
         self.TimeScale = moov.mvhd.timescale
+        self.DVRWindowLength = self._dvr_window_length_sec * self.TimeScale
         self._streams = {}
         if len(moov.trak) == 0:
             raise Exception("Empty trak list")
@@ -315,7 +331,7 @@ class FragmentStore(log.Loggable):
                 btrt = e.avgBitrate
         timescale = trak.mdia.mdhd.timescale
         stream = self.getStream("video", timescale)
-        q = stream.getQuality(btrt)
+        q = stream.getQuality(self, btrt)
         q.setStream(stream)
         q.setTrackId(trak.tkhd.id)
         q.FourCC = "AVC1"
@@ -330,7 +346,7 @@ class FragmentStore(log.Loggable):
         timescale = trak.mdia.mdhd.timescale
         stream = self.getStream("audio", timescale)
         bitrate = esds.avgBitrate
-        q = stream.getQuality(bitrate)
+        q = stream.getQuality(self, bitrate)
         q.setStream(stream)
         q.setTrackId(trak.tkhd.id)
         #self.warning ("AAC type %d" % (bytearray(esds.data[0])[0] >> 3))
