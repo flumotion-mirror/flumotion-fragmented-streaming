@@ -86,7 +86,6 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         currOffset = buffer.offset
         self._lastBufferOffset = currOffset
         self._segmentsCount = self._segmentsCount + 1
-
         f = StringIO(buffer.data)
         al = list(atoms.read_atoms(f))
         ad = atoms.atoms_dict(al)
@@ -190,10 +189,9 @@ class Quality(log.Loggable, AttributesMixin):
             # & add our buffer to the list of fragments
             self.debug("added %r buffer" % timestamp)
             self._fragments[timestamp] = [b, info, duration]
-
         return name
 
-    def getFragment(self, timestamp, kind=None):
+    def getFragment(self, timestamp, kind=None):  
         f = self._fragments.get(timestamp)
         if not f:
             return None
@@ -298,8 +296,8 @@ class FragmentStore(log.Loggable):
         if not stream:
             self.warning("bad type %s" % type)
             raise FragmentNotFound(time)
-
-        quality = stream.getQuality(bitrate, False)
+        
+        quality = stream.getQuality(self,bitrate, False)
         if not quality:
             self.warning("bad bitrate %d" % bitrate)
             raise FragmentNotFound(time)
