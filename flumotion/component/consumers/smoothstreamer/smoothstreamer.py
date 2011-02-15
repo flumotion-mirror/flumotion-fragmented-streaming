@@ -56,7 +56,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         if not self.mountPoint.startswith("/"):
             slash = "/"
         return "http://%s:%d%s%sManifest" % (self.hostname, self.port, slash, self.mountPoint)
-
+    
     def __repr__(self):
         return '<SmoothHTTPLiveStreamer (%s)>' % self.name
 
@@ -96,6 +96,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 m = messages.Error(T_(N_(
                     "First buffer cannot be parsed as a moov. "\
                     "The required mp4seek version is 1.0-6")))
+                appsink = self.pipeline.get_by_name('appsink')
+                appsink.set_state(gst.STATE_NULL)
                 self.addMessage(m)
                 self.error("First buffer cannot be parsed as a moov: %r" % e)
                 return

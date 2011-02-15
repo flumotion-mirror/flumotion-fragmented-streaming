@@ -1,3 +1,11 @@
+2011-02-15  Xavier Francisco  <xfrancisco@flumotion.com>
+
+	reviewed by: Andoni Morales
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Stopping the appsink when there's a version mismatch in mp4seek.
+	See #12915
+ 	
 2010-10-22  Marc-André Lureau  <mlureau@flumotion.com>
 
 	* add support for basic seeking with dvr-window property.
