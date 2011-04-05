@@ -1,3 +1,19 @@
+2011-04-05  Josep Joan Ribas  <jribas@flumotion.com>
+
+	reviewed by: Xavier Queralt
+
+	* configure.ac:
+	* flumotion/component/Makefile.am:
+	* flumotion/component/plugs (added):
+	* flumotion/component/plugs/multibitrate (added):
+	* flumotion/component/plugs/multibitrate/multibitrate.xml (added):
+	* flumotion/component/plugs/multibitrate/__init__.py (added):
+	* flumotion/component/plugs/multibitrate/Makefile.am (added):
+	* flumotion/component/plugs/multibitrate/multibitrate.py (added):
+	* flumotion/component/plugs/__init__.py (added):
+	* flumotion/component/plugs/Makefile.am (added):
+	Added a plug that renders m3u8 playlist for iphone multibitrate.
+
 2011-02-15  Xavier Francisco  <xfrancisco@flumotion.com>
 
 	reviewed by: Andoni Morales

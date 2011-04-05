@@ -98,6 +98,8 @@ flumotion/component/consumers/smoothstreamer/Makefile
 flumotion/component/muxers/Makefile
 flumotion/component/muxers/fmp4/Makefile
 flumotion/component/muxers/mpegts/Makefile
+flumotion/component/plugs/Makefile
+flumotion/component/plugs/multibitrate/Makefile
 flumotion/project/Makefile
 flumotion/project/fragmentedstreaming.py
 flumotion/test/Makefile
