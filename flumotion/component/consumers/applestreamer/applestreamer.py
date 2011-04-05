@@ -17,6 +17,7 @@ import time
 
 import gst
 import gobject
+import urlparse
 
 from twisted.cred import credentials
 from twisted.internet import reactor, error, defer
@@ -532,7 +533,20 @@ class AppleHTTPLiveStreamer(FragmentedStreamer):
             props.get('keys-uri', None))
 
         FragmentedStreamer.configure_pipeline(self, pipeline, props)
-        self.hlsring.setHostname('%s:%s%s' % (self.hostname, self.port, self.mountPoint))
+
+        self.hls_url = props.get('hls-url', None)
+        if self.hls_url:
+            if not self.hls_url.endswith('/'):
+                self.hls_url += '/'
+            if self.mountPoint.startswith('/'):
+                mp = self.mountPoint[1:]
+            else:
+                mp = self.mountPoint
+            self.hls_url = urlparse.urljoin(self.hls_url, mp)
+        else:
+            self.hls_url = self.getUrl()
+
+        self.hlsring.setHostname(self.hls_url)
 
     def _processBuffer(self, buffer):
         currOffset = buffer.offset

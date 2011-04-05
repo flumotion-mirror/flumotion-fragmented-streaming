@@ -1,5 +1,14 @@
 2011-04-05  Josep Joan Ribas  <jribas@flumotion.com>
 
+	reviewed by: Andoni Morales
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Added the property hls-url that will be the base url used to render
+	the playlist entries.
+
+2011-04-05  Josep Joan Ribas  <jribas@flumotion.com>
+
 	reviewed by: Xavier Queralt
 
 	* configure.ac:

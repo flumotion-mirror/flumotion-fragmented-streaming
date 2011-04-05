@@ -56,6 +56,9 @@
         <property name="domain" type="string"
                   _description="The domain of the server for authentication." />
 
+        <property name="hls-url" type="string"
+                  _description="The url that will be used to render the playlist entries. If not defined hostname, port will be used to generate the url." />
+
         <property name="client-limit" type="int"
                   _description="The maximum number of clients allowed." />
         <property name="bandwidth-limit" type="int"
