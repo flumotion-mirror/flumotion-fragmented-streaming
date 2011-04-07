@@ -1,3 +1,9 @@
+2011-04-07  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Add more checks to the smooth streamer in case the sps/pps are not 
+	set in the track or if we receive fragments with an unknown id
+
 2011-04-05  Josep Joan Ribas  <jribas@flumotion.com>
 
 	reviewed by: Andoni Morales

@@ -103,6 +103,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 return
         elif iso.select_atoms(ad, ('moof', 0, 1))[0]:
             fragName = self.store.addFragment(ad, al, buffer.offset, buffer.duration)
+            if fragName is None:
+                return
             self.info('Added fragment "%s", duration=%s offset=%s',
                       fragName, gst.TIME_ARGS(buffer.duration), currOffset)
         # Wait min-window fragments to set the component 'happy'
@@ -315,6 +317,10 @@ class FragmentStore(log.Loggable):
         # add fragment in correct track id
         moof = iso.select_atoms(ad, ('moof', 1, 1))[0]
         track_id = moof.traf.tfhd.track_id
+        if track_id not in self._qualities:
+            self.warning("Trying to add a fragment with an unknown "
+                         "track_id=%s" % track_id)
+            return None
         return self._qualities[track_id].addFragment(ad, al, timestamp, duration)
 
     def getStream(self, type, timescale, subtype=None, mime=None):
@@ -329,6 +335,10 @@ class FragmentStore(log.Loggable):
                 sps, pps = avcc.extract_sps_pps(e)
             elif e._atom.type == "btrt":
                 btrt = e.avgBitrate
+        if None in [sps, pps]:
+            self.warning("avcC atom is missing in the h264 track and we can't "
+                         "decode the SPS/PPS")
+            return
         timescale = trak.mdia.mdhd.timescale
         stream = self.getStream("video", timescale)
         q = stream.getQuality(self, btrt)
