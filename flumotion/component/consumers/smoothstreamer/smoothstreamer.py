@@ -107,12 +107,10 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 return
             self.info('Added fragment "%s", duration=%s offset=%s',
                       fragName, gst.TIME_ARGS(buffer.duration), currOffset)
-        # Wait min-window fragments to set the component 'happy'
-        if self._segmentsCount == self._minWindow:
-            self.info("%d fragments received. Changing mood to 'happy'",
-                    self._segmentsCount)
-            self.setMood(moods.happy)
-            self.ready = True
+            if not self.ready and self.store.prerolled():
+                self.info("All streams prerolled. Changing mood to 'happy'")
+                self.setMood(moods.happy)
+                self.ready = True
 
 
 class AttributesMixin:
@@ -211,6 +209,10 @@ class Quality(log.Loggable, AttributesMixin):
                 return True
         return False
 
+    def prerolled(self):
+        return  len(self._lookaheads) >= self._lookahead
+
+
 class Chunk(AttributesMixin):
     def __init__(self, t):
         self.t = t
@@ -300,7 +302,7 @@ class FragmentStore(log.Loggable):
         if not stream:
             self.warning("bad type %s" % type)
             raise FragmentNotFound(time)
-        
+
         quality = stream.getQuality(self,bitrate, False)
         if not quality:
             self.warning("bad bitrate %d" % bitrate)
@@ -326,6 +328,12 @@ class FragmentStore(log.Loggable):
     def getStream(self, type, timescale, subtype=None, mime=None):
         # Fixme what if we have several stream of the same type but different subtypes etc..?
         return self._streams.setdefault(type, Stream(type, subtype, mime, timescale))
+
+    def prerolled(self):
+        for q in self._qualities:
+            if not q.prerolled():
+                return False
+        return True
 
     def _addH264Track(self, trak):
         sps, pps, btrt = None, None, None
