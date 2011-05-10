@@ -1,5 +1,11 @@
 2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Fix the preroll calculation commit. The Quality objects are in the
+	values of the dict instead of the values
+
+2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/muxers/fmp4/fmp4.py:
 	Fix sychronisation issues between video streams
 

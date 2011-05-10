@@ -335,7 +335,7 @@ class FragmentStore(log.Loggable):
         return self._streams.setdefault(type, Stream(type, subtype, mime, timescale))
 
     def prerolled(self):
-        for q in self._qualities:
+        for q in self._qualities.values():
             if not q.prerolled():
                 return False
         return True
