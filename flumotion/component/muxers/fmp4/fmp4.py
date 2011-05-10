@@ -25,8 +25,10 @@ T_ = gettexter()
 
 class FMP4(feedcomponent.MuxerComponent):
     checkTimestamp = True
+    logCategory = 'smooth-muxer'
 
-    DEFAULT_FRAGMENT_DURATION=5000
+    DEFAULT_FRAGMENT_DURATION = 5000
+    _lastSyncPoint = 0L
 
     def do_check(self):
         exists = gstreamer.element_factory_exists('ismlmux')
@@ -50,7 +52,8 @@ class FMP4(feedcomponent.MuxerComponent):
             self.addMessage(m)
 
     def get_muxer_string(self, props):
-        self.duration = props.get('fragment-duration', self.DEFAULT_FRAGMENT_DURATION)
+        self.duration = props.get('fragment-duration',
+                                  self.DEFAULT_FRAGMENT_DURATION)
 
         muxer = 'ismlmux name=muxer fragment-duration=%d ' \
             'movie-timescale=10000000 trak-timescale=10000000 streamable=1' % \
@@ -58,20 +61,48 @@ class FMP4(feedcomponent.MuxerComponent):
         return muxer
 
     def _pad_added_cb(self, element, pad):
+        # The audio stream doesn't not need synchronization
+        if 'audio' in pad.get_caps()[0].get_name():
+            self.info("Audio pad added")
+            return
         id = pad.add_buffer_probe(self._sinkPadProbe)
-        self._pad_info[pad] = (False, gst.CLOCK_TIME_NONE,
-            gst.CLOCK_TIME_NONE, id)
+        self._pad_info[pad] = (False, 0L, 0L, 0L, id)
+        self.info("Added pad probe for video pad %s", pad.get_name())
 
     def configure_pipeline(self, pipeline, properties):
-        feedcomponent.MuxerComponent.configure_pipeline(self, pipeline, properties)
+        feedcomponent.MuxerComponent.configure_pipeline(self, pipeline,
+                                                        properties)
         element = pipeline.get_by_name('muxer')
-        self._pad_info = {} # pad -> (synced, prev_ts, prev_dur, probe_id)
+        # pad -> (synced, sync_ts, prev_ts, prev_dur, probe_id)
+        self._pad_info = {}
         element.connect('pad-added', self._pad_added_cb)
+
+    def _set_desync_flag(self, ts):
+        for pad in self._pad_info:
+            synced, sync_ts, prev_ts, prev_dur, probe_id = self._pad_info[pad]
+            if ts > sync_ts:
+                self.info("Setting desync flag in pad %s (old sync was %s)",
+                          pad.get_name(), gst.TIME_ARGS(sync_ts))
+                self._pad_info[pad] = (False, sync_ts,
+                                       prev_ts, prev_dur, probe_id)
+
+    def _other_pads_synced(self, new_sync, comp_pad):
+        for pad in self._pad_info:
+            if pad == comp_pad:
+                continue
+            synced, sync, pts, pdts, p_id = self._pad_info[pad]
+            if new_sync > sync:
+                self.info("Setting desync flag in pad %s (old sync was %s)",
+                          pad.get_name(), gst.TIME_ARGS(sync))
+                self._pad_info[pad] = False, sync, pts, pdts, p_id
+            if new_sync < sync:
+                return False
+        return True
 
     def _sinkPadProbe(self, pad, buffer):
         ts = buffer.timestamp
         duration = buffer.duration
-        synced, pts, pdur, id = self._pad_info[pad]
+        synced, sync_ts, pts, pdur, id = self._pad_info[pad]
 
         if ts == gst.CLOCK_TIME_NONE or duration == gst.CLOCK_TIME_NONE:
             m = messages.Warning(T_(N_(
@@ -81,26 +112,30 @@ class FMP4(feedcomponent.MuxerComponent):
             pad.remove_buffer_probe(id)
             return True
 
-        if pts != gst.BUFFER_OFFSET_NONE:
-            if (pts + pdur) != ts:
-                # FIXME add pad name in message
-                self.warning("Discontinuity in muxer input buffer: "
-                             "marked as desync (%r != %r)" %
-                             (gst.TIME_ARGS(pts), gst.TIME_ARGS(ts)))
-                synced = False
+        if (pts + pdur) != ts and pts != 0L:
+            self.warning("Discontinuity in muxer input buffer at pad %s: "
+                         "marked as desync (%r != %r)" %
+                         (pad.get_name(), gst.TIME_ARGS(pts),
+                          gst.TIME_ARGS(ts)))
+            self._set_desync_flag(ts)
+            synced = False
 
-            # don't check fragment sync immediately, as pts is invalid
-            elif not synced:
-                frag_duration = self.duration * gst.MSECOND
-                # detect beginning of fragment, if looping over frag_duration
-                _ts = pts % frag_duration
-                _tsd = ts % frag_duration
-                self.debug("trying to sync %r %r" %
-                           (gst.TIME_ARGS(_ts), gst.TIME_ARGS(_tsd)))
-                if _ts > _tsd:
-                    self.info("Syncing muxer input at %r" % gst.TIME_ARGS(ts))
+        # don't check fragment sync immediately, as pts is invalid
+        elif not synced:
+            frag_duration = self.duration * gst.MSECOND
+            # detect beginning of fragment, if looping over frag_duration
+            _ts = pts % frag_duration
+            _tsd = ts % frag_duration
+            self.info("trying to sync pad %s %r %r" % (pad.get_name(),
+                      gst.TIME_ARGS(_ts), gst.TIME_ARGS(_tsd)))
+            if _ts > _tsd:
+                sync_ts = ts
+                self.debug("updated sync point for pad %s: %s", pad.get_name(),
+                        gst.TIME_ARGS(ts))
+                if self._other_pads_synced(ts, pad):
+                    self.info("Syncing muxer input for pad %s at %r",
+                              pad.get_name(), gst.TIME_ARGS(ts))
                     synced = True
 
-        self._pad_info[pad] = (synced, ts, duration, id)
-
+        self._pad_info[pad] = (synced, sync_ts, ts, duration, id)
         return synced
