@@ -210,7 +210,12 @@ class Quality(log.Loggable, AttributesMixin):
         return False
 
     def prerolled(self):
-        return  len(self._lookaheads) >= self._lookahead
+        ts = self._fragments.keys()
+        if len(ts) == 0:
+            return False
+        ts.sort()
+        window = ts[-1] - ts[0]
+        return window >= self._store.DVRWindowLength
 
 
 class Chunk(AttributesMixin):

@@ -1,3 +1,8 @@
+2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Fix preroll calculation using the DVR window length
+
 2011-05-09  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
