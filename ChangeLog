@@ -1,5 +1,10 @@
 2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Remove unused imports
+
+2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
 	Fix preroll calculation using the DVR window length
 

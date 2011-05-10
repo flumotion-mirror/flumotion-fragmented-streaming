@@ -13,16 +13,12 @@
 
 # Headers in this file shall remain intact.
 
-import sys
 
 import gst
-import gobject
 
 from flumotion.component import feedcomponent
-from flumotion.component.component import moods
 from flumotion.common import gstreamer, messages, documentation
 from flumotion.common.i18n import N_, gettexter
-from flumotion.component.consumers.applestreamer import mpegtssegmenter
 
 T_ = gettexter()
 
