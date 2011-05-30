@@ -97,6 +97,8 @@ class FMP4(feedcomponent.MuxerComponent):
                 self._pad_info[pad] = False, sync, pts, pdts, p_id
             if new_sync < sync:
                 return False
+            if new_sync <= pts:
+                return False
         return True
 
     def _sinkPadProbe(self, pad, buffer):

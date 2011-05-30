@@ -1,3 +1,8 @@
+2011-05-30  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Add one more check for sync
+
 2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
