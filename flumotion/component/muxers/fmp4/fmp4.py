@@ -13,6 +13,7 @@
 
 # Headers in this file shall remain intact.
 
+from threading import Lock
 
 import gst
 
@@ -72,6 +73,7 @@ class FMP4(feedcomponent.MuxerComponent):
     def configure_pipeline(self, pipeline, properties):
         feedcomponent.MuxerComponent.configure_pipeline(self, pipeline,
                                                         properties)
+        self.lock = Lock()
         element = pipeline.get_by_name('muxer')
         # pad -> (synced, sync_ts, prev_ts, prev_dur, probe_id)
         self._pad_info = {}
@@ -95,16 +97,16 @@ class FMP4(feedcomponent.MuxerComponent):
                 self.info("Setting desync flag in pad %s (old sync was %s)",
                           pad.get_name(), gst.TIME_ARGS(sync))
                 self._pad_info[pad] = False, sync, pts, pdts, p_id
-            if new_sync < sync:
                 return False
-            if new_sync <= pts:
+            if new_sync < sync:
                 return False
         return True
 
     def _sinkPadProbe(self, pad, buffer):
         ts = buffer.timestamp
         duration = buffer.duration
-        synced, sync_ts, pts, pdur, id = self._pad_info[pad]
+        self.lock.acquire()
+        pad_synced, sync_ts, pts, pdur, id = self._pad_info[pad]
 
         if ts == gst.CLOCK_TIME_NONE or duration == gst.CLOCK_TIME_NONE:
             m = messages.Warning(T_(N_(
@@ -112,6 +114,7 @@ class FMP4(feedcomponent.MuxerComponent):
                 " timestamp.")))
             self.addMessage(m)
             pad.remove_buffer_probe(id)
+            self.lock.release()
             return True
 
         if (pts + pdur) != ts and pts != 0L:
@@ -120,10 +123,10 @@ class FMP4(feedcomponent.MuxerComponent):
                          (pad.get_name(), gst.TIME_ARGS(pts),
                           gst.TIME_ARGS(ts)))
             self._set_desync_flag(ts)
-            synced = False
+            pad_synced = False
 
         # don't check fragment sync immediately, as pts is invalid
-        elif not synced:
+        elif not pad_synced:
             frag_duration = self.duration * gst.MSECOND
             # detect beginning of fragment, if looping over frag_duration
             _ts = pts % frag_duration
@@ -134,10 +137,11 @@ class FMP4(feedcomponent.MuxerComponent):
                 sync_ts = ts
                 self.debug("updated sync point for pad %s: %s", pad.get_name(),
                         gst.TIME_ARGS(ts))
+                pad_synced = True
                 if self._other_pads_synced(ts, pad):
                     self.info("Syncing muxer input for pad %s at %r",
                               pad.get_name(), gst.TIME_ARGS(ts))
-                    synced = True
 
-        self._pad_info[pad] = (synced, sync_ts, ts, duration, id)
-        return synced
+        self._pad_info[pad] = (pad_synced, sync_ts, ts, duration, id)
+        self.lock.release()
+        return pad_synced
