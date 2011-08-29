@@ -1,3 +1,9 @@
+2011-08-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	target duration should be the duration of the longest clip in the
+	playlist
+
 2011-07-13  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:

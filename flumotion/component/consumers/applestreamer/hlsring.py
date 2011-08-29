@@ -40,7 +40,6 @@ class Playlister:
         self.keysURI = ''
         #FIXME: Make it a property
         self.allowCache = True
-        self._duration = None
         self._fragments = []
         self._dummyFragments = []
         self._counter = 0
@@ -61,6 +60,10 @@ class Playlister:
     def _getFragmentName(self, sequenceNumber):
         return '%s-%s.ts' % (self.fragmentPrefix, sequenceNumber)
 
+    def _getTargetDuration(self):
+        sorted_list = sorted(self._fragments, key=lambda fragment: fragment[1])
+        return int(sorted_list[0][1])
+
     def _autoUpdate(self, count):
         if self._counter == count:
             self._isAutoUpdate = True
@@ -68,12 +71,6 @@ class Playlister:
             self._addPlaylistFragment(count, self._duration, False)
 
     def _addPlaylistFragment(self, sequenceNumber, duration, encrypted):
-        # Fragments are supposed to have a constant duration which is used
-        # to set the target duration. This value will be overwritten if
-        # it's retrieved from the very first fragment as it might be longer
-        # than the rest due to innacuracies in the encoder.
-        if self._duration is None or sequenceNumber == 1:
-            self._duration = duration
         # Add the fragment to the playlist if it wasn't added before
         if not sequenceNumber in [frag[0] for frag in self._fragments]:
             # Add a discontinuity if the sequenceNumber is not the expected
@@ -121,7 +118,7 @@ class Playlister:
         lines.append("#EXTM3U")
         lines.append("#EXT-X-ALLOW-CACHE:%s" %
                 (self.allowCache and 'YES' or 'NO'))
-        lines.append("#EXT-X-TARGETDURATION:%d" % self._duration)
+        lines.append("#EXT-X-TARGETDURATION:%d" % self._getTargetDuration())
         lines.append("#EXT-X-MEDIA-SEQUENCE:%s" % self._fragments[0][0])
 
         for sequenceNumber, duration, encrypted, discon in self._fragments:
@@ -223,7 +220,6 @@ class HLSRing(Playlister):
         self._keysDict = {}
         self._secret = ''
         self._availableFragments = deque('')
-        self._duration = None
         self._fragments = []
         self._dummyFragments = []
         self._lastSequence = None
