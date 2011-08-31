@@ -15,8 +15,8 @@
                            _description="Playlist entry">
           <property name="stream-url" type="string" required="yes"
                     _description="The url of the iphone stream"/>
-          <property name="bitrate" type="int" required="yes"
-                    _description="Bitrate configured for the stream"/>
+          <property name="target-bitrate" type="int" required="yes"
+                    _description="The bitrate that should be listed first in the playlist."/>
         </compound-property>
       </properties>
     </plug>

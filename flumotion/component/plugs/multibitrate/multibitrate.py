@@ -33,31 +33,38 @@ ENTRY_TEMPLATE = \
 
 CONTENT_TYPE = "application/vnd.apple.mpegurl"
 
+
 class PlaylistResource(Resource):
-    """I generate the directory used to serve the m3u8 playlist
-    It contains::
-    - a m3u8 file, usually called main.m3u8.
+    """I am a resource for m3u8 playlists, rendering multibitrate playlists
+    based on the user-agent, so that IPad clients gets a variant playlist in
+    which the first element correspond to the higher bitrate, whilst IPhone ones
+    receive a playlist where the first element has a lower bitrate.
     """
 
-    def __init__(self, mount_point, properties):
+    def __init__(self, entries, target_bitrate=200000):
         Resource.__init__(self)
 
-        playlist_name = properties.get('playlist-name', 'main.m3u8')
+        self._entries = entries
+        self._target_bitrate = target_bitrate
 
-        self._properties = properties
-        self._playlist = self._render_playlist()
-        self._playlist_name = playlist_name
-        self.putChild(self._playlist_name,
-                      self._playlist)
-
-    def _render_playlist(self):
+    def render_GET(self, request):
         playlist = [HEADER]
 
-        entries = self._properties.get('playlist-entry', [])
+        agent = request.getHeader('User-Agent')
+        if agent:
+            if 'ipad' in agent.lower():
+                self._target_bitrate = 600000
+            else:
+                self._target_bitrate = 200000
 
-        for entry in entries:
+        self._entries.sort(key=lambda x: abs(x['bitrate'] -
+                                         self._target_bitrate))
+
+        for entry in self._entries:
             playlist.append(ENTRY_TEMPLATE % entry)
-        return Data("\n".join(playlist), CONTENT_TYPE)
+
+        request.setHeader('Content-type', 'application/vnd.apple.mpegurl')
+        return "\n".join(playlist)
 
 
 class MultibiratePlaylistPlug(ComponentPlug):
@@ -75,8 +82,15 @@ class MultibiratePlaylistPlug(ComponentPlug):
                 " HTTPFileStreamer component, not a %s" % (
                 self, component.__class__.__name__))
         log.debug('multibitrate', 'Attaching to %r' % (component, ))
-        resource = PlaylistResource(component.getMountPoint(),
-                                          self.args['properties'])
+
+        props = self.args['properties']
+        resource = Resource()
+        mount_point = Resource()
+        playlist = PlaylistResource(props.get('playlist-entry', []),
+                                    props.get('target-bitrate', 200000))
+
+        resource.putChild(component.getMountPoint(), mount_point)
+        mount_point.putChild(props.get('playlist-name', 'main.m3u8'), playlist)
         component.setRootResource(resource)
 
 
@@ -100,7 +114,11 @@ def test():
                    'bitrate': 400000},
         ]}
 
-    root = PlaylistResource('/', properties)
+    root = Resource()
+    mount_point = Resource()
+    playlist = PlaylistResource(properties['playlist-entry'])
+    root.putChild('test', mount_point,)
+    mount_point.putChild('main.m3u8', playlist)
     site = Site(root)
 
     reactor.listenTCP(8080, site)
