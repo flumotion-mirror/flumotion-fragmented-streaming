@@ -1,6 +1,11 @@
 2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/plugs/multibitrate/multibitrate.xml:
+	Remove the 'required' bit from target-bitrate
+
+2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/plugs/multibitrate/multibitrate.xml:
 	uppps, bitrate property is part of compound property
 
 2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
