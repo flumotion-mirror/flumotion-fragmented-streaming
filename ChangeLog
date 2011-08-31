@@ -1,5 +1,10 @@
 2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/plugs/multibitrate/multibitrate.xml:
+	uppps, bitrate property is part of compound property
+
+2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/plugs/multibitrate/multibitrate.py:
 	* flumotion/component/plugs/multibitrate/multibitrate.xml:
 	Allow sorting playlist entries by target bitrate or user agent

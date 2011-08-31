@@ -11,12 +11,14 @@
       <properties>
         <property name="playlist-name" type="string"
                   _description="Name of the playlist (default main.m3u8)."/>
+        <property name="target-bitrate" type="int" required="yes"
+                  _description="The bitrate that should be listed first in the playlist."/>
         <compound-property name="playlist-entry" multiple="yes"
                            _description="Playlist entry">
           <property name="stream-url" type="string" required="yes"
                     _description="The url of the iphone stream"/>
-          <property name="target-bitrate" type="int" required="yes"
-                    _description="The bitrate that should be listed first in the playlist."/>
+          <property name="bitrate" type="int" required="yes"
+                    _description="Bitrate configured for the stream"/>
         </compound-property>
       </properties>
     </plug>
