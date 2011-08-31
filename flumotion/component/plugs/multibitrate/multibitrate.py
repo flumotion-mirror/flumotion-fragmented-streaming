@@ -85,12 +85,10 @@ class MultibiratePlaylistPlug(ComponentPlug):
 
         props = self.args['properties']
         resource = Resource()
-        mount_point = Resource()
         playlist = PlaylistResource(props.get('playlist-entry', []),
                                     props.get('target-bitrate', 200000))
 
-        resource.putChild(component.getMountPoint(), mount_point)
-        mount_point.putChild(props.get('playlist-name', 'main.m3u8'), playlist)
+        resource.putChild(props.get('playlist-name', 'main.m3u8'), playlist)
         component.setRootResource(resource)
 
 

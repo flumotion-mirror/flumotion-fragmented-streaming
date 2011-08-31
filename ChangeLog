@@ -1,5 +1,10 @@
 2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/plugs/multibitrate/multibitrate.py:
+	mount point resource is already set by the component
+
+2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/plugs/multibitrate/multibitrate.xml:
 	Remove the 'required' bit from target-bitrate
 
