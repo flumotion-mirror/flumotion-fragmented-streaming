@@ -109,10 +109,10 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 return
             self.info('Added fragment "%s", duration=%s',
                       fragName, gst.TIME_ARGS(buffer.duration))
-            if not self.ready and self.store.prerolled():
+            if not self._ready and self.store.prerolled():
                 self.info("All streams prerolled. Changing mood to 'happy'")
                 self.setMood(moods.happy)
-                self.ready = True
+                self._ready = True
 
     ### START OF THREAD-AWARE CODE (called from non-reactor threads)
 
