@@ -1,3 +1,11 @@
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* configure.ac:
+	* flumotion/component/Makefile.am:
+	* flumotion/component/consumers/Makefile.am:
+	* flumotion/test/Makefile.am:
+	Remove HLS components which are now part of flumotion
+
 2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/plugs/multibitrate/multibitrate.py:

@@ -10,15 +10,9 @@ setup.py: $(top_builddir)/config.status
 
 EXTRA_DIST = __init__.py \
 	test_dummy.py \
-	test_hls_ring.py \
 	test_fmp4.py \
 	test_fmp4.xml \
-	test_mpegts.py \
-	test_mpegts.xml \
-	test_apple_resource.py \
-	test_component_smoothstreamer.py \
-	test_ts_segmenter.py \
-	test_ts_segmenter.xml
+	test_component_smoothstreamer.py
 
 check-local: trial
 
