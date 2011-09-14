@@ -13,10 +13,6 @@
 
 # Headers in this file shall remain intact.
 
-from threading import Lock
-
-import gst
-
 from flumotion.component import feedcomponent
 from flumotion.common import gstreamer, messages, documentation
 from flumotion.common.i18n import N_, gettexter
@@ -40,13 +36,13 @@ class FMP4(feedcomponent.MuxerComponent):
             self.addMessage(m)
             return
 
-        v = gstreamer.get_plugin_version('qtmux')
-        if v < (0, 10, 11, 0):
+        v = gstreamer.get_plugin_version('isomp4')
+        if v < (0, 10, 23, 0):
             m = messages.Warning(
                 T_(N_("Versions up to and including %s of the '%s' "
                       "GStreamer plug-in are not suitable for "
                       "smooth streaming.\n"),
-                      '0.10.11', 'qtmux'))
+                      '0.10.23', 'isomp4'))
             self.addMessage(m)
 
     def get_muxer_string(self, props):
