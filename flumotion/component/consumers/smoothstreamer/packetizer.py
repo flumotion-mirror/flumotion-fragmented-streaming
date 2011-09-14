@@ -73,8 +73,12 @@ class Packetizer(gst.Element):
         data  = ''.join([b.data for b in self._fragment])
         buf = gst.Buffer(data)
         buf.timestamp = self._first_ts
-        if buf.timestamp != gst.CLOCK_TIME_NONE:
-            buf.duration = s['timestamp'] - buf.timestamp
+        lb = self._fragment[-1]
+        if lb.duration != gst.CLOCK_TIME_NONE:
+            buf.duration = lb.timestamp + lb.duration - self._first_ts
+        else:
+            buf.duration = s['timestamp'] - self._first_ts
+
         if self._in_caps:
             buf.flag_set(gst.BUFFER_FLAG_IN_CAPS)
         self._reset_fragment()
