@@ -1,6 +1,12 @@
 2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
 
 	* flumotion/component/muxers/mpegts/mpegts.py:
+	Packetize output stream to avoid pushing to many
+	buffers downstream
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
 	Don't use anymore the audio-only hack
 
 2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
