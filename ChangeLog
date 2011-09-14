@@ -1,5 +1,10 @@
 2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Remove all the sync logic from the mpegts muxer
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/muxers/fmp4/fmp4.py:
 	Change version requirements for the muxer
 
