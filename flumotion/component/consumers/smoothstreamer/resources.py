@@ -60,7 +60,7 @@ class SmoothStreamingResource(resources.FragmentedResource):
         if request.method == 'GET':
             request.write(CLIENT_ACCESS_POLICY)
             self.bytesSent += len(CLIENT_ACCESS_POLICY)
-            self.logWrite(request)
+            self._logWrite(request)
         elif request.method == 'HEAD':
             self.debug('handling HEAD request')
         request.finish()
@@ -77,7 +77,7 @@ class SmoothStreamingResource(resources.FragmentedResource):
             request.setHeader('Connection', 'Close')
             request.write(manifest)
             self.bytesSent += len(manifest)
-            self.logWrite(request)
+            self._logWrite(request)
         elif request.method == 'HEAD':
             self.debug('handling HEAD request')
         request.finish()
