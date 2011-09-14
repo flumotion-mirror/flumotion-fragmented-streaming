@@ -1,5 +1,10 @@
 2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Add missing changes to the last commit
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* ChangeLog:
 	* flumotion/component/consumers/smoothstreamer/Makefile.am:
 	* flumotion/component/consumers/smoothstreamer/packetizer.py:
