@@ -13,11 +13,8 @@
 
 # Headers in this file shall remain intact.
 
-from flumotion.component.consumers.applestreamer.common import \
-    FragmentNotFound, FragmentNotAvailable, PlaylistNotFound, KeyNotFound
-from flumotion.component.consumers.applestreamer.resources import \
-    FragmentedResource
-from twisted.internet import reactor, error, defer
+from flumotion.component.common.streamer import fragmentedresource as resources
+from twisted.internet import defer
 from twisted.web import server
 try:
     from twisted.web import http
@@ -46,7 +43,7 @@ CLIENT_ACCESS_POLICY = """
 </access-policy>
 """
 
-class SmoothStreamingResource(FragmentedResource):
+class SmoothStreamingResource(resources.FragmentedResource):
 
     logCategory = 'smooth-streamer'
 
@@ -54,9 +51,8 @@ class SmoothStreamingResource(FragmentedResource):
         """
         @param streamer: L{SmoothHTTPLiveStreamer}
         """
-        self.setMountPoint(streamer.mountPoint)
         self.store = store
-        FragmentedResource.__init__(self, streamer, httpauth, secretKey,
+        resources.FragmentedResource.__init__(self, streamer, httpauth, secretKey,
             sessionTimeout)
 
     def _renderClientAccessPolicy(self, res, request, resource):
@@ -92,7 +88,7 @@ class SmoothStreamingResource(FragmentedResource):
         if len(p) != 0 and p[0].startswith("QualityLevels("):
             p[0] = p[0][14:-1]
         else:
-            raise FragmentNotAvailable("Invalid fragment request")
+            raise resources.FragmentNotAvailable("Invalid fragment request")
 
         if p[1].startswith("FragmentInfo("):
             p[1] = p[1][13:-1]
@@ -101,13 +97,13 @@ class SmoothStreamingResource(FragmentedResource):
             p[1] = p[1][10:-1]
             kind = "fragment"
         else:
-            raise FragmentNotAvailable("Invalid fragment request")
+            raise resources.FragmentNotAvailable("Invalid fragment request")
 
         try:
             bitrate, (type, time) = p[0], p[1].split("=")
             time = int(time)
         except ValueError:
-            raise FragmentNotAvailable("Invalid fragment request")
+            raise resources.FragmentNotAvailable("Invalid fragment request")
 
         fragment, mime, code = self.store.getFragment(bitrate, type, time, kind)
         self._writeHeaders(request, mime, code)
@@ -115,7 +111,7 @@ class SmoothStreamingResource(FragmentedResource):
             request.setHeader('content-length', len(fragment))
             request.write(fragment)
             self.bytesSent += len(fragment)
-        self.logWrite(request)
+        self._logWrite(request)
         request.finish()
         return res
 

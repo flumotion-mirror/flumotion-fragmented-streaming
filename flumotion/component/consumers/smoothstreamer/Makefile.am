@@ -4,6 +4,7 @@ component_PYTHON = __init__.py \
 		   common.py \
 		   resources.py \
 		   smoothstreamer.py \
+		   packetizer.py \
 		   admin_gtk.py \
 		   avcc.py \
 		   waveformatex.py

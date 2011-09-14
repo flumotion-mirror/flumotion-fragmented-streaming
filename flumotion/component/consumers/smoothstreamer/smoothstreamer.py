@@ -21,23 +21,24 @@ from cStringIO import StringIO
 import gst
 from mp4seek import atoms, iso
 
-from zope.interface import implements
-from twisted.internet import reactor, error, defer
+from twisted.internet import reactor
 from flumotion.common.i18n import N_, gettexter
-from flumotion.component import feedcomponent
-from flumotion.common import interfaces, netutils, errors, messages
+from flumotion.common import messages
 from flumotion.component.component import moods
 
 from flumotion.extern.log import log
-from flumotion.component.consumers.applestreamer.common import\
-    FragmentNotFound, FragmentNotAvailable, PlaylistNotFound, KeyNotFound
-from flumotion.component.consumers.applestreamer.applestreamer import\
+from flumotion.component.base import http
+from flumotion.component.common.streamer.fragmentedresource import\
+    FragmentNotFound
+from flumotion.component.common.streamer.fragmentedstreamer import\
     FragmentedStreamer
 from flumotion.component.consumers.smoothstreamer.resources import\
     SmoothStreamingResource
 from flumotion.component.consumers.smoothstreamer import\
-    avcc, waveformatex
-__all__ = ['HTTPMedium', 'SmoothHTTPLiveStreamer']
+    avcc, waveformatex, packetizer
+packetizer.register()
+
+__all__ = ['SmoothHTTPLiveStreamer']
 __version__ = ""
 T_ = gettexter()
 
@@ -56,36 +57,36 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         if not self.mountPoint.startswith("/"):
             slash = "/"
         return "http://%s:%d%s%sManifest" % (self.hostname, self.port, slash, self.mountPoint)
-    
+
     def __repr__(self):
         return '<SmoothHTTPLiveStreamer (%s)>' % self.name
 
     def get_mime(self):
         return 'text/xml'
 
-    def make_resource(self, httpauth, props):
-        self.store.setDVRWindowLength(props.get('dvr-window', DEFAULT_DVR_WINDOW))
-        return SmoothStreamingResource(self, self.store, httpauth,
-                props.get('secret-key', self.DEFAULT_SECRET_KEY),
-                props.get('session-timeout', self.DEFAULT_SESSION_TIMEOUT))
+    def configure_auth_and_resource(self):
+        self.httpauth = http.HTTPAuthentication(self)
+        self.resource = SmoothStreamingResource(self, self.store, self.httpauth,
+                self.secret_key, self.session_timeout)
 
     def configure_pipeline(self, pipeline, props):
-        appsink = pipeline.get_by_name('appsink')
-        appsink.set_property('emit-signals', True)
-        appsink.get_pad("sink").add_buffer_probe(self._sinkPadProbe, None)
-        appsink.connect("new-preroll", self._new_preroll)
-        appsink.connect("new-buffer", self._new_buffer)
-        appsink.connect("eos", self._eos)
-        self._segmentsCount = 0
         FragmentedStreamer.configure_pipeline(self, pipeline, props)
+        self.resource.setMountPoint(self.mountPoint)
 
     def get_pipeline_string(self, properties):
-        return "appsink name=appsink sync=false"
+        return "flupacketizer ! appsink name=sink sync=false"
 
-    def _processBuffer(self, buffer):
+    def _configure_sink(self):
+        self.sink.set_property('emit-signals', True)
+
+    def _connect_sink_signals(self):
+        FragmentedStreamer._connect_sink_signals(self)
+        self.sink.connect("new-buffer", self._new_buffer)
+
+    def _process_buffer(self, buffer):
         currOffset = buffer.offset
         self._lastBufferOffset = currOffset
-        self._segmentsCount = self._segmentsCount + 1
+        self._fragmentsCount = self._fragmentsCount + 1
         f = StringIO(buffer.data)
         al = list(atoms.read_atoms(f))
         ad = atoms.atoms_dict(al)
@@ -102,15 +103,25 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 self.error("First buffer cannot be parsed as a moov: %r" % e)
                 return
         elif iso.select_atoms(ad, ('moof', 0, 1))[0]:
-            fragName = self.store.addFragment(ad, al, buffer.offset, buffer.duration)
+            fragName = self.store.addFragment(ad, al, buffer.timestamp /
+                                              gst.MSECOND, buffer.duration)
             if fragName is None:
                 return
-            self.info('Added fragment "%s", duration=%s offset=%s',
-                      fragName, gst.TIME_ARGS(buffer.duration), currOffset)
+            self.info('Added fragment "%s", duration=%s',
+                      fragName, gst.TIME_ARGS(buffer.duration))
             if not self.ready and self.store.prerolled():
                 self.info("All streams prerolled. Changing mood to 'happy'")
                 self.setMood(moods.happy)
                 self.ready = True
+
+    ### START OF THREAD-AWARE CODE (called from non-reactor threads)
+
+    def _new_buffer(self, appsink):
+        self.log("appsink created a new fragment")
+        buf = appsink.emit('pull-buffer')
+        reactor.callFromThread(self._process_buffer, buf)
+
+    ### END OF THREAD-AWARE CODE
 
 
 class AttributesMixin:

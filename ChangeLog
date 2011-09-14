@@ -1,5 +1,16 @@
 2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* ChangeLog:
+	* flumotion/component/consumers/smoothstreamer/Makefile.am:
+	* flumotion/component/consumers/smoothstreamer/packetizer.py:
+	* flumotion/component/consumers/smoothstreamer/resources.py:
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Start using the streamer base class and the GstForceKeyUnit events
+
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* configure.ac:
 	* flumotion/component/Makefile.am:
 	* flumotion/component/consumers/Makefile.am:

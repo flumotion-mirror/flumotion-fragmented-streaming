@@ -26,6 +26,7 @@ T_ = gettexter()
 
 class FMP4(feedcomponent.MuxerComponent):
     checkTimestamp = True
+    dropAudioKUEvents = False
     logCategory = 'smooth-muxer'
 
     DEFAULT_FRAGMENT_DURATION = 5000
