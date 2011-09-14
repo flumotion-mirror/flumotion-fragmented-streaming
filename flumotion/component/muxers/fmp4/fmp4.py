@@ -22,6 +22,7 @@ T_ = gettexter()
 
 class FMP4(feedcomponent.MuxerComponent):
     checkTimestamp = True
+    dropAudioKuEvents = False
     logCategory = 'smooth-muxer'
 
     def do_check(self):

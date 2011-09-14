@@ -1,5 +1,10 @@
 2011-09-15  Andoni Morales Alastruey  <amorales@flumotion.com>
 
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Don't drop audio GstForceKeyUnit events
+
+2011-09-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
 	* flumotion/component/consumers/smoothstreamer/resources.py:
 	Use  _logWrite from the base class
 
