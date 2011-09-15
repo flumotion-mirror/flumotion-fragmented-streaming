@@ -52,5 +52,5 @@ class FMP4(feedcomponent.MuxerComponent):
         muxer = 'ismlmux name=muxer dts-method=0 movie-timescale=10000000 '\
                 'trak-timescale=10000000 streamable=1'
         if self.duration:
-            return '%s fragment-method=1 duration=%' % (muxer, self.duration)
+            return '%s fragment-method=1 fragment-duration=%s' % (muxer, self.duration)
         return '%s fragment-method=2' % muxer
