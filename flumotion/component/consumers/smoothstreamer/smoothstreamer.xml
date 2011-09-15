@@ -92,9 +92,8 @@
 
     <bundle project="fragmentedstreaming" name="smoothstreamer">
         <dependencies>
-            <dependency name="component" />
+            <dependency name="fragmented-streamer-component" />
             <dependency name="smoothstreamer-base" />
-            <dependency name="applestreamer" />
         </dependencies>
 
         <directories>
@@ -104,15 +103,15 @@
                 <filename location="resources.py" />
                 <filename location="smoothstreamer.py" />
                 <filename location="waveformatex.py" />
+                <filename location="packetizer.py" />
             </directory>
         </directories>
     </bundle>
 
     <bundle project="fragmentedstreaming" name="smoothstreamer-admin">
         <dependencies>
-            <dependency name="component" />
-            <dependency name="base-admin-gtk"/>
             <dependency name="smoothstreamer-base" />
+            <dependency name="streamer-admin-gtk"/>
         </dependencies>
 
         <directories>
