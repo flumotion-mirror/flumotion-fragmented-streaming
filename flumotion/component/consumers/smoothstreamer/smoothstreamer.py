@@ -72,6 +72,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
     def configure_pipeline(self, pipeline, props):
         FragmentedStreamer.configure_pipeline(self, pipeline, props)
         self.resource.setMountPoint(self.mountPoint)
+        self.store.setDVRWindowLength(props.get('dvr-window',
+                                                DEFAULT_DVR_WINDOW))
 
     def get_pipeline_string(self, properties):
         return "flupacketizer ! appsink name=sink sync=false"
@@ -103,8 +105,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 self.error("First buffer cannot be parsed as a moov: %r" % e)
                 return
         elif iso.select_atoms(ad, ('moof', 0, 1))[0]:
-            fragName = self.store.addFragment(ad, al, buffer.timestamp /
-                                              gst.MSECOND, buffer.duration)
+            fragName = self.store.addFragment(ad, al, buffer.timestamp,
+                                              buffer.duration)
             if fragName is None:
                 return
             self.info('Added fragment "%s", duration=%s',
@@ -156,7 +158,8 @@ class Quality(log.Loggable, AttributesMixin):
         return self._fragments.items()
 
     def addFragment(self, ad, al, timestamp, duration):
-        duration = duration * self._stream.TimeScale / 1000000000
+        timestamp = timestamp * self._stream.TimeScale / gst.SECOND
+        duration = duration * self._stream.TimeScale / gst.SECOND
         self._lookaheads.append((ad, al, timestamp, duration))
         name = "fragment id: %d, b: %d, t: %d, d: %d" % \
             (self._track_id, self.Bitrate, timestamp, duration)
@@ -190,7 +193,7 @@ class Quality(log.Loggable, AttributesMixin):
                 ts.sort()
                 window = ts[-1] - ts[0]
                 while True:
-                    if (window > self._store.DVRWindowLength):
+                    if (window >= self._store.DVRWindowLength):
                         m = min(self._fragments.keys())
                         self.debug("removing %r" % m)
                         frag_duration = self._fragments[m][2]
@@ -236,7 +239,9 @@ class Chunk(AttributesMixin):
 
 class Stream(AttributesMixin):
 
-    def __init__(self, type, subtype="", mime=None, timescale=10000000, chunks=0):
+    def __init__(self, store, type, subtype="", mime=None,
+                 timescale=10000000, chunks=0):
+        self._store = store
         self.Type = type
         if subtype:
             self.SubType = subtype
@@ -267,14 +272,17 @@ class Stream(AttributesMixin):
         return self._mime
 
     def getFragments(self):
-        # some magic to show only the chunks which are available in all qualities
-        ts = {} # ts -> list of qualities
+        # some magic to show the list of available chunks
+        ts = []
+        # firs, get a list of all ts in all qualities
         for br, q in self._qualities.items():
             for t, b in q.getFragments():
-                ts.setdefault(t, []).append(q)
-        chunks = [Chunk(t) for t, q in ts.items() if len(q) == len(self._qualities)]
-        chunks.sort(lambda x, y: cmp(x.t, y.t))
-        return chunks
+                if t not in ts:
+                    ts.append(t)
+        # then, sort them and remove the ones that are out of the window
+        ts.sort()
+        min_ts = ts[-1] - self._store.DVRWindowLength
+        return [Chunk(t) for t in ts if ts >= min_ts]
 
     def getAttributes(self):
         return self.__dict__
@@ -343,7 +351,7 @@ class FragmentStore(log.Loggable):
 
     def getStream(self, type, timescale, subtype=None, mime=None):
         # Fixme what if we have several stream of the same type but different subtypes etc..?
-        return self._streams.setdefault(type, Stream(type, subtype, mime, timescale))
+        return self._streams.setdefault(type, Stream(self, type, subtype, mime, timescale))
 
     def prerolled(self):
         for q in self._qualities.values():
