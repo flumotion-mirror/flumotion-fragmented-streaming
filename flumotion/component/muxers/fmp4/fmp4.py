@@ -49,7 +49,8 @@ class FMP4(feedcomponent.MuxerComponent):
     def get_muxer_string(self, props):
         self.duration = props.get('fragment-duration', None)
 
-        muxer = 'ismlmux name=muxer dts-method=0' 
+        muxer = 'ismlmux name=muxer dts-method=0 movie-timescale=10000000 '\
+                'trak-timescale=10000000 streamable=1'
         if self.duration:
             return '%s fragment-method=1 duration=%' % (muxer, self.duration)
         return '%s fragment-method=2' % muxer
