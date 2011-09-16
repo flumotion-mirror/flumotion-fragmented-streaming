@@ -1,0 +1,1108 @@
+2011-09-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Don't drop audio GstForceKeyUnit events
+
+2011-09-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/resources.py:
+	Use  _logWrite from the base class
+
+2011-09-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/packetizer.py:
+	Fix how duration is calculated
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Packetize output stream to avoid pushing to many
+	buffers downstream
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Don't use anymore the audio-only hack
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Use _ready, defined like this in the base class
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Remove all the sync logic from the mpegts muxer
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Change version requirements for the muxer
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Add missing changes to the last commit
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* ChangeLog:
+	* flumotion/component/consumers/smoothstreamer/Makefile.am:
+	* flumotion/component/consumers/smoothstreamer/packetizer.py:
+	* flumotion/component/consumers/smoothstreamer/resources.py:
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Start using the streamer base class and the GstForceKeyUnit events
+
+
+2011-09-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* configure.ac:
+	* flumotion/component/Makefile.am:
+	* flumotion/component/consumers/Makefile.am:
+	* flumotion/test/Makefile.am:
+	Remove HLS components which are now part of flumotion
+
+2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/plugs/multibitrate/multibitrate.py:
+	mount point resource is already set by the component
+
+2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/plugs/multibitrate/multibitrate.xml:
+	Remove the 'required' bit from target-bitrate
+
+2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/plugs/multibitrate/multibitrate.xml:
+	uppps, bitrate property is part of compound property
+
+2011-08-31  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/plugs/multibitrate/multibitrate.py:
+	* flumotion/component/plugs/multibitrate/multibitrate.xml:
+	Allow sorting playlist entries by target bitrate or user agent
+
+2011-08-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	target duration should be the duration of the longest clip in the
+	playlist
+
+2011-07-13  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Protect pad's info with lock (called from different gst threads)
+
+2011-05-30  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Add one more check for sync
+
+2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Fix the preroll calculation commit. The Quality objects are in the
+	values of the dict instead of the values
+
+2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Fix sychronisation issues between video streams
+
+2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/fmp4/fmp4.py:
+	Remove unused imports
+
+2011-05-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Fix preroll calculation using the DVR window length
+
+2011-05-09  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Check that all streams have enough fragments before setting the
+	mood to happy
+
+2011-04-07  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Add more checks to the smooth streamer in case the sps/pps are not 
+	set in the track or if we receive fragments with an unknown id
+
+2011-04-05  Josep Joan Ribas  <jribas@flumotion.com>
+
+	reviewed by: Andoni Morales
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Added the property hls-url that will be the base url used to render
+	the playlist entries.
+
+2011-04-05  Josep Joan Ribas  <jribas@flumotion.com>
+
+	reviewed by: Xavier Queralt
+
+	* configure.ac:
+	* flumotion/component/Makefile.am:
+	* flumotion/component/plugs (added):
+	* flumotion/component/plugs/multibitrate (added):
+	* flumotion/component/plugs/multibitrate/multibitrate.xml (added):
+	* flumotion/component/plugs/multibitrate/__init__.py (added):
+	* flumotion/component/plugs/multibitrate/Makefile.am (added):
+	* flumotion/component/plugs/multibitrate/multibitrate.py (added):
+	* flumotion/component/plugs/__init__.py (added):
+	* flumotion/component/plugs/Makefile.am (added):
+	Added a plug that renders m3u8 playlist for iphone multibitrate.
+
+2011-02-15  Xavier Francisco  <xfrancisco@flumotion.com>
+
+	reviewed by: Andoni Morales
+
+	* flumotion/component/consumers/smoothstreamer/smoothstreamer.py:
+	Stopping the appsink when there's a version mismatch in mp4seek.
+	See #12915
+ 	
+2010-10-22  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* add support for basic seeking with dvr-window property.
+	WARNING: this patch has not been reviewed, and has been quickly 
+	tested. Ciao, Flumotion! And thanks for all the fish.
+
+2010-10-19  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed and corrected by: Andoni Morales Alastruey
+
+	* merged Smooth Streaming branch from git
+	453cc2f262b64c0508f6b918b74677b5f287a819.
+
+2010-10-05  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Add removed import in last commit
+
+2010-10-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Add support for audio only streams using the video stream
+	only for synchronisation
+
+2010-07-14  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed by: Julien Le Goff
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	The new segment trick from the previous patch was not really a
+	good solution. Instead, sync=false on the applestreamer appsink.
+
+2010-07-13  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed by: Xavier Queralt
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Do segment per 1-keyframe at the muxer level to avoid reaching the
+	limit of 500 TS buffers at the multifdsink level (network speed
+	variability can hit this limit at the feeder level, and cause huge
+	number of buffer drops, resulting in discontinuities and 404 and
+	the streamer level)
+
+2010-07-09  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed by: Andoni Morales Alastruey
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Do not use "chunked" HTTP for fragments data.
+	This is a regression from iOS 4.0. See #10794.
+
+2010-04-20  Alvin Delagon  <adelagon@flumotion.com>
+
+	reviewed by: Xavier Martinez
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Send a meaningful error when 'mpegtsmux' is not installed.
+
+2010-03-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	reviewed by: Marc-André Lureau
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Append the request args also to the main playlist
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Change log description: on a IP change the session is already
+	in streamer.
+
+2010-03-03  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Return from the chain function right after detecting a discontinuity.
+
+2010-03-02  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Compute fragment duration based only on buffer timestamps, since
+	buffer duration is almost never available, and titimestamp
+	difference should be enough.
+
+2010-03-02  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Count the keyframe buffer duration in the current fragment,
+	instead of the one in the next fragment.
+
+2010-03-01  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Fix log of request without session
+
+2010-02-24  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_resource.py:
+	Fix make check
+	Added test for playlist with GKID argument in the request
+	Add test for different sessions ID's (url and cookie)
+
+2010-02-24  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Do not create several sessions for the same sessionID if the
+	client doesn't use cookies
+
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Append the GET arguments to the playlist
+
+2010-02-24  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Take the first video pad, instead of hard-coded one.
+	Stay waking until there is a video source.
+
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/common.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Raise a FragmentNotAvailable exception to log properly requests
+	to dummy fragments automatically added to the playlist
+
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Added support to set the session ID using a GET parameter in the url
+
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Added 'session-timeout' and 'secret-key' properties
+
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Added 'stream-bitrate' property
+
+2010-02-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Added property to autoupdate the playlist when a new fragment
+	is missing and manage discontinuities
+
+2010-02-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Uses incomming buffers' offset to calculate the buffer offset
+	of outgoing keyframes. Allows synchronizing several streams
+	with a common upstream element, usually the flow's source
+
+2010-02-10  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Get the media sequence from the last fragment in the playlist
+	and save the sequence number rather than the segment name.
+
+2010-02-04  Marc-André Lureau  <mlureau@flumotion.com>
+
+	reviewed by: Andoni Morales Alastruey
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Set "Keep-Alive" for playlist, it can increase by 2 the number of
+	request processed. However, it needs a good reactor that can
+	handle idle connections.
+
+2010-02-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_mpegts.py:
+	Fix test with the new muxer inserting IN_CAPS buffers
+
+2010-02-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Remove unused warning. Checking for the mpegtsmuxer's version
+	already grants having the streamheaders
+
+2010-02-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Fix deprecation warning
+
+2010-02-04   Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Use 'streamheaders' to get PAT and PMT and write them only once at the
+	beginning of each fragment
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	Use the new 'pat/pmt-interval' property in mepgtsmux set the
+	insertion interval to the maximum allowed
+
+2010-02-03  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/setup.py.in:
+	Fix pep8
+
+2010-02-03  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	reviewed by: Xavi Martinez
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Improve component logs
+
+2010-01-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/test/test_resource.py:
+	Fix pep8
+	* flumotion/test/test_hls_ring.py:
+	Fix test for the new max-extra-buffers property
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Disable untested properties
+
+2010-01-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	reviewed by: Xavi Martinez
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Added new property max-extra-buffers
+
+2010-01-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/test/test_resource.py:
+	Don't decode the cookie twice and do it in try/except block
+
+2010-01-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	reviewed by: Marc-André
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Define remove_client called by the HTTPAuthenticator but not used
+	in the apple streamer, where expiration is checked on each request
+	using using cookies.
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Fragments must be available to clients for some time after they
+	have been removed from the playlist
+
+2010-01-22  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Round fragments's duration to prevent innacuracies in the encoder's
+	keyframe distance
+
+2010-01-21  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Add missing __init__.py to the bundle
+
+2010-01-20  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion-fragmented-streaming.spec.in:
+	Remove 'python-uuid' and 'gst-plugins-bad' dependencies.
+	They are handled by fsp-role-streamer.
+	Fix the release date
+
+2010-01-19  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Revert partially 26726: Don't drop preroll buffer
+	The preroll buffer is the same as the first buffer. We don't
+	need it
+
+2010-01-19  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Fix the way the target duration is set.
+	* flumotion/test/test_resource.py:
+	Added test for authentication renewal.
+
+2010-01-18  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Fix pep8 and remove unused variables and imports
+
+2010-01-18  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Don't drop preroll buffers
+
+2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Fix typo in event name
+
+2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Improve discontinuities failure detection
+
+2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Do not round fragments duration to the upper value
+
+2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Fix default properties in the plugin description
+
+2010-01-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Consider a discontinuity receiving two fragments in a row with
+	the same offset
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Don't use the first fragment in a stream to determine the target
+	duration as it's usually longer
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	Check for discontinuities in the stream to reset the segmenter
+
+2010-01-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Don't change the component mood after a discontinuity. Let the
+	pad monitor handle it.
+
+2010-01-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	Check for buffers discontinuities (on a muxer restart for example),
+	and proceed with a soft restart: reset the playlist and wait for the
+	minimun fragments' window to be filled again
+
+2010-01-14  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Do not start the playlist's fragments from 0, use instead
+	the bufer offset to keep the streamers in sync
+
+2010-01-13  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Make sessions support compatible with twisted 2.*
+
+2010-01-13  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/Makefile.am:
+	Add missing test file
+
+2010-01-13  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/test/test_resource.py:
+	"class C():" is a syntax error with python 2.4, removing
+	parenthesis.
+
+2010-01-13  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* configure.ac:
+	* m4 (deleted):
+	AC_CONFIG_MACRO_DIR() takes only one path, and removing m4, it is
+	empty.
+
+2010-01-13  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion-fragmented-streaming.spec.in:
+	Fix gstreamer dependency name
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion-fragmented-streaming.spec.in:
+	Update versions automatically
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* Makefile.am:
+	* autogen.sh:
+	* configure.ac:
+	* intltool-extract.in (deleted):
+	* intltool-update.in (deleted):
+	* intltool-merge.in (deleted):
+	* po (deleted):
+	* po/LINGUAS (deleted):
+	* po/es.po (deleted):
+	* po/Makevars (deleted):
+	* po/POTFILES.in (deleted):
+	Remove i18n support
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion-fragmented-streaming.spec.in:
+	Added missing build dependency
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* Makefile.am:
+	* configure.ac:
+	* env:
+	* env (svn:executable):
+	* env (added):
+	* env.in (deleted):
+	Do not autogenerate 'env' and add genreated files to DISTCLEANFILES
+	* flumotion/test/common.py (deleted):
+	* flumotion/test/Makefile.am:
+	delete autogenerated files
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* Makefile.am:
+	* configure.ac:
+	* flumotion-fragmented-streaming.spec.in:
+	* po/es.po:
+	* +    flumotion-fragmented-streaming.spec.in (added):
+	* flumotion-fragmentedstreaming.spec.in (deleted):
+	Fix project name
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Use min/max keyframe distance
+	* po/Makefile.in.in (deleted):
+	Delete autogenerated file
+
+2010-01-12  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	check megtsmux version check and fix warning message
+	* po/es.po:
+	update Spanish transaltion
+	* po (svn:ignore):
+	*  (svn:ignore):
+	* misc (svn:ignore):
+	* flumotion/test (svn:ignore):
+	Add more ignores
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* Makefile.am:
+	Add intl templates to the dist package
+	* flumotion-fragmentedstreaming.spec.in:
+	Fix requirements and versions numbers
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* autoregen.sh (deleted):
+	Delete autogenerated file
+	* Makefile.am:
+	* autogen.sh:
+	* configure.ac:
+	* intltool-extract.in:
+	* intltool-merge.in:
+	* intltool-update.in:
+	* po/LINGUAS:
+	* po/Makefile.in.in:
+	* po/Makevars:
+	* po/POTFILES.in:
+	* po/es.po:
+	* m4 (added):
+	* intltool-extract.in (added):
+	* intltool-update.in (added):
+	* intltool-merge.in (added):
+	* po (added):
+	* po/LINGUAS (added):
+	* po/es.po (added):
+	* po/Makefile.in.in (added):
+	* po/Makevars (added):
+	* po/POTFILES.in (added):
+	Added i18n support
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/Makefile.am:
+	* flumotion/test/common.py:
+	* flumotion/test/setup.py.in:
+	* flumotion/test/common.py (added):
+	* flumotion/test/setup.py.in (added):
+	Added missing files
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* Makefile.am:
+	Fix component name
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* configure.ac:
+	Remove tar filenames max lenght limitation
+
+2010-01-11  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	*  (svn:ignore):
+	* flumotion/component/consumers/applestreamer (svn:ignore):
+	* flumotion/test (svn:ignore):
+	* flumotion/component/consumers (svn:ignore):
+	* flumotion/project (svn:ignore):
+	* flumotion (svn:ignore):
+	* flumotion/component/muxers (svn:ignore):
+	* flumotion/component (svn:ignore):
+	* flumotion/component/muxers/mpegts (svn:ignore):
+	Add svn ignores
+	* autoregen.sh (added):
+	* INSTALL (added):
+	Add missing dist files
+	* configure.ac:
+	Fix version number and configure warnings
+
+2010-01-08  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Increase session timeout to 30 seconds
+
+2010-01-08  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_resource.py:
+	Reduce the session timeout for testing
+
+2010-01-08  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Set the session timeout before starting the checking expiration method
+
+2010-01-08  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_resource.py:
+	Updated test suite for the resource element
+
+2010-01-02  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Handle "fragment not found" exceptions correctly.
+
+2010-01-07  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Misc syntax error.
+
+2010-01-07  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Add errback for authentication failure
+
+2010-01-07  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Check if it's a known exception against the exception type
+
+2010-01-05  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Use custom Site in porter to log requests
+
+2010-01-05  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Register mountpoint prefix in porter, instead of path.
+
+2010-01-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	Fix typo in mount point assignment
+
+2010-01-04  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Don't use len(), getClients() already returns an integer
+
+2009-12-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_resource.py:
+	* flumotion/test/test_resource.py (added):
+	Added test suite for HTTPLiveStreamingResource
+
+2009-12-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Return a HTTP Forbiden error when the request is out of the mountpoint
+
+2009-12-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* env.in:
+	Add FLU_PROJECT_PATH for test components
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Fix imports namespace
+
+2009-12-29  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Revert r26165
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/__init__.py:
+	* flumotion/component/__init__.py:
+	* flumotion/component/consumers/__init__.py:
+	* flumotion/component/consumers/applestreamer/__init__.py:
+	* flumotion/component/consumers/applestreamer/admin_gtk.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/common.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/muxers/__init__.py:
+	* flumotion/component/muxers/mpegts/__init__.py:
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/project/fragmentedstreaming.py.in:
+	* flumotion/test/__init__.py:
+	* flumotion/test/test_dummy.py:
+	* flumotion/test/test_hls_ring.py:
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+	Fix license and copyright headers
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_hls_ring.py:
+ 	Use new applestreamer namespace and fix pep8
+	* flumotion/test/test_mpegts.py:
+	* flumotion/test/test_ts_segmenter.py:
+ 	Use new applestreamer namespace and add project's folder to
+ 	FLU_PROJECT_PATH to load our test component in the registry
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Import resource and changed twisted's resource to web_resource
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Update cookie validity method's description
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer (deleted):
+	* flumotion/component/consumers/httpfragstreamer/common.py (deleted):
+	* flumotion/component/consumers/httpfragstreamer/mpegtssegmenter.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/resources.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/admin_gtk.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/__init__.py (deleted):
+	* flumotion/component/consumers/httpfragstreamer/Makefile.am (deleted):
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py
+	  (deleted):
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py (deleted):
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.glade
+	  (deleted):
+	Delete old component's folder
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* configure.ac:
+	* flumotion/Makefile.am:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/common (deleted):
+	* flumotion/common/__init__.py (deleted):
+	* flumotion/common/Makefile.am (deleted):
+	* flumotion/common/uuid.py (deleted):
+	Delete local copy of uuid since it's going to be deployed using
+	a separate package
+
+2009-12-28  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Rename flumotion component to http-applestreamer according to
+	the rst
+
+2009-12-24  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Get the number of active clients from the stats
+	Add missing 'socket' import
+
+2009-12-24  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Fix getMaxAllowedClients() and add log category
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	Add supported plug's sockets to the component XML
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Add 'mount-point' to the private part of the token, and remove
+	'client-ip' from the public part
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/applestreamer/resources.py:
+	Fix HTTP cache policy
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* configure.ac:
+	* flumotion/component/consumers/Makefile.am:
+	* flumotion/component/consumers/applestreamer/Makefile.am:
+	* flumotion/component/consumers/applestreamer/__init__.py:
+	* flumotion/component/consumers/applestreamer/admin_gtk.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.glade:
+	* flumotion/component/consumers/applestreamer/applestreamer.py:
+	* flumotion/component/consumers/applestreamer/applestreamer.xml:
+	* flumotion/component/consumers/applestreamer/common.py:
+	* flumotion/component/consumers/applestreamer/hlsring.py:
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py:
+	* flumotion/component/consumers/applestreamer/resources.py:
+	* flumotion/component/consumers/applestreamer (added):
+	* flumotion/component/consumers/applestreamer/common.py (added):
+	* flumotion/component/consumers/applestreamer/applestreamer.glade
+	  (added):
+	* flumotion/component/consumers/applestreamer/mpegtssegmenter.py
+	  (added):
+	* flumotion/component/consumers/applestreamer/resources.py (added):
+	* flumotion/component/consumers/applestreamer/applestreamer.xml
+	  (added):
+	* flumotion/component/consumers/applestreamer/admin_gtk.py (added):
+	* flumotion/component/consumers/applestreamer/__init__.py (added):
+	* flumotion/component/consumers/applestreamer/Makefile.am (added):
+	* flumotion/component/consumers/applestreamer/applestreamer.py (added):
+	* flumotion/component/consumers/applestreamer/hlsring.py (added):
+	Rename component to Apple HTTP Live Streaming
+
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Remove the rewritte-offset property
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/resources.py:
+	Comment out error callback
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml:
+	Rename properties from hls-propname to propname
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
+	Subclass Request to log the request lenght and transfered data
+	* flumotion/component/consumers/httpfragstreamer/resources.py:
+	Log request duration and transfered bytes. Fix pep8
+
+2009-12-23  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/resources.py:
+	Added sessions support
+	* configure.ac:
+	* flumotion/Makefile.am:
+	* flumotion/common (added):
+	* flumotion/common/__init__.py (added):
+	* flumotion/common/Makefile.am (added):
+	* flumotion/common/uuid.py (added):
+	Add python uuid module missing in 2.4.
+	Temporal solution waiting for #7386
+
+2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/test/Makefile.am:
+	* flumotion/test/test_ts_segmenter.py (added):
+	* flumotion/test/test_ts_segmenter.xml (added):
+	Test the ts-segmenter.
+
+2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/test/test_mpegts.xml (added):
+	* flumotion/test/test_mpegts.py:
+	Check keyframe counter, and keyframe interval.
+
+2009-12-18  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/test/Makefile.am:
+	* flumotion/test/test_mpegts.py (added):
+	Added simple mpegts-mux component test.
+	* flumotion/test/test_component.py (deleted):
+	* flumotion/test/test_hls_ring.py:
+	Renamed file to match test name.
+
+2009-12-18  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/test/test_component.py (added):
+	Added test suite for the HLSRing
+
+2009-12-17  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Do not add duplicated fragments to the ring
+
+2009-12-17  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Add bandwidth attribute to the stream info in the main playlist
+
+2009-12-17  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Remove unused setter and make 'hostname' private
+
+2009-12-16  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/common.py:
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
+	* flumotion/component/consumers/httpfragstreamer/mpegtssegmenter.py:
+	* flumotion/component/consumers/httpfragstreamer/resources.py:
+	* flumotion/component/muxers/mpegts/mpegts.py:
+	* flumotion/test/test_dummy.py:
+	Fix pep8
+
+2009-12-16  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* flumotion/component/muxers/mpegts/Makefile.am:
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	* flumotion/component/muxers/mpegts/keyframescounter.py (deleted):
+	Remove unused keyframescounter.py.
+
+2009-12-16  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py:
+	* flumotion/component/consumers/httpfragstreamer/resources.py:
+	Fix bytes sent/received calculation
+
+2009-12-16  Marc-André Lureau  <mlureau@flumotion.com>
+
+	* Makefile.am:
+	* configure.ac:
+	* flumotion/Makefile.am:
+	* flumotion/test (added):
+	Add simple `make check`, with a Dummy test.
+	* flumotion/misc/setup.py (removed)
+	Remove generated file.
+
+2009-12-16 Andoni Morales Alastruey <amorales@flumotion.com>
+
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Make 'collections.deque' compatible with Python24 by removing the
+	'maxlen' parameter
+
+2009-12-15 Andoni Morales Alastruey <amorales@flumotion.com>
+
+	* . (svn:externals):
+	Change external url to use https
+	* ChangeLog:
+	Fixed paths in first commit log
+	* flumotion/component/muxers/mpegts/mpegts.xml:
+	Added project to bundle
+	* flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml:
+	Remove trailing space and fix bundle dependencies
+	* flumotion/component/consumers/httpfragstreamer/admin_gtk.py:
+	Fix glade file name
+	* flumotion/component/consumers/httpfragstreamer/hlsring.py:
+	Return the fragment name
+
+2009-12-15  Andoni Morales Alastruey  <amorales@flumotion.com>
+
+        * AUTHORS (added):
+        * COPYING (added):
+        * ChangeLog (added):
+        * LICENSE.Flumotion (added):
+        * Makefile.am (added):
+        * NEWS (added):
+        * README (added):
+        * TODO (added):
+        * autogen.sh (added):
+        * configure.ac (added):
+        * env.in (added):
+        * flumotion (added):
+        * flumotion-fragmentedstreaming.spec.in (added):
+        * flumotion/Makefile.am (added):
+        * flumotion/__init__.py (added):
+        * flumotion/component (added):
+        * flumotion/component/Makefile.am (added):
+        * flumotion/component/__init__.py (added):
+        * flumotion/component/consumers (added):
+        * flumotion/component/consumers/Makefile.am (added):
+        * flumotion/component/consumers/__init__.py (added):
+        * flumotion/component/consumers/httpfragstreamer (added):
+        * flumotion/component/consumers/httpfragstreamer/Makefile.am (added):
+        * flumotion/component/consumers/httpfragstreamer/__init__.py (added):
+        * flumotion/component/consumers/httpfragstreamer/admin_gtk.py (added):
+        * flumotion/component/consumers/httpfragstreamer/common.py (added):
+        * flumotion/component/consumers/httpfragstreamer/hlsring.py (added):
+        * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.glade (added):
+        * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.py (added):
+        * flumotion/component/consumers/httpfragstreamer/httpfragstreamer.xml (added):
+        * flumotion/component/consumers/httpfragstreamer/mpegtssegmenter.py (added):
+        * flumotion/component/consumers/httpfragstreamer/resources.py (added):
+        * flumotion/component/muxers (added):
+        * flumotion/component/muxers/Makefile.am (added):
+        * flumotion/component/muxers/__init__.py (added):
+        * flumotion/component/muxers/mpegts (added):
+        * flumotion/component/muxers/mpegts/Makefile.am (added):
+        * flumotion/component/muxers/mpegts/__init__.py (added):
+        * flumotion/component/muxers/mpegts/keyframescounter.py (added):
+        * flumotion/component/muxers/mpegts/mpegts.py (added):
+        * flumotion/component/muxers/mpegts/mpegts.xml (added):
+        * flumotion/project (added):
+        * flumotion/project/Makefile.am (added):
+        * flumotion/project/fragmentedstreaming.py.in (added):
+        * misc (added):
+        * misc/Makefile.am (added):
+        * misc/preamble.py (added):
+        * misc/pycheckerhelp.py (added):
+        * misc/setup.py (added):
+        * misc/setup.py.in (added):
+        * pkg (added):
+        * pkg/debian-common (added):
+        * pkg/debian-common/rules (added):
+        * pkg/ubuntu-intrepid (added):
+        * pkg/ubuntu-intrepid/changelog (added):
+        * pkg/ubuntu-intrepid/control:
+        Initial Commit

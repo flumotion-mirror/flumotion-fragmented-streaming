@@ -16,6 +16,9 @@ AC_SUBST(FLU_REQ, 0.5.4)
 AC_SUBST(PYGST_REQ, 0.10.11)
 AC_SUBST(GST_REQ, 0.10.22)
 
+dnl Start commit used to autogenrate ChangeLog from 'git log'
+AC_SUBST(GIT_LOG_START_COMMIT, "df8212259ce446d0393976eeb9256be1b7380332")
+
 dnl Add parameters for aclocal
 AC_SUBST(ACLOCAL_AMFLAGS, "-I common")
 AC_CONFIG_MACRO_DIR([common])
