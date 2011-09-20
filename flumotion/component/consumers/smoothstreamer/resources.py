@@ -43,6 +43,7 @@ CLIENT_ACCESS_POLICY = """
 </access-policy>
 """
 
+
 class SmoothStreamingResource(resources.FragmentedResource):
 
     logCategory = 'smooth-streamer'
@@ -52,8 +53,8 @@ class SmoothStreamingResource(resources.FragmentedResource):
         @param streamer: L{SmoothHTTPLiveStreamer}
         """
         self.store = store
-        resources.FragmentedResource.__init__(self, streamer, httpauth, secretKey,
-            sessionTimeout)
+        resources.FragmentedResource.__init__(self, streamer, httpauth,
+                secretKey, sessionTimeout)
 
     def _renderClientAccessPolicy(self, res, request, resource):
         self._writeHeaders(request, XML_CONTENT_TYPE)
@@ -105,7 +106,8 @@ class SmoothStreamingResource(resources.FragmentedResource):
         except ValueError:
             raise resources.FragmentNotAvailable("Invalid fragment request")
 
-        fragment, mime, code = self.store.getFragment(bitrate, type, time, kind)
+        fragment, mime, code = self.store.getFragment(bitrate, type, time,
+                                                      kind)
         self._writeHeaders(request, mime, code)
         if request.method == 'GET' and code == 200:
             request.setHeader('content-length', len(fragment))

@@ -13,24 +13,18 @@
 
 # Headers in this file shall remain intact.
 
-import base64
-
 import setup
 setup.setup()
 
 from twisted.trial import unittest
-from twisted.web import server
-from twisted.web.http import Request, HTTPChannel
-from twisted.internet import defer, reactor
 try:
-    from twisted.web import client, server, http, error
+    from twisted.web import client
 except ImportError:
-    from twisted.protocols import client, server, http, error
+    from twisted.protocols import client
 
-from flumotion.common import log, keycards, errors, testsuite, netutils, gstreamer
+from flumotion.common import log, testsuite, netutils
 from flumotion.common.planet import moods
 from flumotion.test import comptest
-from flumotion.component.base.http import HTTPAuthentication
 
 from flumotion.component.consumers.smoothstreamer.smoothstreamer \
     import SmoothHTTPLiveStreamer
@@ -52,6 +46,7 @@ CONFIG = {
     'type': 'http-smoothstreamer',
 }
 
+
 class SmoothStreamerTestCase(comptest.CompTestTestCase, log.Loggable):
 
     properties = {}
@@ -69,11 +64,15 @@ class SmoothStreamerTestCase(comptest.CompTestTestCase, log.Loggable):
         # test classes can override this to change/extend config
         return self.config.copy()
 
-# test based on test_component_httpstreamer.py (FIXME: write base test class for all http-streamer)
+# test based on test_component_httpstreamer.py
+# (FIXME: write base test class for all http-streamer)
+
+
 class TestSmoothStreamerNoPlug(SmoothStreamerTestCase):
 
     def testGetUrlIsManifest(self):
         self.failUnless(self.component.getUrl().endswith("Manifest"))
+
 
 class TestSmoothStreamerDataPlug(SmoothStreamerTestCase):
 
@@ -109,12 +108,15 @@ class TestSmoothStreamer(comptest.CompTestTestCase, log.Loggable):
     def setUp(self):
         self.tp = comptest.ComponentTestHelper()
         prod = ('videotestsrc is-live=1 ! ' \
-                'video/x-raw-yuv,width=(int)320,height=(int)240,framerate=(fraction)30/1 ! ' \
+                'video/x-raw-yuv,width=(int)320,height=(int)240, '\
+                    'framerate=(fraction)30/1 ! ' \
                 'flumch264enc max-keyframe-distance=15 ' \
-                'min-keyframe-distance=15 bitrate=400000 ! ismlmux fragment-duration=500 ' \
+                'min-keyframe-distance=15 bitrate=400000 ! '\
+                'ismlmux fragment-duration=500 ' \
                 'trak-timescale=10000000 movie-timescale=10000000')
         self.s = \
-            'flumotion.component.consumers.smoothstreamer.SmoothHTTPLiveStreamer'
+            'flumotion.component.consumers.smoothstreamer.'\
+            'SmoothHTTPLiveStreamer'
 
         self.prod = comptest.pipeline_src(prod)
 
@@ -133,7 +135,8 @@ class TestSmoothStreamer(comptest.CompTestTestCase, log.Loggable):
 
     def _initComp(self):
         self.compWrapper =\
-           comptest.ComponentWrapper('http-smoothstreamer', SmoothHTTPLiveStreamer,
+           comptest.ComponentWrapper('http-smoothstreamer',
+                                     SmoothHTTPLiveStreamer,
                                      name='smooth-streamer',
                                      props={'mount-point': 'mytest',
                                             'port': self._getFreePort()})
@@ -168,7 +171,8 @@ class TestSmoothStreamer(comptest.CompTestTestCase, log.Loggable):
             # return last known timestamp
             return int(c[-1].getAttribute("t"))
 
-        d.addCallback(lambda _: client.getPage(self.getURL('/mytest/Manifest')))
+        d.addCallback(lambda _: \
+                client.getPage(self.getURL('/mytest/Manifest')))
         d.addCallback(check_manifest)
 
         def check_fragment(f):
@@ -177,10 +181,13 @@ class TestSmoothStreamer(comptest.CompTestTestCase, log.Loggable):
             # and that we got a moof
             self.assertEqual(f[4:8], "moof")
 
-        d.addCallback(lambda t: client.getPage(self.getURL('/mytest/QualityLevels(400000)/Fragments(video=%d)' % t)))
+        url = '/mytest/QualityLevels(400000)/Fragments(video=%d)'
+        d.addCallback(lambda t: client.getPage(
+            self.getURL(url % t)))
         d.addCallback(check_fragment)
 
-        # and finally stop the flow                                                                                                                                                 d.addCallback(lambda _: self.tp.stop_flow())
+        # and finally stop the flow
+        # d.addCallback(lambda _: self.tp.stop_flow())
 
         return d
 

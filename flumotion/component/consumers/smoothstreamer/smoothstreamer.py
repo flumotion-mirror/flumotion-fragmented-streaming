@@ -44,6 +44,7 @@ T_ = gettexter()
 
 DEFAULT_DVR_WINDOW = 20
 
+
 class SmoothHTTPLiveStreamer(FragmentedStreamer):
 
     logCategory = 'smooth-streamer'
@@ -56,7 +57,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         slash = ""
         if not self.mountPoint.startswith("/"):
             slash = "/"
-        return "http://%s:%d%s%sManifest" % (self.hostname, self.port, slash, self.mountPoint)
+        return "http://%s:%d%s%sManifest" % (self.hostname, self.port,
+                                             slash, self.mountPoint)
 
     def __repr__(self):
         return '<SmoothHTTPLiveStreamer (%s)>' % self.name
@@ -66,8 +68,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
 
     def configure_auth_and_resource(self):
         self.httpauth = http.HTTPAuthentication(self)
-        self.resource = SmoothStreamingResource(self, self.store, self.httpauth,
-                self.secret_key, self.session_timeout)
+        self.resource = SmoothStreamingResource(self, self.store,
+                self.httpauth, self.secret_key, self.session_timeout)
 
     def configure_pipeline(self, pipeline, props):
         FragmentedStreamer.configure_pipeline(self, pipeline, props)
@@ -102,7 +104,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         for e in eaters:
             for feed, alias in eaters[e]:
                 sink = self.pipeline.get_by_name('sink_%s' % alias)
-                sink.get_pad("sink").add_buffer_probe(self._sink_pad_probe, None)
+                sink.get_pad("sink").add_buffer_probe(self._sink_pad_probe,
+                                                      None)
                 sink.connect('eos', self._eos)
                 sink.connect("new-buffer", self._new_buffer)
 
@@ -114,7 +117,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         f = StringIO(buffer.data)
         al = list(atoms.read_atoms(f))
         ad = atoms.atoms_dict(al)
-        if (buffer.flag_is_set (gst.BUFFER_FLAG_IN_CAPS)):
+        if (buffer.flag_is_set(gst.BUFFER_FLAG_IN_CAPS)):
             try:
                 self.store.addMoov(sink_name, ad)
             except Exception, e:
@@ -126,7 +129,8 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                 self.error("First buffer cannot be parsed as a moov: %r" % e)
                 return
         elif iso.select_atoms(ad, ('moof', 0, 1))[0]:
-            fragName = self.store.addFragment(sink_name, ad, al, buffer.timestamp,
+            fragName = self.store.addFragment(sink_name, ad, al,
+                                              buffer.timestamp,
                                               buffer.duration)
             if fragName is None:
                 return
@@ -154,13 +158,14 @@ class AttributesMixin:
 
 
 class Quality(log.Loggable, AttributesMixin):
+
     def __init__(self, store, bitrate, lookahead=2):
         self.Bitrate = bitrate
         if (lookahead < 1):
             self.warning('Setting miniumum lookahead to 1')
             lookahead = 1
         self._lookahead = lookahead
-        self._lookaheads = [] # list of (atomd, atoml, ts, buffer) for lookahead?
+        self._lookaheads = [] # list of (atomd, atoml, ts, buffer)
         self._fragments = {} # ts -> [buffer, info_buffer, duration]
         self._track_id = None
         self._stream = None
@@ -195,7 +200,8 @@ class Quality(log.Loggable, AttributesMixin):
             for la in self._lookaheads:
                 next.append((la[2], la[3]))
             # add live SS "uuid" boxes
-            extra = [iso.uuid_sscurrent.make (timestamp, duration), iso.uuid_ssnext.make (next)]
+            extra = [iso.uuid_sscurrent.make(timestamp, duration),
+                     iso.uuid_ssnext.make(next)]
             moof.traf.uuid.extend(extra)
             # make sure they are also written
             moof.traf.add_extra_children(extra)
@@ -228,7 +234,7 @@ class Quality(log.Loggable, AttributesMixin):
             self._fragments[timestamp] = [b, info, duration]
         return name
 
-    def getFragment(self, timestamp, kind=None):  
+    def getFragment(self, timestamp, kind=None):
         f = self._fragments.get(timestamp)
         if not f:
             return None
@@ -254,6 +260,7 @@ class Quality(log.Loggable, AttributesMixin):
 
 
 class Chunk(AttributesMixin):
+
     def __init__(self, t):
         self.t = t
 
@@ -279,7 +286,7 @@ class Stream(AttributesMixin):
 
     def getQuality(self, store, bitrate, setdefault=True):
         bitrate = int(bitrate)
-        if not self._qualities.has_key(bitrate) and setdefault:
+        if not bitrate in self._qualities and setdefault:
             q = Quality(store, bitrate)
             q.Index = len(self._qualities)
             self._qualities[bitrate] = q
@@ -347,7 +354,7 @@ class FragmentStore(log.Loggable):
             self.warning("bad type %s" % type)
             raise FragmentNotFound(time)
 
-        quality = stream.getQuality(self,bitrate, False)
+        quality = stream.getQuality(self, bitrate, False)
         if not quality:
             self.warning("bad bitrate %d" % bitrate)
             raise FragmentNotFound(time)
@@ -367,12 +374,12 @@ class FragmentStore(log.Loggable):
             self.warning("Trying to add a fragment with an unknown "
                          "track_id=%s" % track_id)
             return None
-        return self._qualities[(sink, track_id)].addFragment(ad, al, timestamp, duration)
+        q = self._qualities[(sink, track_id)]
+        return q.addFragment(ad, al, timestamp, duration)
 
     def getStream(self, type, timescale, subtype=None, mime=None):
         # Fixme what if we have several stream of the same
         # type but different subtypes etc..?
-        print self._streams
         return self._streams.setdefault(type, Stream(self, type, subtype,
                                         mime, timescale))
 
@@ -400,7 +407,8 @@ class FragmentStore(log.Loggable):
         q.setStream(stream)
         q.setTrackId(trak.tkhd.id)
         q.FourCC = "AVC1"
-        q.CodecPrivateData = "00000001" +  base64.b16encode(sps[0]) + "00000001" + base64.b16encode(pps[0])
+        q.CodecPrivateData = "00000001" + base64.b16encode(sps[0]) + \
+                             "00000001" + base64.b16encode(pps[0])
         q.MaxWidth = avc1.width
         q.MaxHeight = avc1.height
         self._qualities[(sink, q.getTrackId())] = q
@@ -420,7 +428,8 @@ class FragmentStore(log.Loggable):
         q.Channels = mp4a.channelcount
         q.PacketSize = 1 # = blockalign?
         q.SamplingRate = mp4a.sampleratehi
-        q.AudioTag = waveformatex.object_type_id_to_wFormatTag(esds.object_type_id)
+        q.AudioTag = \
+                waveformatex.object_type_id_to_wFormatTag(esds.object_type_id)
         q.CodecPrivateData = base64.b16encode(waveformatex.waveformatex(
             waveformatex.object_type_id_to_wFormatTag(esds.object_type_id),
             mp4a.channelcount,
@@ -434,21 +443,22 @@ class FragmentStore(log.Loggable):
     def renderManifest(self):
 
         def make_attributes(dict):
-            l = ['%s="%s"' % (e, str(dict[e])) for e in dict if not e.startswith("_")]
+            l = ['%s="%s"' % (e, str(dict[e])) for e in dict \
+                    if not e.startswith("_")]
             l.sort()
             return string.join(l, " ")
 
         m = """<?xml version="1.0"?>\n"""
-        m += """<SmoothStreamingMedia MajorVersion="2" MinorVersion="0" %s>\n""" % \
-            make_attributes(self.__dict__)
+        m += '<SmoothStreamingMedia MajorVersion="2" ' \
+             'MinorVersion="0" %s>\n' % make_attributes(self.__dict__)
         for s in self._streams.values():
             m += """  <StreamIndex %s>\n""" % \
                 make_attributes(s.getAttributes())
             for id, q in s.getQualities():
-                m += """    <QualityLevel %s />\n""" % make_attributes(q.getAttributes())
+                m += """    <QualityLevel %s />\n""" % \
+                        make_attributes(q.getAttributes())
             for c in s.getFragments():
                 m += """    <c %s />\n""" % make_attributes(c.getAttributes())
             m += """  </StreamIndex>\n"""
         m += """</SmoothStreamingMedia>\n"""
         return m
-

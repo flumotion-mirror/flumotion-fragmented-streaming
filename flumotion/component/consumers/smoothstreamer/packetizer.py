@@ -70,7 +70,7 @@ class Packetizer(gst.Element):
             return True
 
         # Create the new fragment and send it downstream
-        data  = ''.join([b.data for b in self._fragment])
+        data = ''.join([b.data for b in self._fragment])
         buf = gst.Buffer(data)
         buf.timestamp = self._first_ts
         lb = self._fragment[-1]
@@ -83,6 +83,7 @@ class Packetizer(gst.Element):
             buf.flag_set(gst.BUFFER_FLAG_IN_CAPS)
         self._reset_fragment()
         return self.srcpad.push(buf)
+
 
 def register():
     gobject.type_register(Packetizer)

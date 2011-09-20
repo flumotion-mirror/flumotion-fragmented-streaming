@@ -29,6 +29,7 @@ WAVE_FORMAT_MPEG_ADTS_AAC = 0x1600
 WAVE_FORMAT_RAW_AAC1 = 0x00ff
 WAVE_FORMAT_MP3 = 0x0055
 
+
 def object_type_id_to_wFormatTag(object_type_id):
     switch = {
         MP4_MPEG4Audio: WAVE_FORMAT_RAW_AAC1,
@@ -36,9 +37,9 @@ def object_type_id_to_wFormatTag(object_type_id):
         MP4_MPEG2AudioLowComplexity: WAVE_FORMAT_RAW_AAC1,
         MP4_MPEG2AudioScaleableSamplingRate: WAVE_FORMAT_RAW_AAC1,
         MP4_MPEG2AudioPart3: WAVE_FORMAT_MP3,
-        MP4_MPEG1Audio: WAVE_FORMAT_MP3
-        }
+        MP4_MPEG1Audio: WAVE_FORMAT_MP3}
     return switch.get(object_type_id)
+
 
 def waveformatex(wFormatTag, nChannels, nSamplesPerSec,
                  nAvgBytesPerSec, nBlockAlign, wBitsPerSample,

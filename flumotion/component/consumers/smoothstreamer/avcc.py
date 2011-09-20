@@ -16,6 +16,7 @@
 from cStringIO import StringIO
 from mp4seek import atoms
 
+
 def extract_sps_pps(avcc_box):
     data = avcc_box.data
     f = StringIO(data)
@@ -33,4 +34,3 @@ def extract_sps_pps(avcc_box):
         pps.append(atoms.read_bytes(f, size))
         npps -= 1
     return (sps, pps)
-

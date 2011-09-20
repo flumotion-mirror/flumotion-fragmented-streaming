@@ -56,8 +56,9 @@ class FMP4Tester(feedcomponent.ParseLaunchComponent):
         self.log("New mp4 fragment, duration=%s offset=%s ts=%s flags=%d" %
                 (gst.TIME_ARGS(buffer.duration), buffer.offset,
                  gst.TIME_ARGS(buffer.timestamp), buffer.flags))
-        
-        # FIXME first buffer is slightly longer.. perhaps because of is-live or sync issue
+
+        # FIXME first buffer is slightly longer.. perhaps because of is-live or
+        # sync issue
         self.test.failUnlessApproximates(buffer.duration, 500000000, 66666666)
     ### START OF THREAD-AWARE CODE (called from non-reactor threads)
 
@@ -90,8 +91,8 @@ class TestFMP4(comptest.CompTestTestCase):
         return d
 
     def testFlow(self):
-        enc = comptest.pipeline_cnv(
-                'flumch264enc max-keyframe-distance=15 min-keyframe-distance=15')
+        enc = comptest.pipeline_cnv('flumch264enc max-keyframe-distance=15'
+                                    'min-keyframe-distance=15')
 
         properties = {'fragment-duration': 500}
         mux = comptest.ComponentWrapper('fmp4-muxer', fmp4.FMP4,
