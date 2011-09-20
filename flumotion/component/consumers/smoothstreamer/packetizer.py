@@ -46,13 +46,11 @@ class Packetizer(gst.Element):
 
     def _reset_fragment(self):
         self._fragment = []
-        self._in_caps = False
         self._first_ts = gst.CLOCK_TIME_NONE
 
     def chainfunc(self, pad, buf):
         if buf.flag_is_set(gst.BUFFER_FLAG_IN_CAPS):
-            self._in_caps = True
-            return gst.FLOW_OK
+            return self.srcpad.push(buf)
 
         if buf.timestamp != gst.CLOCK_TIME_NONE and \
                 self._first_ts == gst.CLOCK_TIME_NONE:
@@ -79,8 +77,6 @@ class Packetizer(gst.Element):
         else:
             buf.duration = s['timestamp'] - self._first_ts
 
-        if self._in_caps:
-            buf.flag_set(gst.BUFFER_FLAG_IN_CAPS)
         self._reset_fragment()
         return self.srcpad.push(buf)
 
