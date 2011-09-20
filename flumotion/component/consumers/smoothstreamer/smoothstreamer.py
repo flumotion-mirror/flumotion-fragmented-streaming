@@ -76,16 +76,38 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
                                                 DEFAULT_DVR_WINDOW))
 
     def get_pipeline_string(self, properties):
-        return "flupacketizer ! appsink name=sink sync=false"
+        # Similar to the MultiInpuParseLaunch component but whithout the need
+        # of using queues
+        eaters = self.config.get('eater', {})
+        sources = self.config.get('source', [])
+        if eaters == {} and sources != []:
+            # for upgrade without manager restart
+            feeds = []
+            for feed in sources:
+                if not ':' in feed:
+                    feed = '%s:default' % feed
+                feeds.append(feed)
+            eaters = {'default': [(x, 'default') for x in feeds]}
 
-    def _configure_sink(self):
-        self.sink.set_property('emit-signals', True)
+        pipeline = ''
+        for e in eaters:
+            for feed, alias in eaters[e]:
+                pipeline += ' @ eater:%s @ ! flupacketizer ! appsink '\
+                            'name=sink_%s emit-signals=true sync=false '\
+                            % (alias, alias)
+        return pipeline
 
     def _connect_sink_signals(self):
-        FragmentedStreamer._connect_sink_signals(self)
-        self.sink.connect("new-buffer", self._new_buffer)
+        eaters = self.config.get('eater', {})
+        for e in eaters:
+            for feed, alias in eaters[e]:
+                sink = self.pipeline.get_by_name('sink_%s' % alias)
+                sink.get_pad("sink").add_buffer_probe(self._sink_pad_probe, None)
+                sink.connect('eos', self._eos)
+                sink.connect("new-buffer", self._new_buffer)
 
-    def _process_buffer(self, buffer):
+    def _process_buffer(self, sink, buffer):
+        sink_name = sink.get_name()
         currOffset = buffer.offset
         self._lastBufferOffset = currOffset
         self._fragmentsCount = self._fragmentsCount + 1
@@ -94,18 +116,17 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         ad = atoms.atoms_dict(al)
         if (buffer.flag_is_set (gst.BUFFER_FLAG_IN_CAPS)):
             try:
-                self.store.setMoov(ad)
+                self.store.addMoov(sink_name, ad)
             except Exception, e:
                 m = messages.Error(T_(N_(
                     "First buffer cannot be parsed as a moov. "\
                     "The required mp4seek version is 1.0-6")))
-                appsink = self.pipeline.get_by_name('appsink')
-                appsink.set_state(gst.STATE_NULL)
+                sink.set_state(gst.STATE_NULL)
                 self.addMessage(m)
                 self.error("First buffer cannot be parsed as a moov: %r" % e)
                 return
         elif iso.select_atoms(ad, ('moof', 0, 1))[0]:
-            fragName = self.store.addFragment(ad, al, buffer.timestamp,
+            fragName = self.store.addFragment(sink_name, ad, al, buffer.timestamp,
                                               buffer.duration)
             if fragName is None:
                 return
@@ -121,7 +142,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
     def _new_buffer(self, appsink):
         self.log("appsink created a new fragment")
         buf = appsink.emit('pull-buffer')
-        reactor.callFromThread(self._process_buffer, buf)
+        reactor.callFromThread(self._process_buffer, appsink, buf)
 
     ### END OF THREAD-AWARE CODE
 
@@ -300,26 +321,25 @@ class FragmentStore(log.Loggable):
         self._dvr_window_length_sec = 0 # in seconds
         self.IsLive = "TRUE"
         self._streams = {} # type (audio,video,text) -> stream
-        self._qualities = {} # track_id -> quality
+        self._qualities = {} # (sink, track_id) -> quality
 
     def setDVRWindowLength(self, window_in_sec):
         self._dvr_window_length_sec = window_in_sec
 
-    def setMoov(self, moovd):
+    def addMoov(self, sink, moovd):
         moov = iso.select_atoms(moovd, ('moov', 1, 1))[0]
         pprint.pprint(moov)
         self.TimeScale = moov.mvhd.timescale
         self.DVRWindowLength = self._dvr_window_length_sec * self.TimeScale
-        self._streams = {}
         if len(moov.trak) == 0:
             raise Exception("Empty trak list")
         for t in moov.trak:
             type = t.mdia.minf.stbl.stsd.entries[0]._atom.type
             # we need to handle h264, aac and then vc1, wma
             if type == "avc1":
-                self._addH264Track(t)
+                self._addH264Track(sink, t)
             if type == "mp4a":
-                self._addAACTrack(t)
+                self._addAACTrack(sink, t)
 
     def getFragment(self, bitrate, type, time, kind=None):
         stream = self._streams.get(type)
@@ -339,19 +359,22 @@ class FragmentStore(log.Loggable):
         else:
             raise FragmentNotFound(time)
 
-    def addFragment(self, ad, al, timestamp, duration):
+    def addFragment(self, sink, ad, al, timestamp, duration):
         # add fragment in correct track id
         moof = iso.select_atoms(ad, ('moof', 1, 1))[0]
         track_id = moof.traf.tfhd.track_id
-        if track_id not in self._qualities:
+        if (sink, track_id) not in self._qualities:
             self.warning("Trying to add a fragment with an unknown "
                          "track_id=%s" % track_id)
             return None
-        return self._qualities[track_id].addFragment(ad, al, timestamp, duration)
+        return self._qualities[(sink, track_id)].addFragment(ad, al, timestamp, duration)
 
     def getStream(self, type, timescale, subtype=None, mime=None):
-        # Fixme what if we have several stream of the same type but different subtypes etc..?
-        return self._streams.setdefault(type, Stream(self, type, subtype, mime, timescale))
+        # Fixme what if we have several stream of the same
+        # type but different subtypes etc..?
+        print self._streams
+        return self._streams.setdefault(type, Stream(self, type, subtype,
+                                        mime, timescale))
 
     def prerolled(self):
         for q in self._qualities.values():
@@ -359,7 +382,7 @@ class FragmentStore(log.Loggable):
                 return False
         return True
 
-    def _addH264Track(self, trak):
+    def _addH264Track(self, sink, trak):
         sps, pps, btrt = None, None, None
         avc1 = trak.mdia.minf.stbl.stsd.entries[0]
         for e in avc1.extra:
@@ -380,9 +403,9 @@ class FragmentStore(log.Loggable):
         q.CodecPrivateData = "00000001" +  base64.b16encode(sps[0]) + "00000001" + base64.b16encode(pps[0])
         q.MaxWidth = avc1.width
         q.MaxHeight = avc1.height
-        self._qualities[q.getTrackId()] = q
+        self._qualities[(sink, q.getTrackId())] = q
 
-    def _addAACTrack(self, trak):
+    def _addAACTrack(self, sink, trak):
         mp4a = trak.mdia.minf.stbl.stsd.entries[0]
         esds = mp4a.extra[0]
         timescale = trak.mdia.mdhd.timescale
@@ -406,7 +429,7 @@ class FragmentStore(log.Loggable):
             1, # blockalign
             mp4a.samplesize,
             esds.data))
-        self._qualities[q.getTrackId()] = q
+        self._qualities[(sink, q.getTrackId())] = q
 
     def renderManifest(self):
 

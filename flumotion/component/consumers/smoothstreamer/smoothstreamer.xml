@@ -6,7 +6,7 @@
                _description="A consumer to do Microsoft smooth streaming">
       <source location="flumotion.component.consumers.smoothstreamer.smoothstreamer"/>
 
-      <eater name="default" />
+      <eater name="default" multiple="yes"/>
 
       <!-- entry points for distributable code bundles -->
       <entries>
