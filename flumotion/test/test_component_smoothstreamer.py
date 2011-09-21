@@ -22,7 +22,7 @@ try:
 except ImportError:
     from twisted.protocols import client
 
-from flumotion.common import log, testsuite, netutils
+from flumotion.common import log, testsuite, netutils, gstreamer
 from flumotion.common.planet import moods
 from flumotion.test import comptest
 
@@ -106,13 +106,16 @@ class TestSmoothStreamer(comptest.CompTestTestCase, log.Loggable):
     slow = True # and ugly...
 
     def setUp(self):
+        if not gstreamer.element_factory_exists('keyunitscheduler'):
+            from flumotion.component.effects.kuscheduler \
+                    import kuscheduler
+            kuscheduler.register()
         self.tp = comptest.ComponentTestHelper()
         prod = ('videotestsrc is-live=1 ! ' \
                 'video/x-raw-yuv,width=(int)320,height=(int)240, '\
                     'framerate=(fraction)30/1 ! ' \
-                'flumch264enc max-keyframe-distance=15 ' \
-                'min-keyframe-distance=15 bitrate=400000 ! '\
-                'ismlmux fragment-duration=500 ' \
+                'keyunitsscheduler interval = 1000000000 !' \
+                'flumch264enc ! ismlmux ' \
                 'trak-timescale=10000000 movie-timescale=10000000')
         self.s = \
             'flumotion.component.consumers.smoothstreamer.'\
