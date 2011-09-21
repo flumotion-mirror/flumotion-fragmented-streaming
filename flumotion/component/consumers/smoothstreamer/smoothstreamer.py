@@ -221,6 +221,8 @@ class Quality(log.Loggable, AttributesMixin):
                 window = ts[-1] - ts[0]
                 while True:
                     if (window >= self._store.DVRWindowLength):
+                        if len(self._fragments) == 0:
+                            break
                         m = min(self._fragments.keys())
                         self.debug("removing %r" % m)
                         frag_duration = self._fragments[m][2]

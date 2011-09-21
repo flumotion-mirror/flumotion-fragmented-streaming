@@ -42,6 +42,8 @@ class Packetizer(gst.Element):
 
         self.srcpad = gst.Pad(self._srcpadtemplate, "src")
         self.add_pad(self.srcpad)
+
+        self._last_index = 0
         self._reset_fragment()
 
     def _reset_fragment(self):
@@ -66,6 +68,15 @@ class Packetizer(gst.Element):
 
         if len(self._fragment) == 0:
             return True
+
+        index = s['count']
+        if self._last_index > index:
+            self.warning("Received GstForceKeyunit event with backward "
+                         "timestamps")
+            self._last_index = index
+            self._reset_fragment()
+            return True
+        self._last_index = index
 
         # Create the new fragment and send it downstream
         data = ''.join([b.data for b in self._fragment])
