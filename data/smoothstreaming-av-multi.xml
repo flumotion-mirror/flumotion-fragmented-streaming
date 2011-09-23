@@ -1,86 +1,143 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <planet>
-  <atmosphere>
-    <component name="tokenbouncer" project="flumotion"
-	       type="tokentest-bouncer" version="0.3.0.1" worker="localhost">
-      <property name="authorized-token">test</property>
-  </component>
-</atmosphere>
-  <flow name="xxflow">
 
-     <component name="video-source" type="videotest-producer" worker="localhost">
-        <property name="width">320</property>
-        <property name="height">240</property>
-        <property name="framerate">25/1</property>
-     </component>
+  <flow name="default">
 
-    <component name="video-encoder-200" type="h264-encoder" worker="localhost">
-      <eater name="default"><feed>video-source</feed></eater>
-      <property name="bitrate">200000</property>
-      <property name="profile">base</property>
-      <property name="byte-stream">0</property>
-      <property name="max-keyframe-distance">50</property>
-      <property name="min-keyframe-distance">50</property>
-      <property name="sync-on-offset">true</property>
+    <component name="decoder"
+               type="loop-producer"
+               label="decoder"
+               worker="localhost">
+	       <property name="location">/home/andoni/test.ogg</property>
+      <property name="framerate">25/1</property>
+      <property name="keyunits-interval">5000</property>
+      <clock-master>false</clock-master>
     </component>
 
-
-    <component name="video-encoder-600" type="h264-encoder" worker="localhost">
-      <eater name="default"><feed>video-source</feed></eater>
-      <property name="bitrate">600000</property>
-      <property name="profile">base</property>
-      <property name="byte-stream">0</property>
-      <property name="max-keyframe-distance">50</property>
-      <property name="min-keyframe-distance">50</property>
-      <property name="sync-on-offset">true</property>
+    <component name="decoded-video2"
+	       type="video-converter"
+	       label="decoded-video2"
+	       worker="localhost">
+      <eater name="default">
+        <feed alias="default">decoder:video</feed>
+      </eater>
+      <property name="width">400</property>
+      <property name="height">300</property>
+      <property name="is-square">true</property>
     </component>
 
-    <component name="video-encoder-1200" type="h264-encoder" worker="localhost">
-      <eater name="default"><feed>video-source</feed></eater>
-      <property name="bitrate">1200000</property>
-      <property name="profile">base</property>
-      <property name="byte-stream">0</property>
-      <property name="max-keyframe-distance">50</property>
-      <property name="min-keyframe-distance">50</property>
-      <property name="sync-on-offset">true</property>
+    <component name="decoded-video3"
+               type="video-converter"
+               label="decoded-video3"
+               worker="localhost">
+      <eater name="default">
+        <feed alias="default">decoder:video</feed>
+      </eater>
+      <property name="width">200</property>
+      <property name="height">150</property>
+      <property name="is-square">true</property>
     </component>
 
-     <component name="audio-source" type="audiotest-producer" worker="localhost">
-	<clock-master>true</clock-master>
-        <property name="samplerate">44100</property>
-     </component>
-
-    <component name="audio-encoder" type="aac-encoder" worker="localhost">
-      <eater name="default"><feed>audio-source</feed></eater>
-      <property name="high-efficiency-version">0</property>
+    <component name="fragmented-aac-encoder"
+               type="aac-encoder"
+               label="fragmented-aac-encoder"
+               worker="localhost">
+      <eater name="default">
+        <feed alias="default">decoder:audio</feed>
+      </eater>
       <property name="bitrate">64000</property>
+      <property name="high-efficiency-version">0</property>
+      <clock-master>false</clock-master>
     </component>
 
-    <component name="mu" type="fmp4-muxer" worker="localhost">
-      <eater name="default"><feed>video-encoder-200</feed></eater>
-      <eater name="default"><feed>video-encoder-600</feed></eater>
-      <eater name="default"><feed>video-encoder-1200</feed></eater>
-      <eater name="default"><feed>audio-encoder</feed></eater>
-      <property name="fragment-duration">2000</property>
+    <component name="smooth-low-h264-encoder"
+               type="h264-encoder"
+               label="smooth-low-h264-encoder"
+               worker="localhost">
+      <eater name="default">
+        <feed alias="default">decoded-video3:default</feed>
+      </eater>
+      <property name="bitrate">400000</property>
+      <property name="profile">base</property>
+      <property name="byte-stream">0</property>
+      <clock-master>false</clock-master>
     </component>
 
-    <component name="gdp" type="gdp-consumer" worker="localhost">
-      <eater name="default"><feed>mu</feed></eater>
-      <property name="port">4321</property>
-    </component>
-    <component name="gdp2" type="gdp-consumer" worker="localhost">
-      <eater name="default"><feed>video-encoder-600</feed></eater>
-      <property name="port">4322</property>
+    <component name="smooth-medium-h264-encoder"
+               type="h264-encoder"
+               label="smooth-medium-h264-encoder"
+               worker="localhost">
+      <eater name="default">
+        <feed alias="default">decoded-video2:default</feed>
+      </eater>
+      <property name="bitrate">800000</property>
+      <property name="profile">base</property>
+      <property name="byte-stream">0</property>
+      <clock-master>false</clock-master>
     </component>
 
-    <component name="ss" type="http-smoothstreamer" worker="localhost">
-      <eater name="default"><feed>mu</feed></eater>
-      <property name="mount-point">test</property>
-      <property name="issuer-class">HTTPTokenIssuer</property>
-      <property name="bouncer">tokenbouncer</property>
+    <component name="smooth-high-h264-encoder"
+               type="h264-encoder"
+               label="smooth-high-h264-encoder"
+               worker="localhost">
+      <eater name="default">
+        <feed alias="default">decoded-video2:default</feed>
+      </eater>
+      <property name="bitrate">1400000</property>
+      <property name="profile">base</property>
+      <property name="byte-stream">0</property>
+      <clock-master>false</clock-master>
+    </component>
+
+      <component name="smooth-low-muxer"
+	         type="fmp4-muxer"
+		 label="smooth-muxer-low"
+	         worker="localhost">
+      <eater name="default"><feed>smooth-low-h264-encoder</feed></eater>
+    </component>
+    
+      <component name="smooth-med-muxer"
+	         type="fmp4-muxer"
+		 label="smooth-muxer-med"
+	         worker="localhost">
+      <eater name="default"><feed>smooth-medium-h264-encoder</feed></eater>
+    </component>
+
+      <component name="smooth-high-muxer"
+	         type="fmp4-muxer"
+		 label="smooth-muxer-high"
+	         worker="localhost">
+      <eater name="default"><feed>smooth-high-h264-encoder</feed></eater>
+    </component>
+
+      <component name="smooth-audio-muxer"
+	         type="fmp4-muxer"
+		 label="smooth-muxer-audio"
+	         worker="localhost">
+      <eater name="default"><feed>fragmented-aac-encoder</feed></eater>
+    </component>
+
+    <component name="fmp4-aggregator"
+	       type="fmp4-aggregator"
+	       label="fmp4-muxer"
+	       worker="localhost">
+      <eater name="default">
+        <feed alias="default">smooth-low-muxer:default</feed>
+        <feed alias="default">smooth-med-muxer:default</feed>
+        <feed alias="default">smooth-high-muxer:default</feed>
+        <feed alias="default">smooth-audio-muxer:default</feed>
+      </eater>
+    </component>
+
+    <component name="http-smoothstreamer"
+	       type="http-smoothstreamer"
+	       label="smoothstreamer"
+	       worker="localhost">
+      <eater name="default">
+        <feed alias="default">fmp4-aggregator:default</feed>
+      </eater>
+      <property name="dvr-window">20</property>
     </component>
 
   </flow>
-</planet>
-<!-- FLU_DEBUG=*:3 flumotion-launch -d5 videotest-producer ! h264-encoder byte-stream=0 max-keyframe-distance=150 min-keyframe-distance=150 sync-on-offset=true ! gdp-consumer port=4321 -->
 
+</planet>
