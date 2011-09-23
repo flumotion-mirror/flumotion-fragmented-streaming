@@ -1,6 +1,7 @@
 include $(top_srcdir)/common/python.mk
 
 component_PYTHON = __init__.py \
+		   aggregator.py \
 		   common.py \
 		   resources.py \
 		   smoothstreamer.py \

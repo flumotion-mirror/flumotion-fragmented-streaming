@@ -75,6 +75,20 @@
       </properties>
 
     </component>
+    <component type="fmp4-aggregator"
+               base="flumotion/component/consumers/smoothstreamer"
+               _description="Aggregate fmp4 streams into a single stream">
+      <source location="flumotion.component.consumers.smoothstreamer.aggregator"/>
+
+      <eater name="default" multiple="yes"/>
+      <feeder name="default"/>
+
+      <!-- entry points for distributable code bundles -->
+      <entries>
+        <entry type="component" location="aggregator.py"
+               function="FMP4Aggregator" />
+      </entries>
+    </component>
   </components>
 
   <bundles>
@@ -121,6 +135,18 @@
         </directories>
     </bundle>
 
+    <bundle project="fragmentedstreaming" name="fmp4-aggregator">
+        <dependencies>
+            <dependency name="smoothstreamer-base" />
+            <dependency name="component-base" />
+        </dependencies>
+
+        <directories>
+            <directory name="flumotion/component/consumers/smoothstreamer">
+                <filename location="aggregator.py" />
+            </directory>
+        </directories>
+    </bundle>
   </bundles>
 
 </registry>

@@ -286,6 +286,8 @@ class Stream(AttributesMixin):
             self._mime = "video/mp4"
 
     def getQuality(self, store, bitrate, setdefault=True):
+        # FIXME: We should use here the sink and track_id to get a
+        # different quality even if 2 video tracks have the same bitrate
         bitrate = int(bitrate)
         if not bitrate in self._qualities and setdefault:
             q = Quality(store, bitrate)
