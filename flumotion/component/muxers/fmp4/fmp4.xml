@@ -47,6 +47,7 @@
             <directory name="flumotion/component/muxers/fmp4">
                 <filename location="__init__.py" />
                 <filename location="fmp4.py" />
+                <filename location="packetizer.py" />
             </directory>
         </directories>
     </bundle>

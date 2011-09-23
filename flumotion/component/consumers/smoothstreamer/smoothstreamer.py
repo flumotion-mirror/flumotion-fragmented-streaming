@@ -35,8 +35,7 @@ from flumotion.component.common.streamer.fragmentedstreamer import\
 from flumotion.component.consumers.smoothstreamer.resources import\
     SmoothStreamingResource
 from flumotion.component.consumers.smoothstreamer import\
-    avcc, waveformatex, packetizer
-packetizer.register()
+    avcc, waveformatex
 
 __all__ = ['SmoothHTTPLiveStreamer']
 __version__ = ""
@@ -94,7 +93,7 @@ class SmoothHTTPLiveStreamer(FragmentedStreamer):
         pipeline = ''
         for e in eaters:
             for feed, alias in eaters[e]:
-                pipeline += ' @ eater:%s @ ! flupacketizer ! appsink '\
+                pipeline += ' @ eater:%s @ ! appsink '\
                             'name=sink_%s emit-signals=true sync=false '\
                             % (alias, alias)
         return pipeline

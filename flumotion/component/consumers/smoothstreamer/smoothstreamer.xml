@@ -103,7 +103,6 @@
                 <filename location="resources.py" />
                 <filename location="smoothstreamer.py" />
                 <filename location="waveformatex.py" />
-                <filename location="packetizer.py" />
             </directory>
         </directories>
     </bundle>

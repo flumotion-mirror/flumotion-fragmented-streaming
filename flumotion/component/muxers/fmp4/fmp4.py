@@ -16,6 +16,8 @@
 from flumotion.component import feedcomponent
 from flumotion.common import gstreamer, messages, documentation
 from flumotion.common.i18n import N_, gettexter
+from flumotion.component.muxers.fmp4 import packetizer
+packetizer.register()
 
 T_ = gettexter()
 
@@ -54,4 +56,4 @@ class FMP4(feedcomponent.MuxerComponent):
         if self.duration:
             return '%s fragment-method=1 fragment-duration=%s' % \
                     (muxer, self.duration)
-        return '%s fragment-method=2' % muxer
+        return '%s fragment-method=2 ! flupacketizer' % muxer

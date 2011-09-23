@@ -38,6 +38,7 @@ class Packetizer(gst.Element):
         self.sinkpad = gst.Pad(self._sinkpadtemplate, "sink")
         self.sinkpad.set_chain_function(self.chainfunc)
         self.sinkpad.set_event_function(self.eventfunc)
+        self.sinkpad.set_setcaps_function(self.setcaps)
         self.add_pad(self.sinkpad)
 
         self.srcpad = gst.Pad(self._srcpadtemplate, "src")
@@ -45,10 +46,15 @@ class Packetizer(gst.Element):
 
         self._last_index = 0
         self._reset_fragment()
+        self._caps = None
 
     def _reset_fragment(self):
         self._fragment = []
         self._first_ts = gst.CLOCK_TIME_NONE
+
+    def setcaps(self, pad, caps):
+        self._caps = caps
+        return self.srcpad.set_caps(caps)
 
     def chainfunc(self, pad, buf):
         if buf.flag_is_set(gst.BUFFER_FLAG_IN_CAPS):
@@ -87,6 +93,7 @@ class Packetizer(gst.Element):
             buf.duration = lb.timestamp + lb.duration - self._first_ts
         else:
             buf.duration = s['timestamp'] - self._first_ts
+        buf.set_caps(self._caps)
 
         self._reset_fragment()
         return self.srcpad.push(buf)
