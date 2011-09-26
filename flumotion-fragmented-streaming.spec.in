@@ -4,8 +4,8 @@ Release:        1_@PACKAGE_VERSION_RELEASE@
 Summary:        Flumotion fragmented streaming support.
 
 Group:          Applications/Internet
-License:        Proprietary
-URL:            http://www.flumotion.com/
+License:        LGPL
+URL:            http://www.flumotion.net/
 Source:         %{name}-%{version}.tar.bz2
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root
 
@@ -40,7 +40,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc ChangeLog COPYING README AUTHORS LICENSE.Flumotion
+%doc ChangeLog COPYING README AUTHORS LICENSE.LGPL
 %{_libdir}/flumotion
 
 %changelog

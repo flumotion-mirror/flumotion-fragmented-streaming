@@ -11,7 +11,7 @@ SUBDIRS = flumotion common misc
 
 EXTRA_DIST = \
 	env\
-	LICENSE.Flumotion \
+	LICENSE.LGPL \
 	flumotion-fragmented-streaming.spec
 
 PYCHECKER_WHITELIST = flumotion/component/*/*/*.py
