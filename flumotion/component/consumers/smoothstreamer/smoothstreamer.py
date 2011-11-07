@@ -49,6 +49,7 @@ DEFAULT_DVR_WINDOW = 20
 class SmoothHTTPLiveStreamer(FragmentedStreamer):
 
     logCategory = 'smooth-streamer'
+    dropStreamHeaders = False
 
     def init(self):
         self.store = FragmentStore()
