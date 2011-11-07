@@ -50,9 +50,10 @@ class Packetizer(gst.Element):
         self._reset_fragment()
         self._caps = None
 
-    def _reset_fragment(self):
+    def _reset_fragment(self, last_event_ts=gst.CLOCK_TIME_NONE):
         self._fragment = []
         self._first_ts = gst.CLOCK_TIME_NONE
+        self._last_event_ts = last_event_ts
 
     def setcaps(self, pad, caps):
         self._caps = caps
@@ -74,7 +75,9 @@ class Packetizer(gst.Element):
                 s.get_name() != 'GstForceKeyUnit':
             return pad.event_default(event)
 
-        if len(self._fragment) == 0:
+        if self._last_event_ts == gst.CLOCK_TIME_NONE or \
+            len(self._fragment) == 0:
+            self._reset_fragment(s['timestamp'])
             return True
 
         index = s['count']
@@ -82,7 +85,7 @@ class Packetizer(gst.Element):
             self.warning("Received GstForceKeyunit event with backward "
                          "timestamps")
             self._last_index = index
-            self._reset_fragment()
+            self._reset_fragment(s['timestamp'])
             return True
         self._last_index = index
 
@@ -94,10 +97,10 @@ class Packetizer(gst.Element):
         if lb.duration != gst.CLOCK_TIME_NONE:
             buf.duration = lb.timestamp + lb.duration - self._first_ts
         else:
-            buf.duration = s['timestamp'] - self._first_ts
+            buf.duration = s['timestamp'] - self._last_event_ts
         buf.set_caps(self._caps)
 
-        self._reset_fragment()
+        self._reset_fragment(s['timestamp'])
         return self.srcpad.push(buf)
 
 
