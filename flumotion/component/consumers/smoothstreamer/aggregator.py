@@ -45,6 +45,7 @@ class FMP4Aggregator(feedcomponent.ParseLaunchComponent):
     the track id, which would be 1 for all them otherwise.
     '''
     logCategory = 'fmp4-aggregator'
+    dropStreamHeaders = False
 
     _moov = None
     _streamheaders = None
