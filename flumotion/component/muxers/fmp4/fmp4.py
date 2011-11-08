@@ -58,4 +58,4 @@ class FMP4(feedcomponent.MuxerComponent):
         if self.duration:
             return '%s fragment-method=1 fragment-duration=%s' % \
                     (muxer, self.duration)
-        return '%s fragment-method=2 ! flupacketizer' % muxer
+        return '%s fragment-method=2 dts-method=2 ! flupacketizer' % muxer
