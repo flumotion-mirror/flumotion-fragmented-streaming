@@ -10,6 +10,7 @@
 *Makefile.in
 
 # Ignore autocrap
+*~
 .version
 ABOUT-NLS
 CangeLog.tmp
@@ -82,6 +83,9 @@ flumotion/extern/fdpass/.deps/
 flumotion/extern/fdpass/fdpass.so
 flumotion/extern/fdpass/fdpass_so-fdpass.o
 flumotion/project/flumotion.locale.xml
+flumotion/project/fragmentedstreaming.py
+flumotion/test/setup.py
+misc/setup.py
 misc/flumotion-verify-config
 pkgconfig/flumotion-uninstalled.pc
 pkgconfig/flumotion.pc
